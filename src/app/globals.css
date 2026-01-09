@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fefdf8;
+  --foreground: #573d33;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* カスタムスクロールバー */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0e9e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cdb59d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b89577;
+}
+
+/* 動的なTailwindクラスのsafelist用 */
+.bg-wheat-500 { background-color: #e6bc2e; }
+.bg-earth-500 { background-color: #a87d5c; }
+.bg-leaf-500 { background-color: #539758; }
+.bg-silo-500 { background-color: #607b98; }
