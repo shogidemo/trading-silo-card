@@ -1,36 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCollection } from "@/context/CollectionContext";
-import { CATEGORY_INFO, CardCategory, Card, Quiz } from "@/types";
-import { quizzes } from "@/data/quizzes";
-import { grains } from "@/data/grains";
-import { traders } from "@/data/traders";
-import { silos } from "@/data/silos";
+import { CardCategory, Card, Quiz } from "@/types";
+import { CATEGORY_INFO } from "@/constants";
+import { quizzes, allCards } from "@/data";
+import { containerVariants, itemVariants, getCategoryColors } from "@/lib";
 import CardReveal from "@/components/Card/CardReveal";
 
 type QuizState = "select" | "quiz" | "result" | "reveal";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: { type: "spring" as const, stiffness: 100, damping: 12 },
-  },
-};
 
 export default function QuizPage() {
   const [quizState, setQuizState] = useState<QuizState>("select");
@@ -49,11 +28,6 @@ export default function QuizPage() {
     incrementCorrectAnswers,
     getCategoryProgress,
   } = useCollection();
-
-  const allCards = useMemo(
-    () => [...grains, ...traders, ...silos],
-    []
-  );
 
   const getRandomQuiz = (category: CardCategory) => {
     const categoryQuizzes = quizzes.filter((q) => q.category === category);
@@ -110,30 +84,6 @@ export default function QuizPage() {
     setCurrentQuiz(null);
     setSelectedCategory(null);
     setQuizState("select");
-  };
-
-  const getCategoryColors = (id: CardCategory) => {
-    const colors = {
-      silo: {
-        gradient: "from-slate-600 to-slate-700",
-        bg: "bg-slate-100",
-        text: "text-slate-700",
-        border: "border-slate-300",
-      },
-      grain: {
-        gradient: "from-gold-500 to-gold-600",
-        bg: "bg-gold-50",
-        text: "text-gold-700",
-        border: "border-gold-300",
-      },
-      trader: {
-        gradient: "from-concrete-600 to-concrete-700",
-        bg: "bg-concrete-100",
-        text: "text-concrete-700",
-        border: "border-concrete-300",
-      },
-    };
-    return colors[id];
   };
 
   return (

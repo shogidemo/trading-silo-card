@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CATEGORY_INFO } from "@/types";
+import { Card } from "@/types";
+import { CATEGORY_INFO } from "@/constants";
 
 interface CardDetailProps {
   card: Card;

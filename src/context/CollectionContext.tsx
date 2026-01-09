@@ -8,11 +8,8 @@ import {
   ReactNode,
 } from "react";
 import { CollectionState, CardCategory } from "@/types";
-import { grains } from "@/data/grains";
-import { traders } from "@/data/traders";
-import { silos } from "@/data/silos";
-
-const STORAGE_KEY = "silo-card-collection";
+import { STORAGE_KEY } from "@/constants";
+import { allCards } from "@/data";
 
 const initialState: CollectionState = {
   collectedCardIds: [],
@@ -97,10 +94,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const getAllCards = () => [...grains, ...traders, ...silos];
-
   const getProgress = () => {
-    const allCards = getAllCards();
     const total = allCards.length;
     const collected = state.collectedCardIds.length;
     const percentage = total > 0 ? Math.round((collected / total) * 100) : 0;
@@ -108,7 +102,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   };
 
   const getCategoryProgress = (category: CardCategory) => {
-    const categoryCards = getAllCards().filter((c) => c.category === category);
+    const categoryCards = allCards.filter((c) => c.category === category);
     const total = categoryCards.length;
     const collected = categoryCards.filter((c) =>
       state.collectedCardIds.includes(c.id)

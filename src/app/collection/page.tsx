@@ -3,31 +3,11 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCollection } from "@/context/CollectionContext";
-import { CATEGORY_INFO, CardCategory, Card } from "@/types";
-import { grains } from "@/data/grains";
-import { traders } from "@/data/traders";
-import { silos } from "@/data/silos";
+import { CardCategory, Card } from "@/types";
+import { CATEGORY_INFO } from "@/constants";
+import { allCards } from "@/data";
+import { containerVariants, itemVariants, getCategoryColors, getRarityStyles } from "@/lib";
 import CardDetail from "@/components/Card/CardDetail";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: { type: "spring" as const, stiffness: 100, damping: 12 },
-  },
-};
 
 export default function CollectionPage() {
   const [selectedCategory, setSelectedCategory] = useState<CardCategory | "all">(
@@ -36,55 +16,12 @@ export default function CollectionPage() {
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const { hasCard, getProgress, getCategoryProgress } = useCollection();
 
-  const allCards = useMemo(() => [...grains, ...traders, ...silos], []);
-
   const filteredCards = useMemo(() => {
     if (selectedCategory === "all") return allCards;
     return allCards.filter((card) => card.category === selectedCategory);
-  }, [allCards, selectedCategory]);
+  }, [selectedCategory]);
 
   const progress = getProgress();
-
-  const getCategoryColors = (id: CardCategory) => {
-    const colors = {
-      silo: {
-        gradient: "from-slate-600 to-slate-700",
-        bg: "bg-slate-500",
-      },
-      grain: {
-        gradient: "from-gold-500 to-gold-600",
-        bg: "bg-gold-500",
-      },
-      trader: {
-        gradient: "from-concrete-600 to-concrete-700",
-        bg: "bg-concrete-600",
-      },
-    };
-    return colors[id];
-  };
-
-  const getRarityStyles = (rarity: string) => {
-    switch (rarity) {
-      case "legendary":
-        return {
-          badge: "bg-gold-500 text-gold-900",
-          stars: "★★★",
-          glow: "shadow-[0_0_20px_rgba(212,169,55,0.4)]",
-        };
-      case "rare":
-        return {
-          badge: "bg-harvest-500 text-white",
-          stars: "★★",
-          glow: "shadow-[0_0_15px_rgba(107,142,35,0.3)]",
-        };
-      default:
-        return {
-          badge: "bg-concrete-400 text-white",
-          stars: "★",
-          glow: "",
-        };
-    }
-  };
 
   return (
     <motion.div

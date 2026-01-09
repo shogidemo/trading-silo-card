@@ -3,27 +3,8 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useCollection } from "@/context/CollectionContext";
-import { CATEGORY_INFO } from "@/types";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 30, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: { type: "spring" as const, stiffness: 100, damping: 12 },
-  },
-};
+import { CATEGORY_INFO } from "@/constants";
+import { containerVariants, itemVariants } from "@/lib";
 
 export default function Home() {
   const { getProgress, getCategoryProgress, state } = useCollection();

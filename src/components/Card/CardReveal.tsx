@@ -2,7 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Card, CATEGORY_INFO } from "@/types";
+import { Card } from "@/types";
+import { CATEGORY_INFO } from "@/constants";
+import { getRarityStyles } from "@/lib";
 
 interface CardRevealProps {
   card: Card;
@@ -48,39 +50,7 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  const getRarityStyles = () => {
-    switch (card.rarity) {
-      case "legendary":
-        return {
-          gradient: "from-gold-400 via-gold-500 to-gold-600",
-          glow: "shadow-[0_0_60px_rgba(212,169,55,0.6)]",
-          border: "border-2 border-gold-400",
-          label: "レジェンダリー",
-          labelBg: "bg-gold-900/80 text-gold-300",
-          holographic: true,
-        };
-      case "rare":
-        return {
-          gradient: "from-harvest-400 via-harvest-500 to-harvest-600",
-          glow: "shadow-[0_0_40px_rgba(107,142,35,0.5)]",
-          border: "border-2 border-harvest-400",
-          label: "レア",
-          labelBg: "bg-harvest-800/80 text-harvest-200",
-          holographic: false,
-        };
-      default:
-        return {
-          gradient: "from-concrete-400 via-concrete-500 to-concrete-600",
-          glow: "",
-          border: "border border-concrete-300",
-          label: "コモン",
-          labelBg: "bg-concrete-700/80 text-concrete-200",
-          holographic: false,
-        };
-    }
-  };
-
-  const rarityStyles = getRarityStyles();
+  const rarityStyles = getRarityStyles(card.rarity);
 
   const getCardDetails = () => {
     if (card.category === "grain") {
