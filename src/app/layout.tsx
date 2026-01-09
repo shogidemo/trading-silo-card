@@ -1,14 +1,26 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Playfair_Display, Source_Serif_4, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { CollectionProvider } from "@/context/CollectionContext";
 import Header from "@/components/Layout/Header";
 import Navigation from "@/components/Layout/Navigation";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-source-serif",
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -25,11 +37,16 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${geistSans.variable} font-sans antialiased bg-wheat-50 min-h-screen`}
+        className={`${playfair.variable} ${sourceSerif.variable} ${jetbrains.variable} font-body antialiased min-h-screen`}
       >
+        {/* 背景グラデーションメッシュ */}
+        <div className="fixed inset-0 -z-20 gradient-mesh" />
+        {/* ノイズテクスチャオーバーレイ */}
+        <div className="fixed inset-0 -z-10 noise-overlay pointer-events-none" />
+
         <CollectionProvider>
           <Header />
-          <main className="pb-20">{children}</main>
+          <main className="pb-24 relative">{children}</main>
           <Navigation />
         </CollectionProvider>
       </body>

@@ -3,43 +3,255 @@
 @tailwind utilities;
 
 :root {
-  --background: #fefdf8;
-  --foreground: #573d33;
+  --background: #faf9f7;
+  --foreground: #2a2520;
+  --gold-primary: #b8860b;
+  --concrete-light: #f0ede8;
+  --harvest-accent: #6b8e23;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
+@layer base {
+  body {
+    color: var(--foreground);
+    background: var(--background);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-playfair), Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* 選択時のハイライト */
+  ::selection {
+    background-color: #f2d67a;
+    color: #3d2e06;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+
+  .font-display {
+    font-family: var(--font-playfair), Georgia, serif;
+  }
+
+  .font-body {
+    font-family: var(--font-source-serif), Georgia, serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-jetbrains), monospace;
+  }
+}
+
+/* グラデーションメッシュ背景 */
+.gradient-mesh {
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(253, 246, 220, 0.6) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(232, 240, 216, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(240, 237, 232, 0.3) 0%, transparent 70%),
+    linear-gradient(180deg, #faf9f7 0%, #f0ede8 100%);
+}
+
+/* ノイズテクスチャオーバーレイ */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  mix-blend-mode: multiply;
 }
 
 /* カスタムスクロールバー */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f0e9e1;
-  border-radius: 4px;
+  background: #f0ede8;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cdb59d;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #c9c1b4 0%, #9c9586 100%);
+  border-radius: 5px;
+  border: 2px solid #f0ede8;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #b89577;
+  background: linear-gradient(180deg, #9c9586 0%, #7a7265 100%);
+}
+
+/* ホログラフィック効果 */
+.holographic {
+  background: linear-gradient(
+    135deg,
+    hsl(0, 70%, 70%) 0%,
+    hsl(60, 70%, 70%) 20%,
+    hsl(120, 70%, 70%) 40%,
+    hsl(180, 70%, 70%) 60%,
+    hsl(240, 70%, 70%) 80%,
+    hsl(300, 70%, 70%) 100%
+  );
+  background-size: 400% 400%;
+  animation: shimmer 3s ease infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* カード3D効果 */
+.card-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.card-3d:hover {
+  transform: rotateX(5deg) rotateY(-5deg) translateY(-8px);
+}
+
+/* ヴィンテージカード枠 */
+.vintage-border {
+  border: 2px solid #c9c1b4;
+  box-shadow:
+    inset 0 0 0 1px #f0ede8,
+    inset 0 0 0 3px #e0dbd2,
+    0 4px 6px -1px rgba(42, 37, 32, 0.1),
+    0 2px 4px -2px rgba(42, 37, 32, 0.1);
+}
+
+/* 光の放射エフェクト */
+.radial-glow {
+  position: relative;
+}
+
+.radial-glow::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    circle,
+    rgba(184, 134, 11, 0.3) 0%,
+    rgba(184, 134, 11, 0.1) 40%,
+    transparent 70%
+  );
+  animation: pulse-glow 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* パーティクルコンテナ */
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #d4a937;
+  border-radius: 50%;
+  animation: particle-float 3s ease-out forwards;
+}
+
+@keyframes particle-float {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-200px) rotate(720deg);
+  }
+}
+
+/* ボタンホバー効果 */
+.btn-bounce {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-bounce:hover {
+  transform: scale(1.05);
+}
+
+.btn-bounce:active {
+  transform: scale(0.98);
+}
+
+/* プログレスバーアニメーション */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progress-shine 2s ease-in-out infinite;
+}
+
+@keyframes progress-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 下線アニメーション */
+.underline-animation {
+  position: relative;
+}
+
+.underline-animation::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--gold-primary);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.underline-animation:hover::after,
+.underline-animation.active::after {
+  width: 100%;
+}
+
+/* アクセシビリティ: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* 動的なTailwindクラスのsafelist用 */
-.bg-wheat-500 { background-color: #e6bc2e; }
-.bg-earth-500 { background-color: #a87d5c; }
-.bg-leaf-500 { background-color: #539758; }
+.bg-wheat-500 { background-color: #b8860b; }
+.bg-earth-500 { background-color: #7a7265; }
+.bg-leaf-500 { background-color: #6b8e23; }
 .bg-silo-500 { background-color: #607b98; }
+.bg-gold-500 { background-color: #b8860b; }
+.bg-harvest-400 { background-color: #6b8e23; }
+.bg-concrete-700 { background-color: #4a453a; }
+.bg-rust-500 { background-color: #b7410e; }

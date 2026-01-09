@@ -12,6 +12,26 @@ import CardReveal from "@/components/Card/CardReveal";
 
 type QuizState = "select" | "quiz" | "result" | "reveal";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring" as const, stiffness: 100, damping: 12 },
+  },
+};
+
 export default function QuizPage() {
   const [quizState, setQuizState] = useState<QuizState>("select");
   const [selectedCategory, setSelectedCategory] = useState<CardCategory | null>(
@@ -92,40 +112,94 @@ export default function QuizPage() {
     setQuizState("select");
   };
 
+  const getCategoryColors = (id: CardCategory) => {
+    const colors = {
+      silo: {
+        gradient: "from-slate-600 to-slate-700",
+        bg: "bg-slate-100",
+        text: "text-slate-700",
+        border: "border-slate-300",
+      },
+      grain: {
+        gradient: "from-gold-500 to-gold-600",
+        bg: "bg-gold-50",
+        text: "text-gold-700",
+        border: "border-gold-300",
+      },
+      trader: {
+        gradient: "from-concrete-600 to-concrete-700",
+        bg: "bg-concrete-100",
+        text: "text-concrete-700",
+        border: "border-concrete-300",
+      },
+    };
+    return colors[id];
+  };
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-6 py-10">
       <AnimatePresence mode="wait">
         {/* カテゴリ選択 */}
         {quizState === "select" && (
           <motion.div
             key="select"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
             exit={{ opacity: 0, y: -20 }}
           >
-            <h2 className="text-2xl font-bold text-earth-800 mb-6 text-center">
-              カテゴリを選択
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <motion.div variants={itemVariants} className="text-center mb-10">
+              <h2 className="font-display text-3xl sm:text-4xl text-concrete-900 mb-3">
+                カテゴリを選択
+              </h2>
+              <p className="text-concrete-600">
+                クイズに正解してカードをゲットしよう
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {CATEGORY_INFO.map((category) => {
                 const progress = getCategoryProgress(category.id);
+                const colors = getCategoryColors(category.id);
                 return (
-                  <button
+                  <motion.button
                     key={category.id}
+                    variants={itemVariants}
                     onClick={() => handleCategorySelect(category.id)}
-                    className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all hover:scale-105 text-left"
+                    className="group vintage-border rounded-2xl overflow-hidden bg-concrete-50 text-left transition-all duration-300 hover:shadow-xl"
+                    whileHover={{ y: -8 }}
                   >
-                    <span className="text-4xl block mb-3">{category.icon}</span>
-                    <h3 className="text-xl font-bold text-earth-700 mb-1">
-                      {category.name}
-                    </h3>
-                    <p className="text-sm text-earth-500 mb-3">
-                      {category.description}
-                    </p>
-                    <p className="text-xs text-earth-400">
-                      {progress.collected}/{progress.total} カード獲得済み
-                    </p>
-                  </button>
+                    {/* カテゴリヘッダー */}
+                    <div className={`bg-gradient-to-br ${colors.gradient} p-5 text-white`}>
+                      <span className="text-4xl block mb-2 group-hover:scale-110 transition-transform">
+                        {category.icon}
+                      </span>
+                      <h3 className="font-display text-xl">{category.name}</h3>
+                      <p className="text-xs opacity-80 uppercase tracking-wider">
+                        {category.nameEn}
+                      </p>
+                    </div>
+
+                    {/* カテゴリ詳細 */}
+                    <div className="p-5">
+                      <p className="text-sm text-concrete-600 mb-4">
+                        {category.description}
+                      </p>
+
+                      {/* プログレス */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-1.5 bg-concrete-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full bg-gradient-to-r ${colors.gradient}`}
+                            style={{ width: `${progress.percentage}%` }}
+                          />
+                        </div>
+                        <span className="font-mono text-sm text-concrete-600">
+                          {progress.collected}/{progress.total}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.button>
                 );
               })}
             </div>
@@ -140,46 +214,67 @@ export default function QuizPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">
-                  {CATEGORY_INFO.find((c) => c.id === selectedCategory)?.icon}
-                </span>
-                <span className="text-sm text-earth-500">
-                  {CATEGORY_INFO.find((c) => c.id === selectedCategory)?.name}
-                  クイズ
-                </span>
+            <div className="vintage-border bg-concrete-50 rounded-2xl overflow-hidden mb-6">
+              {/* クイズヘッダー */}
+              <div className={`bg-gradient-to-r ${getCategoryColors(selectedCategory!).gradient} p-5 text-white`}>
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">
+                    {CATEGORY_INFO.find((c) => c.id === selectedCategory)?.icon}
+                  </span>
+                  <div>
+                    <span className="text-xs opacity-80 uppercase tracking-wider block">
+                      {CATEGORY_INFO.find((c) => c.id === selectedCategory)?.nameEn} Quiz
+                    </span>
+                    <span className="font-display">
+                      {CATEGORY_INFO.find((c) => c.id === selectedCategory)?.name}クイズ
+                    </span>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-earth-800 mb-6">
-                {currentQuiz.question}
-              </h3>
-              <div className="space-y-3">
-                {currentQuiz.options.map((option, index) => {
-                  let bgColor = "bg-earth-50 hover:bg-earth-100";
-                  if (selectedAnswer !== null) {
-                    if (option.isCorrect) {
-                      bgColor = "bg-leaf-100 border-leaf-500";
-                    } else if (index === selectedAnswer && !option.isCorrect) {
-                      bgColor = "bg-red-100 border-red-500";
+
+              {/* 質問 */}
+              <div className="p-6">
+                <h3 className="font-display text-xl sm:text-2xl text-concrete-900 mb-8 leading-relaxed">
+                  {currentQuiz.question}
+                </h3>
+
+                {/* 選択肢 */}
+                <div className="space-y-3">
+                  {currentQuiz.options.map((option, index) => {
+                    let styleClass = "bg-white border-concrete-200 hover:border-gold-400 hover:bg-gold-50";
+                    let labelClass = "bg-concrete-200 text-concrete-600";
+
+                    if (selectedAnswer !== null) {
+                      if (option.isCorrect) {
+                        styleClass = "bg-harvest-50 border-harvest-500";
+                        labelClass = "bg-harvest-500 text-white";
+                      } else if (index === selectedAnswer && !option.isCorrect) {
+                        styleClass = "bg-rust-50 border-rust-500";
+                        labelClass = "bg-rust-500 text-white";
+                      }
                     }
-                  }
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => handleAnswer(index)}
-                      disabled={selectedAnswer !== null}
-                      className={`w-full text-left p-4 rounded-xl border-2 border-transparent transition-all ${bgColor} ${
-                        selectedAnswer === null
-                          ? "cursor-pointer"
-                          : "cursor-default"
-                      }`}
-                    >
-                      <span className="font-medium text-earth-700">
-                        {String.fromCharCode(65 + index)}. {option.text}
-                      </span>
-                    </button>
-                  );
-                })}
+
+                    return (
+                      <motion.button
+                        key={index}
+                        onClick={() => handleAnswer(index)}
+                        disabled={selectedAnswer !== null}
+                        className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3 ${styleClass} ${
+                          selectedAnswer === null ? "cursor-pointer" : "cursor-default"
+                        }`}
+                        whileHover={selectedAnswer === null ? { x: 8 } : {}}
+                        whileTap={selectedAnswer === null ? { scale: 0.98 } : {}}
+                      >
+                        <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-mono text-sm font-bold flex-shrink-0 ${labelClass}`}>
+                          {String.fromCharCode(65 + index)}
+                        </span>
+                        <span className="text-concrete-800 pt-1">
+                          {option.text}
+                        </span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -193,51 +288,79 @@ export default function QuizPage() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
           >
-            <div
-              className={`text-center mb-6 p-8 rounded-2xl ${
+            {/* 結果バナー */}
+            <motion.div
+              initial={{ y: -20 }}
+              animate={{ y: 0 }}
+              className={`text-center mb-8 p-10 rounded-2xl vintage-border ${
                 isCorrect
-                  ? "bg-gradient-to-r from-leaf-100 to-wheat-100"
-                  : "bg-earth-100"
+                  ? "bg-gradient-to-br from-harvest-50 to-gold-50"
+                  : "bg-gradient-to-br from-concrete-100 to-concrete-50"
               }`}
             >
-              <span className="text-6xl block mb-4">
-                {isCorrect ? "🎉" : "😢"}
-              </span>
-              <h3
-                className={`text-2xl font-bold mb-2 ${
-                  isCorrect ? "text-leaf-700" : "text-earth-600"
-                }`}
+              <motion.span
+                className="text-7xl block mb-4"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", delay: 0.2 }}
               >
+                {isCorrect ? "🎉" : "😢"}
+              </motion.span>
+              <h3 className={`font-display text-3xl mb-2 ${
+                isCorrect ? "text-harvest-700" : "text-concrete-600"
+              }`}>
                 {isCorrect ? "正解！" : "残念..."}
               </h3>
               {earnedCard && (
-                <p className="text-leaf-600 font-bold mb-4">
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-gold-600 font-display text-lg"
+                >
                   新しいカードを獲得しました！
-                </p>
+                </motion.p>
               )}
-            </div>
+            </motion.div>
 
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-              <h4 className="font-bold text-earth-700 mb-2">解説</h4>
-              <p className="text-earth-600">{currentQuiz.explanation}</p>
-            </div>
+            {/* 解説 */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="vintage-border bg-concrete-50 rounded-2xl p-6 mb-6"
+            >
+              <h4 className="font-display text-lg text-concrete-800 mb-3 flex items-center gap-2">
+                <svg className="w-5 h-5 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                解説
+              </h4>
+              <p className="text-concrete-700 leading-relaxed">{currentQuiz.explanation}</p>
+            </motion.div>
 
-            <div className="flex gap-4">
+            {/* アクションボタン */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex gap-4"
+            >
               {earnedCard && (
                 <button
                   onClick={handleShowCard}
-                  className="flex-1 bg-wheat-500 hover:bg-wheat-600 text-white font-bold py-4 px-6 rounded-xl transition-colors"
+                  className="flex-1 bg-gold-500 hover:bg-gold-600 text-gold-900 font-display text-lg py-4 px-6 rounded-xl shadow-lg transition-all btn-bounce"
                 >
                   カードを見る
                 </button>
               )}
               <button
                 onClick={handleNext}
-                className="flex-1 bg-leaf-600 hover:bg-leaf-700 text-white font-bold py-4 px-6 rounded-xl transition-colors"
+                className="flex-1 bg-concrete-900 hover:bg-concrete-800 text-gold-400 font-display text-lg py-4 px-6 rounded-xl shadow-lg transition-all btn-bounce"
               >
                 次のクイズへ
               </button>
-            </div>
+            </motion.div>
           </motion.div>
         )}
 
