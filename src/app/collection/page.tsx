@@ -1,19 +1,18 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useCollection } from "@/context/CollectionContext";
-import { CardCategory, Card } from "@/types";
+import { CardCategory } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
 import { allCards } from "@/data";
-import { containerVariants, itemVariants, getCategoryColors, getRarityStyles } from "@/lib";
-import CardDetail from "@/components/Card/CardDetail";
+import { containerVariants, itemVariants, getCategoryColors } from "@/lib";
+import FlipCard from "@/components/Card/FlipCard";
 
 export default function CollectionPage() {
   const [selectedCategory, setSelectedCategory] = useState<CardCategory | "all">(
     "all"
   );
-  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const { hasCard, getProgress, getCategoryProgress } = useCollection();
 
   const filteredCards = useMemo(() => {
@@ -98,91 +97,22 @@ export default function CollectionPage() {
         })}
       </motion.div>
 
-      {/* カード一覧 - Masonry風グリッド */}
+      {/* カード一覧 - ダムカード風グリッド */}
       <motion.div
         variants={containerVariants}
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
       >
-        {filteredCards.map((card, index) => {
+        {filteredCards.map((card) => {
           const isCollected = hasCard(card.id);
-          const categoryInfo = CATEGORY_INFO.find(
-            (c) => c.id === card.category
-          );
-          const categoryColors = getCategoryColors(card.category);
-          const rarityStyles = getRarityStyles(card.rarity);
-
-          // ランダムな傾きを追加（収集済みのカードのみ）
-          const rotation = isCollected ? (index % 3 - 1) * 1.5 : 0;
 
           return (
-            <motion.button
+            <motion.div
               key={card.id}
               variants={itemVariants}
-              onClick={() => isCollected && setSelectedCard(card)}
-              disabled={!isCollected}
-              className={`relative vintage-border rounded-xl overflow-hidden transition-all ${
-                isCollected
-                  ? `hover:shadow-xl cursor-pointer ${rarityStyles.glow}`
-                  : "cursor-not-allowed opacity-60"
-              }`}
-              whileHover={isCollected ? { y: -8, rotate: 0, scale: 1.02 } : {}}
-              style={{ rotate: rotation }}
+              whileHover={isCollected ? { y: -4, scale: 1.02 } : {}}
             >
-              {/* カードプレビュー */}
-              <div
-                className={`aspect-[3/4] p-4 flex flex-col ${
-                  isCollected
-                    ? "bg-gradient-to-br from-concrete-50 to-white"
-                    : "bg-concrete-200"
-                }`}
-              >
-                {isCollected ? (
-                  <>
-                    {/* レアリティバッジ */}
-                    {card.rarity !== "common" && (
-                      <div className="absolute top-2 right-2">
-                        <span className={`text-xs px-2 py-1 rounded-full font-mono ${rarityStyles.badge}`}>
-                          {rarityStyles.stars}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* ホログラフィック効果（レジェンダリー） */}
-                    {card.rarity === "legendary" && (
-                      <div className="absolute inset-0 holographic opacity-10 pointer-events-none" />
-                    )}
-
-                    <span className="text-4xl mb-auto">{categoryInfo?.icon}</span>
-                    <div>
-                      <h3 className="font-display text-concrete-900 text-sm mb-1 line-clamp-1">
-                        {card.name}
-                      </h3>
-                      <p className="text-xs text-concrete-500 line-clamp-2 leading-relaxed">
-                        {card.description}
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <span className="text-5xl mb-3 opacity-20">?</span>
-                    <p className="text-xs text-concrete-400 font-mono uppercase tracking-wider">
-                      未獲得
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* カテゴリラベル */}
-              <div
-                className={`text-xs py-1.5 text-center text-white ${
-                  isCollected ? categoryColors.bg : "bg-concrete-400"
-                }`}
-              >
-                <span className="font-display tracking-wider">
-                  {categoryInfo?.name}
-                </span>
-              </div>
-            </motion.button>
+              <FlipCard card={card} isCollected={isCollected} />
+            </motion.div>
           );
         })}
       </motion.div>
@@ -234,12 +164,6 @@ export default function CollectionPage() {
         </div>
       </motion.div>
 
-      {/* カード詳細モーダル */}
-      <AnimatePresence>
-        {selectedCard && (
-          <CardDetail card={selectedCard} onClose={() => setSelectedCard(null)} />
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }

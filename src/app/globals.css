@@ -114,6 +114,19 @@
   transform: rotateX(5deg) rotateY(-5deg) translateY(-8px);
 }
 
+/* フリップカード用3D効果 */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
 /* ヴィンテージカード枠 */
 .vintage-border {
   border: 2px solid #c9c1b4;
