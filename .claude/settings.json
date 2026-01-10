@@ -47,11 +47,6 @@
       "Bash(xargs ls:*)",
       "Bash(xargs:*)",
       "Skill(xlsx)",
-      "WebFetch(domain:bff.tradewaltz-dev.net)",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:note.com)",
-      "WebFetch(domain:tw20200401.sharepoint.com)",
-      "WebFetch(domain:www.amazon.co.jp)",
       "WebSearch",
       "mcp__filesystem__create_directory",
       "mcp__filesystem__directory_tree",
@@ -63,7 +58,10 @@
       "mcp__plugin_playwright_playwright__browser_navigate",
       "mcp__plugin_playwright_playwright__browser_take_screenshot",
       "mcp__plugin_playwright_playwright__browser_click",
-      "mcp__plugin_playwright_playwright__browser_snapshot"
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "WebFetch",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)"
     ],
     "deny": [
       "Bash(fdisk:*)",
@@ -76,7 +74,7 @@
       "Read(.env.*)"
     ],
     "ask": [
-      "Bash(curl:*)"
+
     ],
     "defaultMode": "plan"
   },
