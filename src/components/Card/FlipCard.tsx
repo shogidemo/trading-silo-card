@@ -102,6 +102,19 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
         >
           {isCollected ? (
             <div className="relative h-full flex flex-col bg-gradient-to-br from-concrete-100 to-white">
+              {/* シマーエフェクト（収集済み） */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent z-10 pointer-events-none"
+                animate={{
+                  x: ['-200%', '200%'],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  repeatDelay: card.rarity === 'legendary' ? 1 : card.rarity === 'rare' ? 2 : 3,
+                  ease: "easeInOut"
+                }}
+              />
               {/* ホログラフィック効果（レジェンダリー） */}
               {card.rarity === "legendary" && (
                 <div className="absolute inset-0 holographic opacity-20 pointer-events-none" />

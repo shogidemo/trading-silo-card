@@ -3,7 +3,6 @@ import { Playfair_Display, Source_Serif_4, JetBrains_Mono } from "next/font/goog
 import "./globals.css";
 import { CollectionProvider } from "@/context/CollectionContext";
 import Header from "@/components/Layout/Header";
-import Navigation from "@/components/Layout/Navigation";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -46,8 +45,7 @@ export default function RootLayout({
 
         <CollectionProvider>
           <Header />
-          <main className="pb-24 relative">{children}</main>
-          <Navigation />
+          <main className="relative">{children}</main>
         </CollectionProvider>
       </body>
     </html>
