@@ -51,7 +51,7 @@ export const traders: TraderCard[] = [
     description:
       "世界最大の穀物メジャー。非上場企業として世界最大の売上を誇る。",
     rarity: "legendary",
-    imageUrl: "/images/traders/cargill.png",
+    imageUrl: "/images/traders/cargill.svg",
     foundedYear: 1865,
     headquarters: "アメリカ・ミネソタ州",
     mainProducts: ["トウモロコシ", "大豆", "小麦", "綿花", "砂糖"],

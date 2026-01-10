@@ -120,20 +120,22 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
               </div>
 
               {/* メイン画像エリア */}
-              <div className="flex-1 relative overflow-hidden bg-concrete-200">
+              <div className={`flex-1 relative overflow-hidden ${card.category === "trader" ? "bg-white flex items-center justify-center p-4" : "bg-concrete-200"}`}>
                 {card.imageUrl ? (
                   <img
                     src={card.imageUrl}
                     alt={card.name}
-                    className="w-full h-full object-cover"
+                    className={`${card.category === "trader" ? "max-w-full max-h-full object-contain" : "w-full h-full object-cover"}`}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-concrete-100 to-concrete-200">
                     <span className="text-6xl">{categoryInfo?.icon}</span>
                   </div>
                 )}
-                {/* オーバーレイグラデーション */}
-                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
+                {/* オーバーレイグラデーション（商社以外） */}
+                {card.category !== "trader" && (
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
+                )}
               </div>
 
               {/* カード名 */}
