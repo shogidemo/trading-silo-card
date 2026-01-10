@@ -7,22 +7,30 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { CollectionState, CardCategory } from "@/types";
+import { CollectionState, CardCategory, CategoryStats } from "@/types";
 import { STORAGE_KEY } from "@/constants";
 import { allCards } from "@/data";
+
+const initialCategoryStats: Record<CardCategory, CategoryStats> = {
+  silo: { attempts: 0, correct: 0 },
+  grain: { attempts: 0, correct: 0 },
+  trader: { attempts: 0, correct: 0 },
+};
 
 const initialState: CollectionState = {
   collectedCardIds: [],
   totalQuizAttempts: 0,
   correctAnswers: 0,
+  wrongAnswerQuizIds: [],
+  categoryStats: initialCategoryStats,
 };
 
 interface CollectionContextType {
   state: CollectionState;
   addCard: (cardId: string) => void;
   hasCard: (cardId: string) => boolean;
-  incrementQuizAttempts: () => void;
-  incrementCorrectAnswers: () => void;
+  incrementQuizAttempts: (category: CardCategory) => void;
+  incrementCorrectAnswers: (category: CardCategory) => void;
   getProgress: () => {
     total: number;
     collected: number;
@@ -34,6 +42,11 @@ interface CollectionContextType {
     percentage: number;
   };
   resetCollection: () => void;
+  // 復習モード用メソッド
+  addWrongAnswer: (quizId: string) => void;
+  removeWrongAnswer: (quizId: string) => void;
+  getWrongAnswerQuizIds: () => string[];
+  getCategoryAccuracy: (category: CardCategory) => number;
 }
 
 const CollectionContext = createContext<CollectionContextType | undefined>(
@@ -44,12 +57,19 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<CollectionState>(initialState);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // localStorageから読み込み
+  // localStorageから読み込み（マイグレーション対応）
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
-        setState(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        // 旧フォーマットからのマイグレーション
+        setState({
+          ...initialState,
+          ...parsed,
+          wrongAnswerQuizIds: parsed.wrongAnswerQuizIds ?? [],
+          categoryStats: parsed.categoryStats ?? initialCategoryStats,
+        });
       } catch {
         setState(initialState);
       }
@@ -80,18 +100,61 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
     return state.collectedCardIds.includes(cardId);
   };
 
-  const incrementQuizAttempts = () => {
+  const incrementQuizAttempts = (category: CardCategory) => {
     setState((prev) => ({
       ...prev,
       totalQuizAttempts: prev.totalQuizAttempts + 1,
+      categoryStats: {
+        ...prev.categoryStats,
+        [category]: {
+          ...prev.categoryStats[category],
+          attempts: prev.categoryStats[category].attempts + 1,
+        },
+      },
     }));
   };
 
-  const incrementCorrectAnswers = () => {
+  const incrementCorrectAnswers = (category: CardCategory) => {
     setState((prev) => ({
       ...prev,
       correctAnswers: prev.correctAnswers + 1,
+      categoryStats: {
+        ...prev.categoryStats,
+        [category]: {
+          ...prev.categoryStats[category],
+          correct: prev.categoryStats[category].correct + 1,
+        },
+      },
     }));
+  };
+
+  const addWrongAnswer = (quizId: string) => {
+    setState((prev) => {
+      if (prev.wrongAnswerQuizIds.includes(quizId)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        wrongAnswerQuizIds: [...prev.wrongAnswerQuizIds, quizId],
+      };
+    });
+  };
+
+  const removeWrongAnswer = (quizId: string) => {
+    setState((prev) => ({
+      ...prev,
+      wrongAnswerQuizIds: prev.wrongAnswerQuizIds.filter((id) => id !== quizId),
+    }));
+  };
+
+  const getWrongAnswerQuizIds = () => {
+    return state.wrongAnswerQuizIds;
+  };
+
+  const getCategoryAccuracy = (category: CardCategory) => {
+    const stats = state.categoryStats[category];
+    if (stats.attempts === 0) return 0;
+    return Math.round((stats.correct / stats.attempts) * 100);
   };
 
   const getProgress = () => {
@@ -127,6 +190,10 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
         getProgress,
         getCategoryProgress,
         resetCollection,
+        addWrongAnswer,
+        removeWrongAnswer,
+        getWrongAnswerQuizIds,
+        getCategoryAccuracy,
       }}
     >
       {children}

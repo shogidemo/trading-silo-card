@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Card } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
+import { useModalAccessibility, useReducedMotion } from "@/hooks";
 
 interface CardDetailProps {
   card: Card;
@@ -11,6 +12,9 @@ interface CardDetailProps {
 
 export default function CardDetail({ card, onClose }: CardDetailProps) {
   const categoryInfo = CATEGORY_INFO.find((c) => c.id === card.category);
+  const { modalRef, handleKeyDown } = useModalAccessibility(true, onClose);
+  const prefersReducedMotion = useReducedMotion();
+  const titleId = `card-detail-title-${card.id}`;
 
   const getRarityStyles = () => {
     switch (card.rarity) {
@@ -130,17 +134,24 @@ export default function CardDetail({ card, onClose }: CardDetailProps) {
 
   return (
     <motion.div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      onKeyDown={handleKeyDown}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={prefersReducedMotion ? { duration: 0.1 } : undefined}
       className="fixed inset-0 z-50 flex items-center justify-center bg-concrete-900/80 backdrop-blur-sm px-4"
       onClick={onClose}
+      tabIndex={-1}
     >
       <motion.div
-        initial={{ scale: 0.9, y: 30, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.9, y: 30, opacity: 0 }}
-        transition={{ type: "spring", damping: 20 }}
+        initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0.9, y: 30, opacity: 0 }}
+        animate={prefersReducedMotion ? { opacity: 1 } : { scale: 1, y: 0, opacity: 1 }}
+        exit={prefersReducedMotion ? { opacity: 0 } : { scale: 0.9, y: 30, opacity: 0 }}
+        transition={prefersReducedMotion ? { duration: 0.1 } : { type: "spring", damping: 20 }}
         onClick={(e) => e.stopPropagation()}
         className={`w-full max-w-md vintage-border rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto ${rarityStyles.cardBg} ${rarityStyles.glow}`}
       >
@@ -179,9 +190,10 @@ export default function CardDetail({ card, onClose }: CardDetailProps) {
               </span>
             </div>
             <motion.h2
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.15 }}
+              id={titleId}
+              initial={prefersReducedMotion ? { opacity: 0 } : { x: -20, opacity: 0 }}
+              animate={prefersReducedMotion ? { opacity: 1 } : { x: 0, opacity: 1 }}
+              transition={prefersReducedMotion ? { duration: 0.1 } : { delay: 0.15 }}
               className="font-display text-3xl mb-1"
             >
               {card.name}

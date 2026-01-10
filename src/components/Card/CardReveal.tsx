@@ -2,9 +2,11 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Card } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
 import { getCategoryColors, getRarityStyles } from "@/lib";
+import { useModalAccessibility, useReducedMotion } from "@/hooks";
 
 interface CardRevealProps {
   card: Card;
@@ -45,12 +47,17 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
   const categoryColors = getCategoryColors(card.category);
   const rarityStyles = getRarityStyles(card.rarity);
   const [showParticles, setShowParticles] = useState(false);
+  const { modalRef, handleKeyDown } = useModalAccessibility(true, onClose);
+  const prefersReducedMotion = useReducedMotion();
+  const titleId = `card-reveal-title-${card.id}`;
 
   useEffect(() => {
-    // カード出現後にパーティクル表示
-    const timer = setTimeout(() => setShowParticles(true), 400);
-    return () => clearTimeout(timer);
-  }, []);
+    // カード出現後にパーティクル表示（reduced motion無効時のみ）
+    if (!prefersReducedMotion) {
+      const timer = setTimeout(() => setShowParticles(true), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [prefersReducedMotion]);
 
   const getRarityLabel = () => {
     switch (card.rarity) {
@@ -74,17 +81,29 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
 
   return (
     <motion.div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      onKeyDown={handleKeyDown}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={prefersReducedMotion ? { duration: 0.1 } : undefined}
       className="fixed inset-0 z-50 flex items-center justify-center bg-concrete-900/90 backdrop-blur-sm px-4"
       onClick={onClose}
+      tabIndex={-1}
     >
-      {/* 背景の放射状グロー */}
+      {/* スクリーンリーダー向け説明 */}
+      <span id={titleId} className="sr-only">
+        新しいカードを獲得しました。{card.name}カードです。
+      </span>
+
+      {/* 背景の放射状グロー（reduced motion無効時のみアニメーション） */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
+        initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={prefersReducedMotion ? { duration: 0.1 } : { duration: 0.5 }}
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
       >
         <div
@@ -98,9 +117,9 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
         />
       </motion.div>
 
-      {/* パーティクル */}
+      {/* パーティクル（reduced motion無効時のみ） */}
       <AnimatePresence>
-        {showParticles && card.rarity !== "common" && (
+        {!prefersReducedMotion && showParticles && card.rarity !== "common" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
             {particles.map((p) => (
               <Particle key={p.id} delay={p.delay} x={p.x} />
@@ -110,31 +129,43 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
       </AnimatePresence>
 
       <motion.div
-        initial={{ scale: 0, rotate: -180, y: 100 }}
-        animate={{ scale: 1, rotate: 0, y: 0 }}
-        transition={{
-          type: "spring",
-          stiffness: 200,
-          damping: 15,
-          delay: 0.1,
-        }}
+        initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0, rotate: -180, y: 100 }}
+        animate={prefersReducedMotion ? { opacity: 1 } : { scale: 1, rotate: 0, y: 0 }}
+        transition={
+          prefersReducedMotion
+            ? { duration: 0.1 }
+            : {
+                type: "spring",
+                stiffness: 200,
+                damping: 15,
+                delay: 0.1,
+              }
+        }
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-xs relative"
       >
         {/* カード本体 - FlipCardと同じデザイン */}
         <div className="relative">
-          {/* レアリティ外周グロー */}
+          {/* レアリティ外周グロー（reduced motion無効時のみアニメーション） */}
           {card.rarity !== "common" && (
             <motion.div
-              animate={{
-                opacity: [0.4, 0.8, 0.4],
-                scale: [1, 1.02, 1],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
+              animate={
+                prefersReducedMotion
+                  ? { opacity: 0.6 }
+                  : {
+                      opacity: [0.4, 0.8, 0.4],
+                      scale: [1, 1.02, 1],
+                    }
+              }
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0.1 }
+                  : {
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }
+              }
               className={`absolute -inset-1 rounded-xl bg-gradient-to-r ${rarityStyles.gradient} blur-lg`}
             />
           )}
@@ -143,19 +174,21 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
           <div
             className={`relative rounded-xl overflow-hidden vintage-border ${rarityStyles.glow}`}
           >
-            {/* シマーエフェクト */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent z-20 pointer-events-none"
-              animate={{
-                x: ['-200%', '200%'],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatDelay: 1,
-                ease: "easeInOut"
-              }}
-            />
+            {/* シマーエフェクト（reduced motion無効時のみ） */}
+            {!prefersReducedMotion && (
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent z-20 pointer-events-none"
+                animate={{
+                  x: ["-200%", "200%"],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatDelay: 1,
+                  ease: "easeInOut",
+                }}
+              />
+            )}
 
             {/* ホログラフィック効果（レジェンダリー） */}
             {card.rarity === "legendary" && (
@@ -177,10 +210,12 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
             {/* メイン画像エリア */}
             <div className={`aspect-[4/3] relative overflow-hidden ${card.category === "trader" ? "bg-white flex items-center justify-center p-4" : "bg-concrete-200"}`}>
               {card.imageUrl ? (
-                <img
+                <Image
                   src={card.imageUrl}
                   alt={card.name}
-                  className={`${card.category === "trader" ? "max-w-full max-h-full object-contain" : "w-full h-full object-cover"}`}
+                  fill
+                  sizes="(max-width: 640px) 90vw, 400px"
+                  className={`${card.category === "trader" ? "object-contain !relative max-w-full max-h-full" : "object-cover"}`}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-concrete-100 to-concrete-200">
@@ -203,9 +238,13 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
 
         {/* NEW!バッジ */}
         <motion.div
-          initial={{ scale: 0, rotate: -20 }}
-          animate={{ scale: 1, rotate: -12 }}
-          transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
+          initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0, rotate: -20 }}
+          animate={prefersReducedMotion ? { opacity: 1 } : { scale: 1, rotate: -12 }}
+          transition={
+            prefersReducedMotion
+              ? { duration: 0.1 }
+              : { delay: 0.5, type: "spring", stiffness: 300 }
+          }
           className="absolute -top-3 -right-3 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold text-xs px-3 py-1.5 rounded-full shadow-lg z-30"
         >
           NEW!
@@ -213,9 +252,9 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
 
         {/* 閉じるボタン */}
         <motion.button
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={prefersReducedMotion ? { duration: 0.1 } : { delay: 0.6 }}
           onClick={onClose}
           className="w-full mt-4 bg-concrete-800/80 hover:bg-concrete-700 text-concrete-300 font-mono text-sm py-3 px-6 rounded-xl transition-all"
         >

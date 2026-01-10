@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Card } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
 import { getCategoryColors, getRarityStyles } from "@/lib";
+import { useReducedMotion } from "@/hooks";
 
 interface FlipCardProps {
   card: Card;
@@ -16,11 +18,28 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
   const categoryInfo = CATEGORY_INFO.find((c) => c.id === card.category);
   const categoryColors = getCategoryColors(card.category);
   const rarityStyles = getRarityStyles(card.rarity);
+  const prefersReducedMotion = useReducedMotion();
 
-  const handleClick = () => {
+  const handleFlip = () => {
     if (isCollected) {
       setIsFlipped(!isFlipped);
     }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (isCollected && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      setIsFlipped(!isFlipped);
+    }
+  };
+
+  const getAriaLabel = () => {
+    if (!isCollected) {
+      return `${card.name}カード、未獲得`;
+    }
+    const side = isFlipped ? "裏面を表示中" : "表面を表示中";
+    const action = isFlipped ? "表面を見るには" : "裏面を見るには";
+    return `${card.name}カード、${side}。${action}Enterキーを押してください`;
   };
 
   const getRarityLabel = () => {
@@ -84,13 +103,22 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
 
   return (
     <div
-      className="perspective-1000 w-full aspect-[3/4] cursor-pointer"
-      onClick={handleClick}
+      role="button"
+      tabIndex={isCollected ? 0 : -1}
+      aria-label={getAriaLabel()}
+      aria-pressed={isCollected ? isFlipped : undefined}
+      className="perspective-1000 w-full aspect-[3/4] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 rounded-xl"
+      onClick={handleFlip}
+      onKeyDown={handleKeyDown}
     >
       <motion.div
         className="relative w-full h-full preserve-3d"
         animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: "easeInOut" }}
+        transition={
+          prefersReducedMotion
+            ? { duration: 0 }
+            : { duration: 0.6, ease: "easeInOut" }
+        }
         style={{ transformStyle: "preserve-3d" }}
       >
         {/* 表面 (Front) */}
@@ -102,19 +130,26 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
         >
           {isCollected ? (
             <div className="relative h-full flex flex-col bg-gradient-to-br from-concrete-100 to-white">
-              {/* シマーエフェクト（収集済み） */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent z-10 pointer-events-none"
-                animate={{
-                  x: ['-200%', '200%'],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  repeatDelay: card.rarity === 'legendary' ? 1 : card.rarity === 'rare' ? 2 : 3,
-                  ease: "easeInOut"
-                }}
-              />
+              {/* シマーエフェクト（収集済み、reduced motion無効時のみ） */}
+              {!prefersReducedMotion && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent z-10 pointer-events-none"
+                  animate={{
+                    x: ["-200%", "200%"],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatDelay:
+                      card.rarity === "legendary"
+                        ? 1
+                        : card.rarity === "rare"
+                          ? 2
+                          : 3,
+                    ease: "easeInOut",
+                  }}
+                />
+              )}
               {/* ホログラフィック効果（レジェンダリー） */}
               {card.rarity === "legendary" && (
                 <div className="absolute inset-0 holographic opacity-20 pointer-events-none" />
@@ -135,10 +170,12 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
               {/* メイン画像エリア */}
               <div className={`flex-1 relative overflow-hidden ${card.category === "trader" ? "bg-white flex items-center justify-center p-4" : "bg-concrete-200"}`}>
                 {card.imageUrl ? (
-                  <img
+                  <Image
                     src={card.imageUrl}
                     alt={card.name}
-                    className={`${card.category === "trader" ? "max-w-full max-h-full object-contain" : "w-full h-full object-cover"}`}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    className={`${card.category === "trader" ? "object-contain !relative max-w-full max-h-full" : "object-cover"}`}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-concrete-100 to-concrete-200">

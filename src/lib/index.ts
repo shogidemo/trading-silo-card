@@ -5,3 +5,8 @@ export {
   type CategoryColors,
   type RarityStyles,
 } from "./styles";
+export {
+  shuffleArray,
+  getRandomQuizzes,
+  selectQuizAvoidingDuplicates,
+} from "./quizUtils";

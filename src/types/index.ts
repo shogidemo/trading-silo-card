@@ -60,9 +60,19 @@ export interface Quiz {
   explanation: string;
 }
 
+// カテゴリ別統計
+export interface CategoryStats {
+  attempts: number;
+  correct: number;
+}
+
 // コレクション状態
 export interface CollectionState {
   collectedCardIds: string[];
   totalQuizAttempts: number;
   correctAnswers: number;
+  // 復習モード用: 誤答クイズIDリスト
+  wrongAnswerQuizIds: string[];
+  // カテゴリ別統計
+  categoryStats: Record<CardCategory, CategoryStats>;
 }
