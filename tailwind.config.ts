@@ -84,9 +84,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["var(--font-playfair)", "Georgia", "serif"],
-        body: ["var(--font-source-serif)", "Georgia", "serif"],
-        mono: ["var(--font-jetbrains)", "monospace"],
+        display: ["var(--font-display)", "Hiragino Sans", "sans-serif"],
+        body: ["var(--font-body)", "Hiragino Sans", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
       animation: {
         "shimmer": "shimmer 3s ease infinite",

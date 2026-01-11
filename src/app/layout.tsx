@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Source_Serif_4, JetBrains_Mono } from "next/font/google";
+import { Zen_Maru_Gothic, M_PLUS_Rounded_1c, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { CollectionProvider } from "@/context/CollectionContext";
 import Header from "@/components/Layout/Header";
 
-const playfair = Playfair_Display({
+const zenMaru = Zen_Maru_Gothic({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  weight: ["500", "700", "900"],
+  variable: "--font-display",
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
+const mPlusRounded = M_PLUS_Rounded_1c({
   subsets: ["latin"],
-  variable: "--font-source-serif",
+  weight: ["400", "500", "700"],
+  variable: "--font-body",
   display: "swap",
 });
 
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-jetbrains",
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -36,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${playfair.variable} ${sourceSerif.variable} ${jetbrains.variable} font-body antialiased min-h-screen`}
+        className={`${zenMaru.variable} ${mPlusRounded.variable} ${jetbrains.variable} font-body antialiased min-h-screen`}
       >
         {/* 背景グラデーションメッシュ */}
         <div className="fixed inset-0 -z-20 gradient-mesh" />
