@@ -3,10 +3,14 @@
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCollection } from "@/context/CollectionContext";
+import {
+  initialCategoryStats,
+  initialState,
+  useCollection,
+} from "@/context/CollectionContext";
 import { containerVariants, itemVariants } from "@/lib";
 import { STORAGE_KEY } from "@/constants";
-import { CollectionState } from "@/types";
+import { CardCategory, CollectionState, CategoryStats } from "@/types";
 import { useModalAccessibility } from "@/hooks";
 
 export default function SettingsPage() {
@@ -54,18 +58,96 @@ export default function SettingsPage() {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string;
-        const imported = JSON.parse(content) as CollectionState;
+        const imported = JSON.parse(content) as unknown;
 
-        // 基本的なバリデーション
-        if (
-          !imported.collectedCardIds ||
-          !Array.isArray(imported.collectedCardIds)
-        ) {
-          throw new Error("Invalid data format: collectedCardIds is missing");
-        }
+        const ensureObject = (value: unknown): Record<string, unknown> => {
+          if (!value || typeof value !== "object" || Array.isArray(value)) {
+            throw new Error("Invalid data format: expected an object");
+          }
+          return value as Record<string, unknown>;
+        };
+
+        const ensureNumber = (value: unknown, label: string): number => {
+          if (typeof value !== "number" || Number.isNaN(value)) {
+            throw new Error(`Invalid data format: ${label} must be a number`);
+          }
+          return value;
+        };
+
+        const ensureStringArray = (value: unknown, label: string): string[] => {
+          if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
+            throw new Error(`Invalid data format: ${label} must be string[]`);
+          }
+          return value;
+        };
+
+        const ensureCategoryStats = (
+          value: unknown
+        ): Record<CardCategory, CategoryStats> => {
+          if (value === undefined) {
+            return initialCategoryStats;
+          }
+          const record = ensureObject(value);
+          const categories = ["silo", "grain", "trader"] as const;
+          return categories.reduce(
+            (acc, category) => {
+              const statsValue = record[category];
+              if (statsValue === undefined) {
+                acc[category] = initialCategoryStats[category];
+                return acc;
+              }
+              const statsRecord = ensureObject(statsValue);
+              acc[category] = {
+                attempts: ensureNumber(
+                  statsRecord.attempts,
+                  `${category}.attempts`
+                ),
+                correct: ensureNumber(
+                  statsRecord.correct,
+                  `${category}.correct`
+                ),
+              };
+              return acc;
+            },
+            {} as Record<CardCategory, CategoryStats>
+          );
+        };
+
+        const record = ensureObject(imported);
+        const collectedCardIds = ensureStringArray(
+          record.collectedCardIds,
+          "collectedCardIds"
+        );
+        const totalQuizAttempts =
+          record.totalQuizAttempts === undefined
+            ? initialState.totalQuizAttempts
+            : ensureNumber(record.totalQuizAttempts, "totalQuizAttempts");
+        const correctAnswers =
+          record.correctAnswers === undefined
+            ? initialState.correctAnswers
+            : ensureNumber(record.correctAnswers, "correctAnswers");
+        const wrongAnswerQuizIds =
+          record.wrongAnswerQuizIds === undefined
+            ? initialState.wrongAnswerQuizIds
+            : ensureStringArray(record.wrongAnswerQuizIds, "wrongAnswerQuizIds");
+        const answeredQuizIds =
+          record.answeredQuizIds === undefined
+            ? initialState.answeredQuizIds
+            : ensureStringArray(record.answeredQuizIds, "answeredQuizIds");
+        const categoryStats = ensureCategoryStats(record.categoryStats);
+
+        const validated: CollectionState = {
+          ...initialState,
+          collectedCardIds,
+          totalQuizAttempts,
+          correctAnswers,
+          wrongAnswerQuizIds,
+          answeredQuizIds,
+          categoryStats,
+        };
 
         // localStorageに保存
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(validated));
 
         setImportStatus("success");
         setImportMessage("データをインポートしました。ページをリロードします...");
