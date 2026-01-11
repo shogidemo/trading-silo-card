@@ -217,4 +217,234 @@ export const quizzes: Quiz[] = [
     explanation:
       "博多港サイロは1964年に設立され、60年以上にわたり九州の食を支える穀物サイロのリーディングカンパニーとして活躍しています。",
   },
+
+  // === 追加サイロクイズ（全農サイログループ） ===
+  {
+    id: "quiz-zenno-kashima-1",
+    cardId: "silo-zenno-kashima",
+    category: "silo",
+    question: "全農サイロ鹿島支店の特徴として正しいものは？",
+    options: [
+      { text: "単一事業者として日本最大のサイロ", isCorrect: true },
+      { text: "日本で最も古いサイロ", isCorrect: false },
+      { text: "小麦専用のサイロ", isCorrect: false },
+      { text: "北海道最大のサイロ", isCorrect: false },
+    ],
+    explanation:
+      "全農サイロ鹿島支店は326本のサイロを有し、約24.5万トンの収容能力を持つ単一事業者として日本最大のサイロです。",
+  },
+  {
+    id: "quiz-zenno-tokai-1",
+    cardId: "silo-zenno-tokai",
+    category: "silo",
+    question: "全農サイロ東海支店が開設されたのは何年でしょうか？",
+    options: [
+      { text: "1959年", isCorrect: false },
+      { text: "1969年", isCorrect: true },
+      { text: "1979年", isCorrect: false },
+      { text: "1989年", isCorrect: false },
+    ],
+    explanation:
+      "全農サイロ東海支店は1969年に東海サイロ株式会社として開設され、中部地区の畜産・食品産業を支えています。",
+  },
+  {
+    id: "quiz-zenno-kurashiki-1",
+    cardId: "silo-zenno-kurashiki",
+    category: "silo",
+    question: "全農サイロ倉敷支店が位置する場所はどこでしょうか？",
+    options: [
+      { text: "水島港", isCorrect: false },
+      { text: "玉島ハーバーアイランド", isCorrect: true },
+      { text: "宇野港", isCorrect: false },
+      { text: "福山港", isCorrect: false },
+    ],
+    explanation:
+      "全農サイロ倉敷支店は2017年に玉島ハーバーアイランドに開設された比較的新しいサイロで、中四国地区への穀物供給を担っています。",
+  },
+  {
+    id: "quiz-zenno-shibushi-1",
+    cardId: "silo-zenno-shibushi",
+    category: "silo",
+    question: "全農サイロ志布志支店を運営している会社は？",
+    options: [
+      { text: "パシフィックグレーンセンター株式会社", isCorrect: false },
+      { text: "全農サイロ株式会社", isCorrect: true },
+      { text: "博多港サイロ株式会社", isCorrect: false },
+      { text: "東洋グレーンターミナル株式会社", isCorrect: false },
+    ],
+    explanation:
+      "全農サイロ志布志支店はJA全農グループの全農サイロ株式会社が運営し、九州・沖縄・瀬戸内沿岸向け飼料を供給しています。",
+  },
+  {
+    id: "quiz-zenno-kushiro-1",
+    cardId: "silo-zenno-kushiro",
+    category: "silo",
+    question: "全農サイロ釧路支店の収容能力はおよそ何トンでしょうか？",
+    options: [
+      { text: "約5万トン", isCorrect: false },
+      { text: "約10.7万トン", isCorrect: true },
+      { text: "約15万トン", isCorrect: false },
+      { text: "約20万トン", isCorrect: false },
+    ],
+    explanation:
+      "全農サイロ釧路支店は約10.7万トンの収容能力を持ち、北海道の酪農用飼料原料を主に取り扱っています。",
+  },
+  {
+    id: "quiz-zenno-niigata-1",
+    cardId: "silo-zenno-niigata",
+    category: "silo",
+    question: "全農サイロ新潟支店の特徴として正しいものは？",
+    options: [
+      { text: "本州日本海側唯一の穀物専用岸壁", isCorrect: true },
+      { text: "日本最大のサイロ", isCorrect: false },
+      { text: "小麦専用サイロ", isCorrect: false },
+      { text: "1950年代に設立", isCorrect: false },
+    ],
+    explanation:
+      "全農サイロ新潟支店は1988年に開設され、新潟東港にある穀物専用岸壁としては本州日本海側唯一のサイロです。",
+  },
+
+  // === 追加サイロクイズ（パシフィックグレーンセンター・丸紅グループ） ===
+  {
+    id: "quiz-pgc-west-1",
+    cardId: "silo-pgc-west",
+    category: "silo",
+    question: "パシフィックグレーンセンター西日本支店がある港はどこでしょうか？",
+    options: [
+      { text: "神戸港", isCorrect: false },
+      { text: "水島港", isCorrect: true },
+      { text: "博多港", isCorrect: false },
+      { text: "八代港", isCorrect: false },
+    ],
+    explanation:
+      "パシフィックグレーンセンター西日本支店は岡山県倉敷市の水島港に位置し、109基のサイロで中四国地区への穀物供給を担っています。",
+  },
+  {
+    id: "quiz-pgc-yatsushiro-1",
+    cardId: "silo-pgc-yatsushiro",
+    category: "silo",
+    question: "パシフィックグレーンセンター八代支店の第一期サイロが竣工したのは何年でしょうか？",
+    options: [
+      { text: "1985年", isCorrect: false },
+      { text: "1995年", isCorrect: true },
+      { text: "2005年", isCorrect: false },
+      { text: "2015年", isCorrect: false },
+    ],
+    explanation:
+      "パシフィックグレーンセンター八代支店は1995年に第一期サイロが竣工し、九州中部への穀物供給を担っています。",
+  },
+  {
+    id: "quiz-pgc-south-1",
+    cardId: "silo-pgc-south",
+    category: "silo",
+    question: "パシフィックグレーンセンター南日本支店の収容能力はおよそ何トンでしょうか？",
+    options: [
+      { text: "約10万トン", isCorrect: false },
+      { text: "約15万トン", isCorrect: false },
+      { text: "約23.8万トン", isCorrect: true },
+      { text: "約30万トン", isCorrect: false },
+    ],
+    explanation:
+      "パシフィックグレーンセンター南日本支店は約23.8万トンの収容能力を持つ日本最大級の穀物サイロで、南九州全体の重要な穀物供給基地です。",
+  },
+  {
+    id: "quiz-kamaishi-1",
+    cardId: "silo-kamaishi",
+    category: "silo",
+    question: "釜石グレーンセンターの出資企業として含まれていないのは？",
+    options: [
+      { text: "丸紅", isCorrect: false },
+      { text: "三菱商事", isCorrect: false },
+      { text: "伊藤忠商事", isCorrect: true },
+      { text: "日本製鉄グループ", isCorrect: false },
+    ],
+    explanation:
+      "釜石グレーンセンターは丸紅、三菱商事、日本製鉄グループの共同出資で運営されています。伊藤忠商事は出資していません。",
+  },
+  {
+    id: "quiz-tokachi-1",
+    cardId: "silo-tokachi",
+    category: "silo",
+    question: "十勝グレーンセンターがある港はどこでしょうか？",
+    options: [
+      { text: "苫小牧港", isCorrect: false },
+      { text: "釧路港", isCorrect: false },
+      { text: "広尾港", isCorrect: true },
+      { text: "室蘭港", isCorrect: false },
+    ],
+    explanation:
+      "十勝グレーンセンターは北海道広尾港に位置し、2008年の設立以来、十勝の酪農・畜産を支える飼料用穀物の搬出入・保管を行っています。",
+  },
+
+  // === 追加サイロクイズ（その他主要サイロ） ===
+  {
+    id: "quiz-tomakomai-1",
+    cardId: "silo-tomakomai",
+    category: "silo",
+    question: "苫小牧埠頭飼料サイロのサイロ本数は何本でしょうか？",
+    options: [
+      { text: "約100本", isCorrect: false },
+      { text: "約200本", isCorrect: false },
+      { text: "約302本", isCorrect: true },
+      { text: "約400本", isCorrect: false },
+    ],
+    explanation:
+      "苫小牧埠頭飼料サイロは302本のサイロを有し、北海道で生産される配合飼料の約3割が経由する全国5位の規模を誇ります。",
+  },
+  {
+    id: "quiz-hanshin-1",
+    cardId: "silo-hanshin",
+    category: "silo",
+    question: "阪神サイロの特徴として正しいものは？",
+    options: [
+      { text: "トウモロコシ専用サイロ", isCorrect: false },
+      { text: "小麦専用サイロとして西日本最大級", isCorrect: true },
+      { text: "大豆専用サイロ", isCorrect: false },
+      { text: "日本最古のサイロ", isCorrect: false },
+    ],
+    explanation:
+      "阪神サイロは小麦専用サイロとして西日本最大級の規模を誇り、156基のサイロビンで約10.6万トンを収容しています。",
+  },
+  {
+    id: "quiz-seto-1",
+    cardId: "silo-seto",
+    category: "silo",
+    question: "瀬戸埠頭の主要出資企業はどこでしょうか？",
+    options: [
+      { text: "丸紅", isCorrect: false },
+      { text: "伊藤忠商事", isCorrect: false },
+      { text: "三菱商事", isCorrect: true },
+      { text: "三井物産", isCorrect: false },
+    ],
+    explanation:
+      "瀬戸埠頭は三菱商事などが出資する港湾運送会社で、年80万トンの穀物を輸入し、隣接する食品工場にコンベヤーで供給しています。",
+  },
+  {
+    id: "quiz-higashinada-1",
+    cardId: "silo-higashinada",
+    category: "silo",
+    question: "東灘トーメンサイロが完成したのは何年でしょうか？",
+    options: [
+      { text: "1957年", isCorrect: false },
+      { text: "1967年", isCorrect: true },
+      { text: "1977年", isCorrect: false },
+      { text: "1987年", isCorrect: false },
+    ],
+    explanation:
+      "東灘トーメンサイロは1967年に完成した商社系最初の大型臨海サイロで、阪神大震災で被災しましたが同年秋に復旧しました。",
+  },
+  {
+    id: "quiz-nakanihon-1",
+    cardId: "silo-nakanihon",
+    category: "silo",
+    question: "中日本グレーンセンターを運営する親会社はどこでしょうか？",
+    options: [
+      { text: "丸紅", isCorrect: false },
+      { text: "日本コーンスターチ", isCorrect: true },
+      { text: "全農", isCorrect: false },
+      { text: "カーギル", isCorrect: false },
+    ],
+    explanation:
+      "中日本グレーンセンターは日本コーンスターチの子会社で、コーンスターチ原料であるトウモロコシの安定供給を担っています。",
+  },
 ];
