@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import { SiloCard } from "@/types";
@@ -19,6 +20,7 @@ export default function SiloMarker({
   isSelected,
   onSelect,
 }: SiloMarkerProps) {
+  const router = useRouter();
   const icon = useMemo(() => {
     if (isCollected) {
       return L.divIcon({
@@ -63,7 +65,9 @@ export default function SiloMarker({
     <Marker
       position={[silo.coordinates.lat, silo.coordinates.lng]}
       icon={icon}
-      interactive={false}
+      eventHandlers={{
+        click: () => router.push(`/quiz?cardId=${silo.id}`),
+      }}
     />
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { silos } from "@/data";
 import { useCollection } from "@/context/CollectionContext";
 
@@ -13,6 +14,7 @@ export default function SiloListSidebar({
   onSelect,
 }: SiloListSidebarProps) {
   const { hasCard, getCategoryProgress } = useCollection();
+  const router = useRouter();
   const progress = getCategoryProgress("silo");
 
   return (
@@ -34,7 +36,14 @@ export default function SiloListSidebar({
           return (
             <button
               key={silo.id}
-              onClick={() => onSelect?.(silo.id)}
+              type="button"
+              onClick={() => {
+                if (isCollected) {
+                  onSelect?.(silo.id);
+                  return;
+                }
+                router.push(`/quiz?cardId=${silo.id}`);
+              }}
               className={`w-full text-left p-3 rounded-xl transition-all ${
                 isSelected
                   ? "bg-slate-600 text-white shadow-md"
@@ -42,6 +51,11 @@ export default function SiloListSidebar({
                     ? "bg-white hover:bg-slate-50 border border-concrete-200"
                     : "bg-concrete-100 hover:bg-concrete-200 border border-concrete-200"
               }`}
+              aria-label={
+                isCollected
+                  ? `${silo.name}を選択`
+                  : `${silo.name}のクイズに挑戦する`
+              }
             >
               {isCollected ? (
                 <>

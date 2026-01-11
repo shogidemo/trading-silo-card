@@ -116,7 +116,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
 
   return (
     <div
-      role="button"
+      role={isCollected ? "button" : "img"}
       tabIndex={isCollected ? 0 : -1}
       aria-label={getAriaLabel()}
       aria-pressed={isCollected ? isFlipped : undefined}

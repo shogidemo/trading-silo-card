@@ -81,9 +81,30 @@ export default function QuizPage() {
     );
   };
 
-  // URLクエリパラメータからカテゴリを読み取り、自動でクイズを開始
+  // URLクエリパラメータからカテゴリ/カードを読み取り、自動でクイズを開始
   useEffect(() => {
     if (initialCategoryProcessed) return;
+
+    const cardIdParam = searchParams.get("cardId");
+    if (cardIdParam) {
+      const card = allCards.find((c) => c.id === cardIdParam);
+      if (card) {
+        const cardQuizzes = quizzes.filter((q) => q.cardId === card.id);
+        const unansweredQuizzes = cardQuizzes.filter(
+          (q) => !isQuizAnswered(q.id)
+        );
+        const availableQuizzes =
+          unansweredQuizzes.length > 0 ? unansweredQuizzes : cardQuizzes;
+        const quiz = selectQuizAvoidingDuplicates(availableQuizzes, []);
+        if (quiz) {
+          setSelectedCategory(card.category);
+          setCurrentQuiz(quiz);
+          setQuizState("quiz");
+          setInitialCategoryProcessed(true);
+          return;
+        }
+      }
+    }
 
     const categoryParam = searchParams.get("category");
     if (categoryParam && ["silo", "grain", "trader"].includes(categoryParam)) {

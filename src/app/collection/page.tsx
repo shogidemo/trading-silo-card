@@ -160,7 +160,23 @@ export default function CollectionPage() {
               whileHover={isCollected ? { y: -8, scale: 1.03, rotateY: 3 } : {}}
               style={{ transformStyle: "preserve-3d" }}
             >
-              <FlipCard card={card} isCollected={isCollected} />
+              {isCollected ? (
+                <FlipCard card={card} isCollected={isCollected} />
+              ) : (
+                <Link
+                  href={`/quiz?cardId=${card.id}`}
+                  className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 rounded-xl"
+                  aria-label={`${card.name}のクイズに挑戦する`}
+                >
+                  <div className="relative">
+                    <FlipCard card={card} isCollected={isCollected} />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none" />
+                    <div className="absolute inset-x-3 bottom-3 text-xs font-display text-white bg-black/50 px-2 py-1 rounded-full opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100 pointer-events-none">
+                      クイズに挑戦
+                    </div>
+                  </div>
+                </Link>
+              )}
             </motion.div>
           );
         })}
