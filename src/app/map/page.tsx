@@ -86,14 +86,14 @@ export default function MapPage() {
       >
         <div className="flex flex-wrap gap-6 justify-center text-sm">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-7 bg-slate-600 border-2 border-gold-400 rounded flex items-center justify-center">
-              <span className="text-white text-xs">🏭</span>
+            <div className="w-8 h-8 rounded-full border-[3px] border-gold-400 overflow-hidden bg-slate-600 flex items-center justify-center">
+              <span className="text-white text-xs">📷</span>
             </div>
             <span className="text-concrete-600">獲得済みサイロ</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-7 bg-concrete-400 border-2 border-concrete-300 rounded flex items-center justify-center opacity-70">
-              <span className="text-concrete-600 font-bold">?</span>
+            <div className="w-7 h-7 rounded-full bg-concrete-400 border-2 border-concrete-300 flex items-center justify-center opacity-70">
+              <span className="text-concrete-600 font-bold text-xs">?</span>
             </div>
             <span className="text-concrete-600">未獲得サイロ</span>
           </div>

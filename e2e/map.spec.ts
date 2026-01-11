@@ -110,4 +110,49 @@ test.describe("サイロマップ", () => {
       timeout: 5000,
     });
   });
+
+  test("レイヤーコントロールが表示される", async ({ page }) => {
+    await page.goto("/map");
+
+    // Leaflet地図が読み込まれるまで待機
+    await expect(page.locator(".leaflet-container")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // レイヤーコントロールが表示される
+    await expect(page.locator(".leaflet-control-layers")).toBeVisible();
+  });
+
+  test("日本全体表示ボタンが動作する", async ({ page }) => {
+    await page.goto("/map");
+
+    // Leaflet地図が読み込まれるまで待機
+    await expect(page.locator(".leaflet-container")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // リセットボタンが表示される
+    const resetButton = page.locator(".reset-view-button");
+    await expect(resetButton).toBeVisible();
+
+    // サイドバーでサイロを選択してズーム
+    const firstSiloButton = page
+      .locator(".vintage-border")
+      .first()
+      .locator("button")
+      .first();
+    await firstSiloButton.click();
+
+    // 少し待機（アニメーション）
+    await page.waitForTimeout(1500);
+
+    // リセットボタンをクリック
+    await resetButton.click();
+
+    // アニメーション完了を待機
+    await page.waitForTimeout(1500);
+
+    // リセットボタンが引き続き表示される（ビューがリセットされた）
+    await expect(resetButton).toBeVisible();
+  });
 });

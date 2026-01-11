@@ -24,11 +24,11 @@ export default function SiloMarker({
       return L.divIcon({
         className: "custom-marker-collected",
         html: `<div class="silo-marker-collected ${isSelected ? "silo-marker-selected" : ""}">
-          <span>🏭</span>
+          <img src="${silo.imageUrl}" alt="${silo.name}" class="silo-marker-image" />
         </div>`,
-        iconSize: [32, 40],
-        iconAnchor: [16, 40],
-        popupAnchor: [0, -40],
+        iconSize: [44, 44],
+        iconAnchor: [22, 22],
+        popupAnchor: [0, -22],
       });
     }
 
@@ -37,10 +37,10 @@ export default function SiloMarker({
       html: `<div class="silo-marker-uncollected">
         <span>?</span>
       </div>`,
-      iconSize: [28, 36],
-      iconAnchor: [14, 36],
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
     });
-  }, [isCollected, isSelected]);
+  }, [isCollected, isSelected, silo.imageUrl, silo.name]);
 
   if (isCollected) {
     return (
