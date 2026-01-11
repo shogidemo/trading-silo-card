@@ -5,17 +5,17 @@ test.describe("穀物サイロカード - クイズフロー", () => {
   test("ホームページが正しく表示される", async ({ page }) => {
     await page.goto("/");
 
-    // タイトルを確認
-    await expect(page.locator("h2").first()).toContainText("穀物の世界を");
+    // タイトルを確認（main内のh2を対象）
+    await expect(page.locator("main h2").first()).toContainText("穀物の世界を");
 
     // 統計セクションが表示される
-    await expect(page.locator("text=Collected")).toBeVisible();
-    await expect(page.locator("text=Total Cards")).toBeVisible();
-    await expect(page.locator("text=Accuracy")).toBeVisible();
+    await expect(page.locator("main").locator("text=Collected")).toBeVisible();
+    await expect(page.locator("main").locator("text=Total Cards")).toBeVisible();
+    await expect(page.locator("main").locator("text=Accuracy")).toBeVisible();
 
-    // ナビゲーションボタンが表示される
-    await expect(page.locator("text=クイズで学ぶ")).toBeVisible();
-    await expect(page.locator("text=コレクション")).toBeVisible();
+    // ナビゲーションボタンが表示される（main内のリンクを対象）
+    await expect(page.locator("main a").filter({ hasText: "クイズで学ぶ" })).toBeVisible();
+    await expect(page.locator("main a").filter({ hasText: "コレクション" })).toBeVisible();
   });
 
   test("クイズページに遷移してカテゴリ選択できる", async ({ page }) => {

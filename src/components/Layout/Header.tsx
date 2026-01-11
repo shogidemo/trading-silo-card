@@ -29,8 +29,8 @@ export default function Header() {
 
       <div className="max-w-5xl mx-auto px-6 py-5 relative">
         <div className="flex items-center justify-between">
-          {/* ロゴ */}
-          <Link href="/" className="group flex items-center gap-4">
+          {/* ロゴ（モバイルのみ表示、ハンバーガーメニュー用のスペース確保） */}
+          <Link href="/" className="group flex items-center gap-4 lg:hidden pl-12">
             <motion.div
               className="relative w-12 h-12 flex items-center justify-center"
               whileHover={{ rotate: 10 }}
@@ -58,7 +58,7 @@ export default function Header() {
               <h1 className="font-display text-2xl tracking-tight text-gold-400 group-hover:text-gold-300 transition-colors">
                 穀物サイロカード
               </h1>
-              <p className="text-xs text-concrete-400 tracking-wider uppercase">
+              <p className="text-xs text-concrete-400 tracking-wider uppercase font-english">
                 Grain Silo Collection
               </p>
             </div>
@@ -67,7 +67,7 @@ export default function Header() {
           {/* プログレス表示 */}
           <div className="flex items-center gap-6">
             <div className="hidden sm:block text-right">
-              <p className="text-xs text-concrete-400 uppercase tracking-wider">
+              <p className="text-xs text-concrete-400 uppercase tracking-wider font-english">
                 Collection
               </p>
               <p className="font-mono text-lg text-gold-400">

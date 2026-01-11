@@ -4,11 +4,11 @@ test.describe("サイロマップ", () => {
   test("ホームページからマップページに遷移できる", async ({ page }) => {
     await page.goto("/");
 
-    // マップボタンが表示される
-    await expect(page.locator("text=サイロマップ")).toBeVisible();
+    // マップボタンが表示される（main内のリンクを対象）
+    await expect(page.locator("main a").filter({ hasText: "サイロマップ" })).toBeVisible();
 
-    // マップページに遷移
-    await page.click("text=サイロマップ");
+    // マップページに遷移（main内のリンクをクリック）
+    await page.locator("main a").filter({ hasText: "サイロマップ" }).click();
 
     // マップページのヘッダーが表示される
     await expect(
