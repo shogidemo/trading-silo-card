@@ -176,6 +176,79 @@ test.describe("穀物サイロカード - クイズフロー", () => {
   });
 });
 
+test.describe("カード獲得時のフリップ機能", () => {
+  test("カード獲得時にカードをクリックして裏面が見れる", async ({ page }) => {
+    await page.goto("/quiz");
+
+    // 穀物カテゴリを選択（クイズの正解率が高いカテゴリ）
+    await page.locator("button").filter({ hasText: "穀物" }).first().click();
+
+    // クイズが表示されるまで待つ
+    await expect(page.locator("text=🌾")).toBeVisible({ timeout: 5000 });
+
+    // 正解するまでクイズを繰り返す（最大10回）
+    let cardEarned = false;
+    for (let attempt = 0; attempt < 10 && !cardEarned; attempt++) {
+      // 選択肢をクリック（最初の選択肢）
+      const options = page.locator("main button").filter({
+        has: page.locator("span.font-display"),
+      });
+      await options.first().click();
+
+      // 結果を待つ
+      await page.waitForTimeout(1500);
+
+      // 「カードを見る」ボタンが表示されたら（新しいカード獲得）
+      const viewCardButton = page.locator("button").filter({ hasText: "カードを見る" });
+      if (await viewCardButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+        cardEarned = true;
+        await viewCardButton.click();
+        break;
+      }
+
+      // 次のクイズへ進む
+      const nextButton = page.locator("button").filter({
+        hasText: /次のクイズへ|もう一度挑戦/,
+      });
+      if (await nextButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await nextButton.click();
+        await page.waitForTimeout(500);
+      }
+    }
+
+    // カード獲得できなかった場合はスキップ
+    if (!cardEarned) {
+      test.skip();
+      return;
+    }
+
+    // CardRevealモーダルが表示される
+    await expect(page.locator("text=NEW!")).toBeVisible({ timeout: 3000 });
+
+    // 「タップで裏面」ヒントが表示される
+    await expect(page.locator("text=タップで裏面")).toBeVisible();
+
+    // カード本体をクリック（role="button"の要素）
+    const cardButton = page.locator('[role="button"][tabindex="0"]').first();
+    await cardButton.click();
+
+    // 裏面が表示される（「タップで表面」ヒントが表示される）
+    await expect(page.locator("text=タップで表面")).toBeVisible({ timeout: 2000 });
+
+    // もう一度クリックして表面に戻る
+    await cardButton.click();
+
+    // 表面に戻る（「タップで裏面」ヒントが表示される）
+    await expect(page.locator("text=タップで裏面")).toBeVisible({ timeout: 2000 });
+
+    // モーダルを閉じる
+    await page.locator("button").filter({ hasText: "タップして閉じる" }).click();
+
+    // モーダルが閉じる
+    await expect(page.locator("text=NEW!")).not.toBeVisible({ timeout: 2000 });
+  });
+});
+
 test.describe("アクセシビリティ", () => {
   test("キーボードナビゲーションが動作する", async ({ page }) => {
     await page.goto("/quiz");
