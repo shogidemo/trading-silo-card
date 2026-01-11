@@ -88,4 +88,40 @@ export const grains: GrainCard[] = [
     annualProduction: "約1.5億トン（世界）",
     trivia: "大麦は人類が最初に栽培した穀物の一つ。約1万年前から栽培されている。",
   },
+  {
+    id: "grain-sorghum",
+    category: "grain",
+    name: "ソルガム",
+    description:
+      "世界5大穀物の一つ。マイロとも呼ばれ、飼料用途が多い乾燥に強い穀物。",
+    imageUrl: "/images/grains/sorghum.jpg",
+    imageAttribution: {
+      label: "Sorghum bicolor (Wikimedia Commons)",
+      url: "https://commons.wikimedia.org/wiki/File:Sorghum_bicolor03.jpg",
+    },
+    origins: ["アメリカ", "ナイジェリア", "スーダン", "エチオピア"],
+    uses: ["飼料", "食用（アフリカ・インド）", "バイオエタノール", "醸造"],
+    nutrients: ["炭水化物", "タンパク質", "食物繊維", "鉄分"],
+    annualProduction: "約6,000万トン（世界）",
+    trivia:
+      "アフリカ原産で約5,000年前から栽培。グルテンフリーのため、小麦アレルギーの代替穀物としても注目。",
+  },
+  {
+    id: "grain-canola",
+    category: "grain",
+    name: "菜種",
+    description:
+      "キャノーラ油の原料となる油糧種子。日本の食用油の主要原料。",
+    imageUrl: "/images/grains/canola.jpg",
+    imageAttribution: {
+      label: "Canola field (Wikimedia Commons)",
+      url: "https://commons.wikimedia.org/wiki/File:Canola_field_in_Hokkaido.jpg",
+    },
+    origins: ["カナダ", "オーストラリア", "中国", "ドイツ"],
+    uses: ["食用油", "マーガリン", "バイオディーゼル", "飼料（油粕）"],
+    nutrients: ["オレイン酸", "リノール酸", "ビタミンE", "オメガ3脂肪酸"],
+    annualProduction: "約7,500万トン（世界）",
+    trivia:
+      "キャノーラ（Canola）は「Canadian Oil Low Acid」の略。1970年代にカナダで品種改良された。",
+  },
 ];
