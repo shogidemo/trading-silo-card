@@ -1,6 +1,12 @@
 // カードの種類
 export type CardCategory = "silo" | "grain" | "trader";
 
+// 座標
+export interface Coordinates {
+  lat: number;
+  lng: number;
+}
+
 // 基本カード情報
 export interface BaseCard {
   id: string;
@@ -15,6 +21,7 @@ export interface BaseCard {
 export interface SiloCard extends BaseCard {
   category: "silo";
   location: string;
+  coordinates: Coordinates;
   capacity: string;
   grains: string[];
   establishedYear: number;

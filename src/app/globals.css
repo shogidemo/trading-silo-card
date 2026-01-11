@@ -268,3 +268,76 @@
 .bg-harvest-400 { background-color: #6b8e23; }
 .bg-concrete-700 { background-color: #4a453a; }
 .bg-rust-500 { background-color: #b7410e; }
+
+/* Leaflet マップマーカーのカスタムスタイル */
+.leaflet-marker-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-marker-collected,
+.custom-marker-uncollected {
+  background: transparent;
+  border: none;
+}
+
+.silo-marker-collected {
+  width: 32px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, #475569, #334155);
+  border: 2px solid #b8860b;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.silo-marker-collected span {
+  color: white;
+  font-size: 14px;
+}
+
+.silo-marker-collected:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px -1px rgba(0, 0, 0, 0.2);
+}
+
+.silo-marker-selected {
+  transform: scale(1.15);
+  border-color: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+}
+
+.silo-marker-uncollected {
+  width: 28px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #9ca3af;
+  border: 2px solid #6b7280;
+  border-radius: 6px;
+  opacity: 0.7;
+}
+
+.silo-marker-uncollected span {
+  color: #4b5563;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Leaflet ポップアップのカスタムスタイル */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 8px 12px;
+}
+
+.leaflet-popup-tip {
+  background: white;
+}

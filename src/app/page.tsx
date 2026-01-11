@@ -195,7 +195,10 @@ export default function Home() {
       </motion.section>
 
       {/* アクションボタン */}
-      <motion.section variants={itemVariants} className="grid grid-cols-2 gap-5">
+      <motion.section
+        variants={itemVariants}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-5"
+      >
         <Link
           href="/quiz"
           className="group relative overflow-hidden rounded-2xl p-8 text-center transition-all btn-bounce"
@@ -246,6 +249,33 @@ export default function Home() {
             </svg>
             <span className="font-display text-xl text-gold-400">
               コレクション
+            </span>
+          </div>
+        </Link>
+
+        <Link
+          href="/map"
+          className="group relative overflow-hidden rounded-2xl p-8 text-center transition-all btn-bounce"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-600 to-slate-700" />
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-slate-500 to-slate-600" />
+
+          <div className="relative z-10">
+            <svg
+              className="w-10 h-10 mx-auto mb-3 text-gold-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+              />
+            </svg>
+            <span className="font-display text-xl text-gold-400">
+              サイロマップ
             </span>
           </div>
         </Link>
