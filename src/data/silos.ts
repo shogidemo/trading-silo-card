@@ -8,6 +8,10 @@ export const silos: SiloCard[] = [
     description:
       "茨城県鹿島港にある日本一の穀物取扱量を誇るサイロ。年間約400万トンを取り扱う。",
     imageUrl: "/images/silos/kanto-grain-terminal.jpg",
+    imageAttribution: {
+      label: "関東グレーンターミナル 公式サイト",
+      url: "https://www.kanto-grain.co.jp/",
+    },
     location: "茨城県神栖市",
     coordinates: { lat: 35.9202, lng: 140.6653 },
     capacity: "約50万トン",
@@ -22,8 +26,12 @@ export const silos: SiloCard[] = [
     description:
       "青森県八戸港にある東北最大級の飼料穀物サイロ。6社の飼料メーカーが集積。",
     imageUrl: "/images/silos/tohoku-grain-terminal.jpg",
+    imageAttribution: {
+      label: "東北グレーンターミナル 公式サイト",
+      url: "https://tohoku-grain.co.jp/",
+    },
     location: "青森県八戸市",
-    coordinates: { lat: 40.5502, lng: 141.5001 },
+    coordinates: { lat: 40.5461, lng: 141.5081 },
     capacity: "約12万トン",
     grains: ["トウモロコシ", "大豆", "マイロ"],
     establishedYear: 1982,
@@ -36,6 +44,10 @@ export const silos: SiloCard[] = [
     description:
       "東日本における大型グレーンターミナル。122本・13.5万トンの大規模収容力を誇る。",
     imageUrl: "/images/silos/nihon-silo-chiba.webp",
+    imageAttribution: {
+      label: "日本サイロ 公式サイト",
+      url: "https://nihon-silo.co.jp/company/information/",
+    },
     location: "千葉県千葉市",
     coordinates: { lat: 35.6045, lng: 140.0945 },
     capacity: "約13.5万トン",
@@ -50,6 +62,10 @@ export const silos: SiloCard[] = [
     description:
       "関東グレーングループ2番目のサイロ。中京地区初の輸入大豆粕専用サイロを保有。",
     imageUrl: "/images/silos/toyo-grain-terminal.jpg",
+    imageAttribution: {
+      label: "関東グレーンターミナル 公式サイト",
+      url: "https://www.kanto-grain.co.jp/",
+    },
     location: "愛知県知多市",
     coordinates: { lat: 35.0043, lng: 136.8487 },
     capacity: "約8万トン",
@@ -64,6 +80,10 @@ export const silos: SiloCard[] = [
     description:
       "1964年設立。九州の食を支える穀物サイロのリーディングカンパニー。",
     imageUrl: "/images/silos/hakata-port-silo.jpg",
+    imageAttribution: {
+      label: "博多港サイロ 公式サイト",
+      url: "https://hakata-port-silo.com/",
+    },
     location: "福岡県福岡市",
     coordinates: { lat: 33.6057, lng: 130.3913 },
     capacity: "約6万トン",
@@ -78,8 +98,13 @@ export const silos: SiloCard[] = [
     name: "全農サイロ鹿島支店",
     description:
       "326本のサイロを有する単一事業者として日本最大のサイロ。年間約500万トンの穀物を取り扱う全農グループの基幹拠点。",
+    imageUrl: "/images/silos/zenno-kashima.jpg",
+    imageAttribution: {
+      label: "全農サイロ 公式サイト",
+      url: "https://www.zsilo.co.jp/company/access/",
+    },
     location: "茨城県神栖市",
-    coordinates: { lat: 35.9150, lng: 140.6700 },
+    coordinates: { lat: 35.9169, lng: 140.6680 },
     capacity: "約24.5万トン",
     grains: ["トウモロコシ", "大豆", "小麦", "マイロ"],
     establishedYear: 1970,
@@ -91,8 +116,13 @@ export const silos: SiloCard[] = [
     name: "全農サイロ東海支店",
     description:
       "1969年に東海サイロ株式会社として開設。中部地区の畜産・食品産業を支える重要拠点。",
+    imageUrl: "/images/silos/zenno-tokai.jpg",
+    imageAttribution: {
+      label: "全農サイロ 公式サイト",
+      url: "https://www.zsilo.co.jp/company/access/",
+    },
     location: "愛知県知多市",
-    coordinates: { lat: 35.0100, lng: 136.8550 },
+    coordinates: { lat: 35.0039, lng: 136.8545 },
     capacity: "約15.2万トン",
     grains: ["トウモロコシ", "大豆", "小麦"],
     establishedYear: 1969,
@@ -104,8 +134,13 @@ export const silos: SiloCard[] = [
     name: "全農サイロ倉敷支店",
     description:
       "2017年に開設された比較的新しいサイロ。玉島ハーバーアイランドに位置し、中四国地区への穀物供給を担う。",
+    imageUrl: "/images/silos/zenno-kurashiki.jpg",
+    imageAttribution: {
+      label: "全農サイロ 公式サイト",
+      url: "https://www.zsilo.co.jp/company/access/",
+    },
     location: "岡山県倉敷市",
-    coordinates: { lat: 34.4850, lng: 133.7350 },
+    coordinates: { lat: 34.4951, lng: 133.6827 },
     capacity: "約11万トン",
     grains: ["トウモロコシ", "大豆", "小麦"],
     establishedYear: 2017,
@@ -117,8 +152,13 @@ export const silos: SiloCard[] = [
     name: "全農サイロ志布志支店",
     description:
       "九州・沖縄・瀬戸内沿岸向け飼料と九州・山口県向け牧草を主に取り扱う南九州の重要拠点。",
+    imageUrl: "/images/silos/zenno-shibushi.jpg",
+    imageAttribution: {
+      label: "全農サイロ 公式サイト",
+      url: "https://www.zsilo.co.jp/company/access/",
+    },
     location: "鹿児島県志布志市",
-    coordinates: { lat: 31.4700, lng: 131.1050 },
+    coordinates: { lat: 31.4588, lng: 131.0944 },
     capacity: "約10.8万トン",
     grains: ["トウモロコシ", "大豆", "牧草"],
     establishedYear: 1975,
@@ -130,8 +170,13 @@ export const silos: SiloCard[] = [
     name: "全農サイロ釧路支店",
     description:
       "1970年稼働開始。北海道の酪農用飼料原料を主に取り扱い、2021年に全農サイロ本体と合併。",
+    imageUrl: "/images/silos/zenno-kushiro.jpg",
+    imageAttribution: {
+      label: "全農サイロ 公式サイト",
+      url: "https://www.zsilo.co.jp/company/access/",
+    },
     location: "北海道釧路市",
-    coordinates: { lat: 42.9750, lng: 144.3850 },
+    coordinates: { lat: 42.9978, lng: 144.3338 },
     capacity: "約10.7万トン",
     grains: ["トウモロコシ", "大豆", "マイロ"],
     establishedYear: 1970,
@@ -143,8 +188,13 @@ export const silos: SiloCard[] = [
     name: "全農サイロ新潟支店",
     description:
       "1988年開設。新潟東港にあり、穀物専用岸壁としては本州日本海側唯一のサイロ。",
+    imageUrl: "/images/silos/zenno-niigata.jpg",
+    imageAttribution: {
+      label: "全農サイロ 公式サイト",
+      url: "https://www.zsilo.co.jp/company/access/",
+    },
     location: "新潟県聖籠町",
-    coordinates: { lat: 37.9650, lng: 139.2750 },
+    coordinates: { lat: 37.9754, lng: 139.2381 },
     capacity: "約4.8万トン",
     grains: ["トウモロコシ", "大豆", "小麦"],
     establishedYear: 1988,
@@ -157,8 +207,13 @@ export const silos: SiloCard[] = [
     name: "パシフィックグレーンセンター西日本支店",
     description:
       "水島港に位置する丸紅グループのサイロ。1968年竣工で109基のサイロを有し、中四国地区への穀物供給を担う。",
+    imageUrl: "/images/silos/pgc-west.jpg",
+    imageAttribution: {
+      label: "パシフィックグレーンセンター 公式サイト",
+      url: "https://www.pgcc.jp/",
+    },
     location: "岡山県倉敷市",
-    coordinates: { lat: 34.4950, lng: 133.7450 },
+    coordinates: { lat: 34.5132, lng: 133.7365 },
     capacity: "約10.1万トン",
     grains: ["トウモロコシ", "大豆", "菜種", "小麦"],
     establishedYear: 1968,
@@ -170,8 +225,13 @@ export const silos: SiloCard[] = [
     name: "パシフィックグレーンセンター八代支店",
     description:
       "1995年に第一期サイロが竣工。熊本県八代港に位置し、九州中部への穀物供給を担う。",
+    imageUrl: "/images/silos/pgc-yatsushiro.jpg",
+    imageAttribution: {
+      label: "パシフィックグレーンセンター 公式サイト",
+      url: "https://www.pgcc.jp/",
+    },
     location: "熊本県八代市",
-    coordinates: { lat: 32.5050, lng: 130.5550 },
+    coordinates: { lat: 32.5345, lng: 130.5429 },
     capacity: "約5万トン",
     grains: ["トウモロコシ", "大豆", "小麦"],
     establishedYear: 1995,
@@ -183,8 +243,13 @@ export const silos: SiloCard[] = [
     name: "パシフィックグレーンセンター南日本支店",
     description:
       "23万トンを超える日本最大級の穀物サイロ。南九州全体の最も重要な穀物供給基地として機能。",
+    imageUrl: "/images/silos/pgc-south.jpg",
+    imageAttribution: {
+      label: "パシフィックグレーンセンター 公式サイト",
+      url: "https://www.pgcc.jp/",
+    },
     location: "鹿児島県鹿児島市",
-    coordinates: { lat: 31.5850, lng: 130.5650 },
+    coordinates: { lat: 31.5081, lng: 130.5303 },
     capacity: "約23.8万トン",
     grains: ["トウモロコシ", "大豆", "小麦", "糖蜜"],
     establishedYear: 1972,
@@ -196,8 +261,13 @@ export const silos: SiloCard[] = [
     name: "釜石グレーンセンター",
     description:
       "1989年設立。丸紅・三菱商事・日本製鉄グループの飼料穀物サイロ。釜石港の水深を活かし大型外航船を受け入れ。",
+    imageUrl: "/images/silos/kamaishi-grain-center.jpg",
+    imageAttribution: {
+      label: "釜石グレーンセンター 公式サイト",
+      url: "https://kgcc.co.jp/about/",
+    },
     location: "岩手県釜石市",
-    coordinates: { lat: 39.2750, lng: 141.8950 },
+    coordinates: { lat: 39.2725, lng: 141.8857 },
     capacity: "約5万トン",
     grains: ["トウモロコシ", "大豆", "マイロ"],
     establishedYear: 1989,
@@ -209,8 +279,13 @@ export const silos: SiloCard[] = [
     name: "十勝グレーンセンター",
     description:
       "2008年設立。北海道広尾港に位置し、十勝の酪農・畜産を支える飼料用穀物の搬出入・保管を行う。",
+    imageUrl: "/images/silos/tokachi-grain-center.png",
+    imageAttribution: {
+      label: "十勝グレーンセンター 公式サイト",
+      url: "https://tokachi-grain-center.com/",
+    },
     location: "北海道広尾町",
-    coordinates: { lat: 42.2850, lng: 143.3150 },
+    coordinates: { lat: 42.3035, lng: 143.3273 },
     capacity: "約5万トン",
     grains: ["トウモロコシ", "大豆", "マイロ"],
     establishedYear: 2008,
@@ -223,8 +298,13 @@ export const silos: SiloCard[] = [
     name: "苫小牧埠頭飼料サイロ",
     description:
       "302本のサイロを有し、北海道で生産される配合飼料の約3割にあたる約110万トン/年が経由。全国5位の規模。",
+    imageUrl: "/images/silos/tomakomai-bistph02.jpg",
+    imageAttribution: {
+      label: "苫小牧埠頭 公式サイト",
+      url: "https://www.tomafu.co.jp/about/",
+    },
     location: "北海道苫小牧市",
-    coordinates: { lat: 42.6350, lng: 141.6350 },
+    coordinates: { lat: 42.6410, lng: 141.6947 },
     capacity: "約19万トン",
     grains: ["トウモロコシ", "大豆", "大豆粕", "マイロ"],
     establishedYear: 1970,
@@ -236,8 +316,13 @@ export const silos: SiloCard[] = [
     name: "阪神サイロ",
     description:
       "小麦専用サイロとして西日本最大級。156基のサイロビンで約10.6万トンを収容。日清製粉東灘工場に隣接。",
+    imageUrl: "/images/silos/hanshin-silo.jpg",
+    imageAttribution: {
+      label: "阪神サイロ 公式サイト",
+      url: "https://www.hanshin-silo.co.jp/business/facilities.html",
+    },
     location: "兵庫県神戸市",
-    coordinates: { lat: 34.7150, lng: 135.2850 },
+    coordinates: { lat: 34.7035, lng: 135.2806 },
     capacity: "約10.6万トン",
     grains: ["小麦"],
     establishedYear: 1967,
@@ -249,8 +334,13 @@ export const silos: SiloCard[] = [
     name: "瀬戸埠頭",
     description:
       "1968年設立。三菱商事などが出資。年80万トンの穀物を輸入し、隣接する食品工場にコンベヤーで供給。",
+    imageUrl: "/images/silos/seto-futo-silo.jpg",
+    imageAttribution: {
+      label: "瀬戸埠頭 公式サイト",
+      url: "https://setofuto.co.jp/company.html",
+    },
     location: "岡山県倉敷市",
-    coordinates: { lat: 34.4750, lng: 133.7550 },
+    coordinates: { lat: 34.4659, lng: 133.7705 },
     capacity: "約11万トン",
     grains: ["トウモロコシ", "小麦", "大豆"],
     establishedYear: 1968,
@@ -262,8 +352,13 @@ export const silos: SiloCard[] = [
     name: "東灘トーメンサイロ",
     description:
       "1967年完成の商社系最初の大型臨海サイロ。阪神大震災で被災したが同年秋に復旧。関西地区の畜産・食品産業に貢献。",
+    imageUrl: "/images/silos/higashinada-tomsen.jpg",
+    imageAttribution: {
+      label: "東灘トーメンサイロ 会社情報",
+      url: "https://catr.jp/companies/661c3/8969",
+    },
     location: "兵庫県神戸市",
-    coordinates: { lat: 34.7200, lng: 135.2950 },
+    coordinates: { lat: 34.7015, lng: 135.2629 },
     capacity: "約3万トン",
     grains: ["トウモロコシ", "大豆", "小麦"],
     establishedYear: 1967,
@@ -275,8 +370,13 @@ export const silos: SiloCard[] = [
     name: "中日本グレーンセンター",
     description:
       "日本コーンスターチの子会社として原料の保管を担う。大型穀物サイロでコーンスターチ原料を安定供給。",
+    imageUrl: "/images/silos/nakanihon-grain-center.jpg",
+    imageAttribution: {
+      label: "中日本グレーンセンター 会社情報",
+      url: "https://catr.jp/companies/661c3/8969",
+    },
     location: "愛知県碧南市",
-    coordinates: { lat: 34.8850, lng: 136.9950 },
+    coordinates: { lat: 34.8659, lng: 136.9643 },
     capacity: "約5万トン",
     grains: ["トウモロコシ"],
     establishedYear: 1970,

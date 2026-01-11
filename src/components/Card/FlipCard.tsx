@@ -42,6 +42,32 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
     return `${card.name}カード、${side}。${action}Enterキーを押してください`;
   };
 
+  const renderImageAttribution = () => {
+    if (!card.imageUrl || !card.imageAttribution) {
+      return null;
+    }
+
+    const { label, url } = card.imageAttribution;
+    const content = url ? (
+      <a
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        className="underline decoration-white/60 underline-offset-2"
+      >
+        出典: {label}
+      </a>
+    ) : (
+      <span>出典: {label}</span>
+    );
+
+    return (
+      <div className="absolute bottom-1 right-1 z-20 text-[9px] text-white/90 bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm pointer-events-auto">
+        {content}
+      </div>
+    );
+  };
+
   const renderBackContent = () => {
     if (card.category === "grain") {
       return (
@@ -161,6 +187,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
                 {card.category !== "trader" && (
                   <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
                 )}
+                {renderImageAttribution()}
               </div>
 
               {/* カード名 */}

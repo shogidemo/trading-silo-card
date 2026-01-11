@@ -14,6 +14,10 @@ export interface BaseCard {
   name: string;
   description: string;
   imageUrl?: string;
+  imageAttribution?: {
+    label: string;
+    url?: string;
+  };
 }
 
 // サイロカード
