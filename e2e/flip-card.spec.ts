@@ -76,7 +76,7 @@ test.describe("FlipCard機能", () => {
     await expect(page.locator("text=主要産地").first()).toBeVisible({ timeout: 3000 });
   });
 
-  test("未獲得カードはクリックしてもフリップしない", async ({ page }) => {
+  test("未獲得カードはクイズに遷移する", async ({ page }) => {
     // 空の状態（カード未獲得）
     await page.goto("/collection");
 
@@ -84,14 +84,18 @@ test.describe("FlipCard機能", () => {
     await page.locator("button").filter({ hasText: "穀物" }).click();
     await page.waitForTimeout(500);
 
-    // 未獲得カードをクリック（tabindex="-1"のカード）
-    const uncollectedCard = page.locator('[role="button"][tabindex="-1"]').first();
+    // 未獲得カードをクリック（クイズ遷移）
+    const uncollectedCard = page
+      .getByRole("link", { name: /クイズに挑戦する/ })
+      .first();
     await expect(uncollectedCard).toBeVisible({ timeout: 5000 });
-    await uncollectedCard.click({ force: true });
+    await uncollectedCard.click();
 
-    // 裏面データは表示されない（?マークが表示されている）
-    await page.waitForTimeout(500);
-    await expect(page.locator("text=?").first()).toBeVisible();
+    // クイズページに遷移し、問題が表示される
+    await expect(page).toHaveURL(/\/quiz\?cardId=/);
+    await expect(
+      page.getByRole("heading", { level: 3 }).first()
+    ).toBeVisible({ timeout: 5000 });
   });
 
   test("フリップ後に裏面データが表示される", async ({ page }) => {

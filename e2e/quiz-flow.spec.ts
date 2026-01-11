@@ -185,15 +185,30 @@ test.describe("カード獲得時のフリップ機能", () => {
     await page.locator("button").filter({ hasText: "穀物" }).first().click();
 
     // クイズが表示されるまで待つ
-    await expect(page.locator("text=🌾")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text=この施設")).toBeVisible({ timeout: 5000 });
 
     // 正解するまでクイズを繰り返す（最大10回）
     let cardEarned = false;
     for (let attempt = 0; attempt < 10 && !cardEarned; attempt++) {
-      // 選択肢をクリック（最初の選択肢）
       const options = page.locator("main button").filter({
         has: page.locator("span.font-display"),
       });
+      const optionsVisible = await options
+        .first()
+        .isVisible({ timeout: 2000 })
+        .catch(() => false);
+      if (!optionsVisible) {
+        const nextButton = page.locator("button").filter({
+          hasText: /次のクイズへ|もう一度挑戦/,
+        });
+        if (await nextButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await nextButton.click();
+          await page.waitForTimeout(500);
+        }
+        continue;
+      }
+
+      // 選択肢をクリック（最初の選択肢）
       await options.first().click();
 
       // 結果を待つ

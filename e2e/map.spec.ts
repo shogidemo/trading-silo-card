@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setCollectionStateBeforeLoad } from "./helpers/test-utils";
 
 test.describe("サイロマップ", () => {
   test("ホームページからマップページに遷移できる", async ({ page }) => {
@@ -69,6 +70,9 @@ test.describe("サイロマップ", () => {
   test("サイドバーのサイロをクリックすると選択状態になる", async ({
     page,
   }) => {
+    await setCollectionStateBeforeLoad(page, {
+      collectedCardIds: ["silo-kanto"],
+    });
     await page.goto("/map");
 
     // Leaflet地図が読み込まれるまで待機
@@ -76,16 +80,14 @@ test.describe("サイロマップ", () => {
       timeout: 10000,
     });
 
-    // 最初のサイロボタンをクリック
-    const firstSiloButton = page
-      .locator(".vintage-border")
-      .first()
-      .locator("button")
-      .first();
-    await firstSiloButton.click();
+    // 獲得済みサイロボタンをクリック
+    const collectedSiloButton = page.getByRole("button", {
+      name: "関東グレーンターミナルを選択",
+    });
+    await collectedSiloButton.click();
 
     // 選択状態のスタイルが適用される（bg-slate-600）
-    await expect(firstSiloButton).toHaveClass(/bg-slate-600/);
+    await expect(collectedSiloButton).toHaveClass(/bg-slate-600/);
   });
 
   test("戻るリンクでホームページに戻れる", async ({ page }) => {
@@ -125,6 +127,9 @@ test.describe("サイロマップ", () => {
   });
 
   test("日本全体表示ボタンが動作する", async ({ page }) => {
+    await setCollectionStateBeforeLoad(page, {
+      collectedCardIds: ["silo-kanto"],
+    });
     await page.goto("/map");
 
     // Leaflet地図が読み込まれるまで待機
@@ -136,13 +141,11 @@ test.describe("サイロマップ", () => {
     const resetButton = page.locator(".reset-view-button");
     await expect(resetButton).toBeVisible();
 
-    // サイドバーでサイロを選択してズーム
-    const firstSiloButton = page
-      .locator(".vintage-border")
-      .first()
-      .locator("button")
-      .first();
-    await firstSiloButton.click();
+    // サイドバーで獲得済みサイロを選択してズーム
+    const collectedSiloButton = page.getByRole("button", {
+      name: "関東グレーンターミナルを選択",
+    });
+    await collectedSiloButton.click();
 
     // 少し待機（アニメーション）
     await page.waitForTimeout(1500);
@@ -159,33 +162,18 @@ test.describe("サイロマップ", () => {
 });
 
 test.describe("サイロマップ - マーカー状態", () => {
-  const STORAGE_KEY = "silo-card-collection";
-
   test("獲得済みサイロは金色マーカーで表示される", async ({ page }) => {
     // サイロカードを獲得した状態を設定
-    await page.goto("/");
-    await page.evaluate(
-      ({ key }) => {
-        localStorage.setItem(
-          key,
-          JSON.stringify({
-            collectedCardIds: ["silo-kanto", "silo-tohoku"],
-            totalQuizAttempts: 2,
-            correctAnswers: 2,
-            wrongAnswerQuizIds: [],
-            answeredQuizIds: [],
-            categoryStats: {
-              silo: { attempts: 2, correct: 2 },
-              grain: { attempts: 0, correct: 0 },
-              trader: { attempts: 0, correct: 0 },
-            },
-          })
-        );
+    await setCollectionStateBeforeLoad(page, {
+      collectedCardIds: ["silo-kanto", "silo-tohoku"],
+      totalQuizAttempts: 2,
+      correctAnswers: 2,
+      categoryStats: {
+        silo: { attempts: 2, correct: 2 },
+        grain: { attempts: 0, correct: 0 },
+        trader: { attempts: 0, correct: 0 },
       },
-      { key: STORAGE_KEY }
-    );
-    await page.reload();
-
+    });
     await page.goto("/map");
 
     // Leaflet地図が読み込まれるまで待機
@@ -201,29 +189,9 @@ test.describe("サイロマップ - マーカー状態", () => {
 
   test("未獲得サイロはグレーマーカーで表示される", async ({ page }) => {
     // 空の状態（サイロ未獲得）
-    await page.goto("/");
-    await page.evaluate(
-      ({ key }) => {
-        localStorage.setItem(
-          key,
-          JSON.stringify({
-            collectedCardIds: [],
-            totalQuizAttempts: 0,
-            correctAnswers: 0,
-            wrongAnswerQuizIds: [],
-            answeredQuizIds: [],
-            categoryStats: {
-              silo: { attempts: 0, correct: 0 },
-              grain: { attempts: 0, correct: 0 },
-              trader: { attempts: 0, correct: 0 },
-            },
-          })
-        );
-      },
-      { key: STORAGE_KEY }
-    );
-    await page.reload();
-
+    await setCollectionStateBeforeLoad(page, {
+      collectedCardIds: [],
+    });
     await page.goto("/map");
 
     // Leaflet地図が読み込まれるまで待機
