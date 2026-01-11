@@ -233,8 +233,8 @@ export const quizzes: Quiz[] = [
     category: "grain",
     question: "大豆がサイロに多く集まる背景として正しいものはどれでしょうか？",
     options: [
-      { text: "飼料や食品・油に幅広く使われるため", isCorrect: true },
       { text: "主に繊維製品の原料として使われるため", isCorrect: false },
+      { text: "飼料や食品・油に幅広く使われるため", isCorrect: true },
       { text: "冷凍流通が難しく短期消費が前提だから", isCorrect: false },
       { text: "日本国内でほぼ自給できる作物だから", isCorrect: false },
     ],
@@ -248,9 +248,9 @@ export const quizzes: Quiz[] = [
     category: "grain",
     question: "トウモロコシが港湾サイロで重要な理由として正しいものは？",
     options: [
-      { text: "飼料・加工原料として用途が広い", isCorrect: true },
       { text: "主に高級菓子の原料として使われる", isCorrect: false },
       { text: "日本国内のみで流通する作物だから", isCorrect: false },
+      { text: "飼料・加工原料として用途が広い", isCorrect: true },
       { text: "貯蔵期間が極端に短い作物だから", isCorrect: false },
     ],
     explanation:
@@ -283,8 +283,8 @@ export const quizzes: Quiz[] = [
     category: "grain",
     question: "大麦が原料として使われるものはどれでしょうか？",
     options: [
-      { text: "ビール", isCorrect: true },
       { text: "日本酒", isCorrect: false },
+      { text: "ビール", isCorrect: true },
       { text: "豆腐", isCorrect: false },
       { text: "納豆", isCorrect: false },
     ],
@@ -316,10 +316,10 @@ export const quizzes: Quiz[] = [
     category: "trader",
     question: "三井物産の穀物事業の強みとして正しいものはどれでしょうか？",
     options: [
-      { text: "ブラジルの大豆と豪州の小麦に強み", isCorrect: true },
       { text: "北米の米専用サイロに特化", isCorrect: false },
       { text: "砂糖とコーヒー豆の専業商社", isCorrect: false },
       { text: "国内流通のみを担う企業", isCorrect: false },
+      { text: "ブラジルの大豆と豪州の小麦に強み", isCorrect: true },
     ],
     explanation:
       "三井物産はブラジルの大豆事業やオーストラリアの小麦事業に強みがあり、国際的な供給網を持っています。",
@@ -376,10 +376,10 @@ export const quizzes: Quiz[] = [
     category: "trader",
     question: "三菱商事の穀物事業の特徴として正しいものはどれでしょうか？",
     options: [
-      { text: "調達から販売までのサプライチェーン構築に強み", isCorrect: true },
       { text: "国内流通のみを専門とする", isCorrect: false },
       { text: "米専業の国営企業である", isCorrect: false },
       { text: "非上場の同族企業である", isCorrect: false },
+      { text: "調達から販売までのサプライチェーン構築に強み", isCorrect: true },
     ],
     explanation:
       "三菱商事は穀物・飼料原料の調達から販売まで、広いサプライチェーンを構築することで安定供給を支えています。",
@@ -391,9 +391,9 @@ export const quizzes: Quiz[] = [
     category: "trader",
     question: "住友商事の食料・穀物分野の役割として正しいものはどれでしょうか？",
     options: [
-      { text: "調達ネットワークを活かした安定供給", isCorrect: true },
       { text: "国内の米専用サイロのみを運営", isCorrect: false },
       { text: "輸出専業で国内流通は担わない", isCorrect: false },
+      { text: "調達ネットワークを活かした安定供給", isCorrect: true },
       { text: "飼料の製造だけを専門に行う", isCorrect: false },
     ],
     explanation:
@@ -421,8 +421,8 @@ export const quizzes: Quiz[] = [
     category: "trader",
     question: "双日の穀物・食品原料事業の特徴として正しいものはどれでしょうか？",
     options: [
-      { text: "食品原料の調達と国内サプライチェーン構築", isCorrect: true },
       { text: "米専用の内陸サイロのみを運営", isCorrect: false },
+      { text: "食品原料の調達と国内サプライチェーン構築", isCorrect: true },
       { text: "国内の小売りだけに特化している", isCorrect: false },
       { text: "穀物の取り扱いは行わない", isCorrect: false },
     ],
@@ -436,10 +436,10 @@ export const quizzes: Quiz[] = [
     category: "trader",
     question: "兼松の穀物分野での役割として正しいものはどれでしょうか？",
     options: [
-      { text: "飼料原料の安定輸入と国内供給", isCorrect: true },
       { text: "米専用サイロとして最大規模", isCorrect: false },
       { text: "国営の穀物備蓄を担当する", isCorrect: false },
       { text: "海外での小売専業である", isCorrect: false },
+      { text: "飼料原料の安定輸入と国内供給", isCorrect: true },
     ],
     explanation:
       "兼松は食料・飼料分野に強みを持ち、穀物の安定輸入と国内供給を担っています。",
