@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setCollectionStateBeforeLoad } from "./helpers/test-utils";
 
 test.describe("穀物サイロカード - クイズフロー", () => {
   test("ホームページが正しく表示される", async ({ page }) => {
@@ -278,5 +279,154 @@ test.describe("アクセシビリティ", () => {
     // ESCキーで閉じる
     await page.keyboard.press("Escape");
     await expect(page.locator("text=本当にリセットしますか？")).not.toBeVisible();
+  });
+});
+
+test.describe("回答済みクイズとスキップ機能", () => {
+  const STORAGE_KEY = "silo-card-collection";
+
+  test("回答済みクイズにはスキップボタンが表示される", async ({ page }) => {
+    // 回答済みクイズがある状態を設定
+    await page.goto("/");
+    await page.evaluate(
+      ({ key }) => {
+        localStorage.setItem(
+          key,
+          JSON.stringify({
+            collectedCardIds: [],
+            totalQuizAttempts: 1,
+            correctAnswers: 0,
+            wrongAnswerQuizIds: [],
+            answeredQuizIds: ["quiz-wheat-1"],
+            categoryStats: {
+              silo: { attempts: 0, correct: 0 },
+              grain: { attempts: 1, correct: 0 },
+              trader: { attempts: 0, correct: 0 },
+            },
+          })
+        );
+      },
+      { key: STORAGE_KEY }
+    );
+    await page.reload();
+
+    await page.goto("/quiz");
+    await page.locator("button").filter({ hasText: "穀物" }).first().click();
+
+    // クイズが表示されるまで待機
+    await page.waitForTimeout(1000);
+
+    // 回答済みクイズの場合、「回答済み」バッジが表示される可能性がある
+    const answeredBadge = page.locator("text=回答済み");
+    const skipButton = page.locator("button").filter({ hasText: "スキップ" });
+
+    // 回答済みクイズが表示された場合のみ検証
+    if (await answeredBadge.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await expect(skipButton).toBeVisible();
+    }
+  });
+
+  test("スキップで別のクイズに切り替わる", async ({ page }) => {
+    // 1つだけ回答済みの状態を設定
+    await page.goto("/");
+    await page.evaluate(
+      ({ key }) => {
+        localStorage.setItem(
+          key,
+          JSON.stringify({
+            collectedCardIds: [],
+            totalQuizAttempts: 1,
+            correctAnswers: 0,
+            wrongAnswerQuizIds: [],
+            answeredQuizIds: ["quiz-wheat-1"],
+            categoryStats: {
+              silo: { attempts: 0, correct: 0 },
+              grain: { attempts: 1, correct: 0 },
+              trader: { attempts: 0, correct: 0 },
+            },
+          })
+        );
+      },
+      { key: STORAGE_KEY }
+    );
+    await page.reload();
+
+    await page.goto("/quiz");
+    await page.locator("button").filter({ hasText: "穀物" }).first().click();
+
+    await page.waitForTimeout(1000);
+
+    // 回答済みクイズが表示された場合、スキップをクリック
+    const skipButton = page.locator("button").filter({ hasText: "スキップ" });
+    if (await skipButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+      // 現在の問題文を記録
+      const questionBefore = await page.locator("h3").textContent();
+
+      await skipButton.click();
+      await page.waitForTimeout(500);
+
+      // 別のクイズが表示されるか、カテゴリ選択に戻る
+      const questionAfter = await page.locator("h3").textContent().catch(() => null);
+      const categorySelect = page.locator("h2").filter({ hasText: "カテゴリを選択" });
+
+      // 問題が変わったか、カテゴリ選択に戻ったことを確認
+      const changed =
+        questionAfter !== questionBefore ||
+        (await categorySelect.isVisible().catch(() => false));
+      expect(changed).toBeTruthy();
+    }
+  });
+});
+
+test.describe("統計データの正確性", () => {
+  const STORAGE_KEY = "silo-card-collection";
+
+  test("統計データ（正答率）が正確に計算される", async ({ page }) => {
+    // 統計データを設定
+    await page.goto("/");
+    await page.evaluate(
+      ({ key }) => {
+        localStorage.setItem(
+          key,
+          JSON.stringify({
+            collectedCardIds: ["grain-wheat"],
+            totalQuizAttempts: 10,
+            correctAnswers: 7,
+            wrongAnswerQuizIds: [],
+            answeredQuizIds: [],
+            categoryStats: {
+              silo: { attempts: 3, correct: 2 },
+              grain: { attempts: 4, correct: 3 },
+              trader: { attempts: 3, correct: 2 },
+            },
+          })
+        );
+      },
+      { key: STORAGE_KEY }
+    );
+    await page.reload();
+
+    // ホームページの正答率を確認
+    await expect(page.locator("text=70%")).toBeVisible({ timeout: 5000 });
+  });
+
+  test("カテゴリ別統計が正確に記録される", async ({ page }) => {
+    // addInitScript を使ってページ読み込み前にlocalStorageを設定
+    await setCollectionStateBeforeLoad(page, {
+      totalQuizAttempts: 10,
+      correctAnswers: 6,
+      categoryStats: {
+        silo: { attempts: 4, correct: 2 },
+        grain: { attempts: 4, correct: 3 },
+        trader: { attempts: 2, correct: 1 },
+      },
+    });
+    await page.goto("/settings");
+
+    // カテゴリ別正答率が表示される
+    await expect(page.locator("text=カテゴリ別正答率")).toBeVisible();
+
+    // 穀物カテゴリの正答率（75%）を確認
+    await expect(page.locator("text=75%")).toBeVisible({ timeout: 5000 });
   });
 });

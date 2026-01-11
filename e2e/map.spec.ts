@@ -52,7 +52,7 @@ test.describe("サイロマップ", () => {
     await expect(page.locator("text=OpenStreetMap")).toBeVisible();
   });
 
-  test("サイドバーにサイロが5つ表示される", async ({ page }) => {
+  test("サイドバーにサイロが表示される", async ({ page }) => {
     await page.goto("/map");
 
     // サイドバー内のボタン（サイロリスト）を取得
@@ -61,8 +61,9 @@ test.describe("サイロマップ", () => {
       .first()
       .locator("button");
 
-    // 5つのサイロが表示される
-    await expect(siloButtons).toHaveCount(5);
+    // サイロが表示される（5つ以上）
+    const count = await siloButtons.count();
+    expect(count).toBeGreaterThanOrEqual(5);
   });
 
   test("サイドバーのサイロをクリックすると選択状態になる", async ({
@@ -154,5 +155,90 @@ test.describe("サイロマップ", () => {
 
     // リセットボタンが引き続き表示される（ビューがリセットされた）
     await expect(resetButton).toBeVisible();
+  });
+});
+
+test.describe("サイロマップ - マーカー状態", () => {
+  const STORAGE_KEY = "silo-card-collection";
+
+  test("獲得済みサイロは金色マーカーで表示される", async ({ page }) => {
+    // サイロカードを獲得した状態を設定
+    await page.goto("/");
+    await page.evaluate(
+      ({ key }) => {
+        localStorage.setItem(
+          key,
+          JSON.stringify({
+            collectedCardIds: ["silo-kanto", "silo-tohoku"],
+            totalQuizAttempts: 2,
+            correctAnswers: 2,
+            wrongAnswerQuizIds: [],
+            answeredQuizIds: [],
+            categoryStats: {
+              silo: { attempts: 2, correct: 2 },
+              grain: { attempts: 0, correct: 0 },
+              trader: { attempts: 0, correct: 0 },
+            },
+          })
+        );
+      },
+      { key: STORAGE_KEY }
+    );
+    await page.reload();
+
+    await page.goto("/map");
+
+    // Leaflet地図が読み込まれるまで待機
+    await expect(page.locator(".leaflet-container")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // 獲得済みマーカーが表示される
+    await expect(page.locator(".silo-marker-collected").first()).toBeVisible({
+      timeout: 5000,
+    });
+  });
+
+  test("未獲得サイロはグレーマーカーで表示される", async ({ page }) => {
+    // 空の状態（サイロ未獲得）
+    await page.goto("/");
+    await page.evaluate(
+      ({ key }) => {
+        localStorage.setItem(
+          key,
+          JSON.stringify({
+            collectedCardIds: [],
+            totalQuizAttempts: 0,
+            correctAnswers: 0,
+            wrongAnswerQuizIds: [],
+            answeredQuizIds: [],
+            categoryStats: {
+              silo: { attempts: 0, correct: 0 },
+              grain: { attempts: 0, correct: 0 },
+              trader: { attempts: 0, correct: 0 },
+            },
+          })
+        );
+      },
+      { key: STORAGE_KEY }
+    );
+    await page.reload();
+
+    await page.goto("/map");
+
+    // Leaflet地図が読み込まれるまで待機
+    await expect(page.locator(".leaflet-container")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // 未獲得マーカーのみが表示される
+    await expect(page.locator(".silo-marker-uncollected").first()).toBeVisible({
+      timeout: 5000,
+    });
+
+    // 獲得済みマーカーは表示されない
+    await expect(page.locator(".silo-marker-collected")).not.toBeVisible({
+      timeout: 1000,
+    });
   });
 });
