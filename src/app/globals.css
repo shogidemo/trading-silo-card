@@ -45,6 +45,10 @@
   .font-mono {
     font-family: var(--font-mono), monospace;
   }
+
+  .font-english {
+    font-family: var(--font-english), "Nunito", sans-serif;
+  }
 }
 
 /* グラデーションメッシュ背景 */

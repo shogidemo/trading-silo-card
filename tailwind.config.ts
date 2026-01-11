@@ -87,6 +87,7 @@ const config: Config = {
         display: ["var(--font-display)", "Hiragino Sans", "sans-serif"],
         body: ["var(--font-body)", "Hiragino Sans", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
+        english: ["var(--font-english)", "Nunito", "sans-serif"],
       },
       animation: {
         "shimmer": "shimmer 3s ease infinite",
