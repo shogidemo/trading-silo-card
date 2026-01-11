@@ -11,13 +11,13 @@ import { CollectionState, CardCategory, CategoryStats } from "@/types";
 import { STORAGE_KEY } from "@/constants";
 import { allCards } from "@/data";
 
-const initialCategoryStats: Record<CardCategory, CategoryStats> = {
+export const initialCategoryStats: Record<CardCategory, CategoryStats> = {
   silo: { attempts: 0, correct: 0 },
   grain: { attempts: 0, correct: 0 },
   trader: { attempts: 0, correct: 0 },
 };
 
-const initialState: CollectionState = {
+export const initialState: CollectionState = {
   collectedCardIds: [],
   totalQuizAttempts: 0,
   correctAnswers: 0,
