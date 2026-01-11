@@ -640,6 +640,30 @@ export default function QuizPage() {
                 <p className="text-concrete-700 leading-relaxed">
                   {currentQuiz.explanation}
                 </p>
+                {currentQuiz.sources.length > 0 && (
+                  <div className="mt-4 text-left">
+                    <p className="text-xs font-display text-concrete-600">
+                      根拠資料
+                    </p>
+                    <ul className="mt-2 space-y-1">
+                      {currentQuiz.sources.map((source) => (
+                        <li
+                          key={`${source.url}-${source.title}`}
+                          className="text-xs"
+                        >
+                          <a
+                            href={source.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-concrete-600 hover:text-concrete-800 underline underline-offset-4 break-words"
+                          >
+                            {source.title}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <p className="text-xs text-concrete-500 mt-3">
                   この施設の理解度:{" "}
                   {getFacilityProgress(currentQuiz.cardId).answered} /

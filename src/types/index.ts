@@ -60,6 +60,11 @@ export interface QuizOption {
   isCorrect: boolean;
 }
 
+export interface QuizSource {
+  title: string;
+  url: string;
+}
+
 // クイズ問題
 export interface Quiz {
   id: string;
@@ -68,6 +73,7 @@ export interface Quiz {
   question: string;
   options: QuizOption[];
   explanation: string;
+  sources: QuizSource[];
 }
 
 // カテゴリ別統計
