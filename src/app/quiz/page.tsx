@@ -108,8 +108,8 @@ export default function QuizPage() {
         setCurrentQuiz(quiz);
         setQuizState("quiz");
       }
-      setInitialCategoryProcessed(true);
     }
+    setInitialCategoryProcessed(true);
   }, [searchParams, initialCategoryProcessed, hasCard, isQuizAnswered]);
 
   const handleCategorySelect = (category: CardCategory) => {
