@@ -13,7 +13,6 @@ export interface BaseCard {
   category: CardCategory;
   name: string;
   description: string;
-  rarity: "common" | "rare" | "legendary";
   imageUrl?: string;
 }
 

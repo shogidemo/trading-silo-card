@@ -1,9 +1,9 @@
 export { containerVariants, itemVariants } from "./animations";
 export {
   getCategoryColors,
-  getRarityStyles,
+  getCardStyles,
   type CategoryColors,
-  type RarityStyles,
+  type CardStyles,
 } from "./styles";
 export {
   shuffleArray,

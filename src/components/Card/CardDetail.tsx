@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
 import { useModalAccessibility, useReducedMotion } from "@/hooks";
+import { getCardStyles } from "@/lib";
 
 interface CardDetailProps {
   card: Card;
@@ -15,40 +16,19 @@ export default function CardDetail({ card, onClose }: CardDetailProps) {
   const { modalRef, handleKeyDown } = useModalAccessibility(true, onClose);
   const prefersReducedMotion = useReducedMotion();
   const titleId = `card-detail-title-${card.id}`;
+  const cardStyles = getCardStyles(card.category);
 
-  const getRarityStyles = () => {
-    switch (card.rarity) {
-      case "legendary":
-        return {
-          gradient: "from-gold-400 via-gold-500 to-gold-600",
-          label: "レジェンダリー",
-          labelBg: "bg-gold-900 text-gold-300",
-          cardBg: "bg-gradient-to-b from-gold-50 to-concrete-50",
-          holographic: true,
-          glow: "shadow-[0_0_40px_rgba(212,169,55,0.4)]",
-        };
-      case "rare":
-        return {
-          gradient: "from-harvest-400 via-harvest-500 to-harvest-600",
-          label: "レア",
-          labelBg: "bg-harvest-800 text-harvest-200",
-          cardBg: "bg-gradient-to-b from-harvest-50 to-concrete-50",
-          holographic: false,
-          glow: "shadow-[0_0_30px_rgba(107,142,35,0.3)]",
-        };
-      default:
-        return {
-          gradient: "from-concrete-500 via-concrete-600 to-concrete-700",
-          label: "コモン",
-          labelBg: "bg-concrete-700 text-concrete-200",
-          cardBg: "bg-concrete-50",
-          holographic: false,
-          glow: "",
-        };
+  // カテゴリに基づく背景スタイル
+  const getCardBg = () => {
+    switch (card.category) {
+      case "silo":
+        return "bg-gradient-to-b from-slate-50 to-concrete-50";
+      case "grain":
+        return "bg-gradient-to-b from-gold-50 to-concrete-50";
+      case "trader":
+        return "bg-gradient-to-b from-concrete-100 to-concrete-50";
     }
   };
-
-  const rarityStyles = getRarityStyles();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -153,15 +133,13 @@ export default function CardDetail({ card, onClose }: CardDetailProps) {
         exit={prefersReducedMotion ? { opacity: 0 } : { scale: 0.9, y: 30, opacity: 0 }}
         transition={prefersReducedMotion ? { duration: 0.1 } : { type: "spring", damping: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className={`w-full max-w-md vintage-border rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto ${rarityStyles.cardBg} ${rarityStyles.glow}`}
+        className={`w-full max-w-md vintage-border rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto ${getCardBg()} ${cardStyles.glow}`}
       >
-        {/* ホログラフィック効果（レジェンダリー） */}
-        {rarityStyles.holographic && (
-          <div className="absolute inset-0 holographic opacity-10 pointer-events-none rounded-2xl" />
-        )}
+        {/* ホログラフィック効果（全カードに適用） */}
+        <div className="absolute inset-0 holographic opacity-10 pointer-events-none rounded-2xl" />
 
         {/* ヘッダー */}
-        <div className={`relative bg-gradient-to-br ${rarityStyles.gradient} p-6 text-white`}>
+        <div className={`relative bg-gradient-to-br ${cardStyles.gradient} p-6 text-white`}>
           {/* 装飾的なストライプ */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{
@@ -185,9 +163,6 @@ export default function CardDetail({ card, onClose }: CardDetailProps) {
               >
                 {categoryInfo?.icon}
               </motion.span>
-              <span className={`text-xs px-3 py-1.5 rounded-full font-mono ${rarityStyles.labelBg}`}>
-                {rarityStyles.label}
-              </span>
             </div>
             <motion.h2
               id={titleId}

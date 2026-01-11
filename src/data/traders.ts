@@ -7,7 +7,6 @@ export const traders: TraderCard[] = [
     name: "丸紅",
     description:
       "日本を代表する総合商社。穀物取扱では国内トップクラスの実績を持つ。",
-    rarity: "legendary",
     imageUrl: "/images/traders/marubeni.svg",
     foundedYear: 1858,
     headquarters: "東京都千代田区",
@@ -22,7 +21,6 @@ export const traders: TraderCard[] = [
     name: "三井物産",
     description:
       "日本初の総合商社。鉄鉱石、原油と並び穀物は重要な取扱品目の一つ。",
-    rarity: "legendary",
     imageUrl: "/images/traders/mitsui.svg",
     foundedYear: 1876,
     headquarters: "東京都千代田区",
@@ -36,7 +34,6 @@ export const traders: TraderCard[] = [
     name: "伊藤忠商事",
     description:
       "繊維から発展した総合商社。食料部門は収益の柱の一つ。",
-    rarity: "legendary",
     imageUrl: "/images/traders/itochu.png",
     foundedYear: 1858,
     headquarters: "大阪府大阪市・東京都港区",
@@ -50,7 +47,6 @@ export const traders: TraderCard[] = [
     name: "カーギル",
     description:
       "世界最大の穀物メジャー。非上場企業として世界最大の売上を誇る。",
-    rarity: "legendary",
     imageUrl: "/images/traders/cargill.svg",
     foundedYear: 1865,
     headquarters: "アメリカ・ミネソタ州",
@@ -64,7 +60,6 @@ export const traders: TraderCard[] = [
     name: "ADM",
     description:
       "Archer Daniels Midland。世界有数の穀物加工・食品原料メーカー。",
-    rarity: "rare",
     imageUrl: "/images/traders/adm.png",
     foundedYear: 1902,
     headquarters: "アメリカ・イリノイ州",

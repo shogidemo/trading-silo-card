@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Card } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
-import { getCategoryColors, getRarityStyles } from "@/lib";
+import { getCategoryColors, getCardStyles } from "@/lib";
 import { useModalAccessibility, useReducedMotion } from "@/hooks";
 
 interface CardRevealProps {
@@ -45,7 +45,7 @@ function Particle({ delay, x }: { delay: number; x: number }) {
 export default function CardReveal({ card, onClose }: CardRevealProps) {
   const categoryInfo = CATEGORY_INFO.find((c) => c.id === card.category);
   const categoryColors = getCategoryColors(card.category);
-  const rarityStyles = getRarityStyles(card.rarity);
+  const cardStyles = getCardStyles(card.category);
   const [showParticles, setShowParticles] = useState(false);
   const { modalRef, handleKeyDown } = useModalAccessibility(true, onClose);
   const prefersReducedMotion = useReducedMotion();
@@ -58,19 +58,6 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
       return () => clearTimeout(timer);
     }
   }, [prefersReducedMotion]);
-
-  const getRarityLabel = () => {
-    switch (card.rarity) {
-      case "legendary":
-        return { label: "LEGENDARY", bg: "bg-gold-600", text: "text-white" };
-      case "rare":
-        return { label: "RARE", bg: "bg-harvest-600", text: "text-white" };
-      default:
-        return { label: "COMMON", bg: "bg-concrete-500", text: "text-white" };
-    }
-  };
-
-  const rarityLabel = getRarityLabel();
 
   // パーティクル配列生成
   const particles = Array.from({ length: 20 }, (_, i) => ({
@@ -108,18 +95,18 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
       >
         <div
           className={`w-96 h-96 rounded-full blur-3xl ${
-            card.rarity === "legendary"
+            card.category === "grain"
               ? "bg-gold-500/30"
-              : card.rarity === "rare"
-              ? "bg-harvest-500/20"
-              : "bg-concrete-500/10"
+              : card.category === "silo"
+              ? "bg-slate-500/30"
+              : "bg-concrete-500/30"
           }`}
         />
       </motion.div>
 
-      {/* パーティクル（reduced motion無効時のみ） */}
+      {/* パーティクル（reduced motion無効時のみ、全カードに適用） */}
       <AnimatePresence>
-        {!prefersReducedMotion && showParticles && card.rarity !== "common" && (
+        {!prefersReducedMotion && showParticles && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
             {particles.map((p) => (
               <Particle key={p.id} delay={p.delay} x={p.x} />
@@ -146,33 +133,31 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
       >
         {/* カード本体 - FlipCardと同じデザイン */}
         <div className="relative">
-          {/* レアリティ外周グロー（reduced motion無効時のみアニメーション） */}
-          {card.rarity !== "common" && (
-            <motion.div
-              animate={
-                prefersReducedMotion
-                  ? { opacity: 0.6 }
-                  : {
-                      opacity: [0.4, 0.8, 0.4],
-                      scale: [1, 1.02, 1],
-                    }
-              }
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0.1 }
-                  : {
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }
-              }
-              className={`absolute -inset-1 rounded-xl bg-gradient-to-r ${rarityStyles.gradient} blur-lg`}
-            />
-          )}
+          {/* 外周グロー（reduced motion無効時のみアニメーション、全カードに適用） */}
+          <motion.div
+            animate={
+              prefersReducedMotion
+                ? { opacity: 0.6 }
+                : {
+                    opacity: [0.4, 0.8, 0.4],
+                    scale: [1, 1.02, 1],
+                  }
+            }
+            transition={
+              prefersReducedMotion
+                ? { duration: 0.1 }
+                : {
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }
+            }
+            className={`absolute -inset-1 rounded-xl bg-gradient-to-r ${cardStyles.gradient} blur-lg`}
+          />
 
           {/* カード */}
           <div
-            className={`relative rounded-xl overflow-hidden vintage-border ${rarityStyles.glow}`}
+            className={`relative rounded-xl overflow-hidden vintage-border ${cardStyles.glow}`}
           >
             {/* シマーエフェクト（reduced motion無効時のみ） */}
             {!prefersReducedMotion && (
@@ -190,21 +175,14 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
               />
             )}
 
-            {/* ホログラフィック効果（レジェンダリー） */}
-            {card.rarity === "legendary" && (
-              <div className="absolute inset-0 holographic opacity-20 pointer-events-none z-10" />
-            )}
+            {/* ホログラフィック効果（全カードに適用） */}
+            <div className="absolute inset-0 holographic opacity-20 pointer-events-none z-10" />
 
             {/* ヘッダー部分 */}
             <div className={`px-3 py-2 bg-gradient-to-r ${categoryColors.gradient}`}>
-              <div className="flex items-center justify-between">
-                <span className="text-white text-[10px] font-mono uppercase tracking-wider opacity-80">
-                  {categoryInfo?.nameEn}
-                </span>
-                <span className={`text-[8px] px-1.5 py-0.5 rounded font-mono ${rarityLabel.bg} ${rarityLabel.text}`}>
-                  {rarityLabel.label}
-                </span>
-              </div>
+              <span className="text-white text-[10px] font-mono uppercase tracking-wider opacity-80">
+                {categoryInfo?.nameEn}
+              </span>
             </div>
 
             {/* メイン画像エリア */}

@@ -7,7 +7,6 @@ export const silos: SiloCard[] = [
     name: "関東グレーンターミナル",
     description:
       "茨城県鹿島港にある日本一の穀物取扱量を誇るサイロ。年間約400万トンを取り扱う。",
-    rarity: "legendary",
     imageUrl: "/images/silos/kanto-grain-terminal.jpg",
     location: "茨城県神栖市",
     coordinates: { lat: 35.8889, lng: 140.6653 },
@@ -22,7 +21,6 @@ export const silos: SiloCard[] = [
     name: "東北グレーンターミナル",
     description:
       "青森県八戸港にある東北最大級の飼料穀物サイロ。6社の飼料メーカーが集積。",
-    rarity: "rare",
     imageUrl: "/images/silos/tohoku-grain-terminal.jpg",
     location: "青森県八戸市",
     coordinates: { lat: 40.5276, lng: 141.5488 },
@@ -37,7 +35,6 @@ export const silos: SiloCard[] = [
     name: "日本サイロ千葉事業所",
     description:
       "東日本における大型グレーンターミナル。122本・13.5万トンの大規模収容力を誇る。",
-    rarity: "common",
     imageUrl: "/images/silos/nihon-silo-chiba.webp",
     location: "千葉県千葉市",
     coordinates: { lat: 35.5784, lng: 140.1024 },
@@ -52,7 +49,6 @@ export const silos: SiloCard[] = [
     name: "東洋グレーンターミナル",
     description:
       "関東グレーングループ2番目のサイロ。中京地区初の輸入大豆粕専用サイロを保有。",
-    rarity: "common",
     imageUrl: "/images/silos/toyo-grain-terminal.jpg",
     location: "愛知県知多市",
     coordinates: { lat: 35.0063, lng: 136.8714 },
@@ -67,7 +63,6 @@ export const silos: SiloCard[] = [
     name: "博多港サイロ",
     description:
       "1964年設立。九州の食を支える穀物サイロのリーディングカンパニー。",
-    rarity: "common",
     imageUrl: "/images/silos/hakata-port-silo.jpg",
     location: "福岡県福岡市",
     coordinates: { lat: 33.6152, lng: 130.4062 },

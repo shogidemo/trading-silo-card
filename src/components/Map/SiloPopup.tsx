@@ -1,27 +1,17 @@
 "use client";
 
 import { SiloCard } from "@/types";
-import { getRarityStyles } from "@/lib/styles";
 
 interface SiloPopupProps {
   silo: SiloCard;
 }
 
 export default function SiloPopup({ silo }: SiloPopupProps) {
-  const rarityStyles = getRarityStyles(silo.rarity);
-
   return (
     <div className="min-w-[200px] p-1">
-      <div className="flex items-start gap-2 mb-2">
-        <h3 className="font-display text-base font-bold text-concrete-900 leading-tight">
-          {silo.name}
-        </h3>
-        <span
-          className={`shrink-0 px-1.5 py-0.5 rounded text-xs ${rarityStyles.badge}`}
-        >
-          {rarityStyles.label}
-        </span>
-      </div>
+      <h3 className="font-display text-base font-bold text-concrete-900 leading-tight mb-2">
+        {silo.name}
+      </h3>
 
       <p className="text-xs text-concrete-600 mb-2">{silo.location}</p>
 

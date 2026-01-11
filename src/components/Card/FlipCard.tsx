@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Card } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
-import { getCategoryColors, getRarityStyles } from "@/lib";
+import { getCategoryColors, getCardStyles } from "@/lib";
 import { useReducedMotion } from "@/hooks";
 
 interface FlipCardProps {
@@ -17,7 +17,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const categoryInfo = CATEGORY_INFO.find((c) => c.id === card.category);
   const categoryColors = getCategoryColors(card.category);
-  const rarityStyles = getRarityStyles(card.rarity);
+  const cardStyles = getCardStyles(card.category);
   const prefersReducedMotion = useReducedMotion();
 
   const handleFlip = () => {
@@ -41,19 +41,6 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
     const action = isFlipped ? "表面を見るには" : "裏面を見るには";
     return `${card.name}カード、${side}。${action}Enterキーを押してください`;
   };
-
-  const getRarityLabel = () => {
-    switch (card.rarity) {
-      case "legendary":
-        return { label: "LEGENDARY", bg: "bg-gold-600", text: "text-white" };
-      case "rare":
-        return { label: "RARE", bg: "bg-harvest-600", text: "text-white" };
-      default:
-        return { label: "COMMON", bg: "bg-concrete-500", text: "text-white" };
-    }
-  };
-
-  const rarityLabel = getRarityLabel();
 
   const renderBackContent = () => {
     if (card.category === "grain") {
@@ -124,13 +111,13 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
         {/* 表面 (Front) */}
         <div
           className={`absolute inset-0 backface-hidden rounded-xl overflow-hidden vintage-border ${
-            isCollected ? rarityStyles.glow : ""
+            isCollected ? cardStyles.glow : ""
           }`}
           style={{ backfaceVisibility: "hidden" }}
         >
           {isCollected ? (
             <div className="relative h-full flex flex-col bg-gradient-to-br from-concrete-100 to-white">
-              {/* シマーエフェクト（収集済み、reduced motion無効時のみ） */}
+              {/* シマーエフェクト（収集済み、reduced motion無効時のみ、全カードに適用） */}
               {!prefersReducedMotion && (
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent z-10 pointer-events-none"
@@ -140,31 +127,19 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
                   transition={{
                     duration: 3,
                     repeat: Infinity,
-                    repeatDelay:
-                      card.rarity === "legendary"
-                        ? 1
-                        : card.rarity === "rare"
-                          ? 2
-                          : 3,
+                    repeatDelay: 1,
                     ease: "easeInOut",
                   }}
                 />
               )}
-              {/* ホログラフィック効果（レジェンダリー） */}
-              {card.rarity === "legendary" && (
-                <div className="absolute inset-0 holographic opacity-20 pointer-events-none" />
-              )}
+              {/* ホログラフィック効果（全カードに適用） */}
+              <div className="absolute inset-0 holographic opacity-20 pointer-events-none" />
 
               {/* ヘッダー部分 */}
               <div className={`px-3 py-2 bg-gradient-to-r ${categoryColors.gradient}`}>
-                <div className="flex items-center justify-between">
-                  <span className="text-white text-[10px] font-mono uppercase tracking-wider opacity-80">
-                    {categoryInfo?.nameEn}
-                  </span>
-                  <span className={`text-[8px] px-1.5 py-0.5 rounded font-mono ${rarityLabel.bg} ${rarityLabel.text}`}>
-                    {rarityLabel.label}
-                  </span>
-                </div>
+                <span className="text-white text-[10px] font-mono uppercase tracking-wider opacity-80">
+                  {categoryInfo?.nameEn}
+                </span>
               </div>
 
               {/* メイン画像エリア */}
@@ -212,16 +187,14 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
         {/* 裏面 (Back) */}
         <div
           className={`absolute inset-0 backface-hidden rounded-xl overflow-hidden vintage-border ${
-            isCollected ? rarityStyles.glow : ""
+            isCollected ? cardStyles.glow : ""
           }`}
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           {isCollected && (
             <div className={`h-full flex flex-col bg-gradient-to-br ${categoryColors.gradient}`}>
-              {/* ホログラフィック効果（レジェンダリー） */}
-              {card.rarity === "legendary" && (
-                <div className="absolute inset-0 holographic opacity-10 pointer-events-none" />
-              )}
+              {/* ホログラフィック効果（全カードに適用） */}
+              <div className="absolute inset-0 holographic opacity-10 pointer-events-none" />
 
               {/* ヘッダー */}
               <div className="px-3 py-2 bg-black/20">
@@ -240,10 +213,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
               </div>
 
               {/* フッター */}
-              <div className="px-3 py-2 bg-black/30 flex items-center justify-between">
-                <span className={`text-[8px] px-1.5 py-0.5 rounded font-mono ${rarityLabel.bg} ${rarityLabel.text}`}>
-                  {rarityLabel.label}
-                </span>
+              <div className="px-3 py-2 bg-black/30 flex items-center justify-end">
                 <span className="text-[8px] text-white/50">タップで表面</span>
               </div>
             </div>

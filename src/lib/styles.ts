@@ -31,51 +31,40 @@ export function getCategoryColors(id: CardCategory): CategoryColors {
   return colors[id];
 }
 
-export interface RarityStyles {
-  badge: string;
-  stars: string;
+export interface CardStyles {
   glow: string;
-  gradient?: string;
-  border?: string;
-  label?: string;
-  labelBg?: string;
-  holographic?: boolean;
+  gradient: string;
+  border: string;
+  holographic: boolean;
+  badge: string;
 }
 
-export function getRarityStyles(rarity: string): RarityStyles {
-  switch (rarity) {
-    case "legendary":
+// カテゴリに基づく統一されたカードスタイル（全カードに豪華なエフェクトを適用）
+export function getCardStyles(category: CardCategory): CardStyles {
+  switch (category) {
+    case "silo":
       return {
-        badge: "bg-gold-500 text-gold-900",
-        stars: "★★★",
+        glow: "shadow-[0_0_20px_rgba(100,116,139,0.4)]",
+        gradient: "from-slate-400 via-slate-500 to-slate-600",
+        border: "border-2 border-slate-400",
+        holographic: true,
+        badge: "bg-slate-500 text-white",
+      };
+    case "grain":
+      return {
         glow: "shadow-[0_0_20px_rgba(212,169,55,0.4)]",
         gradient: "from-gold-400 via-gold-500 to-gold-600",
         border: "border-2 border-gold-400",
-        label: "レジェンダリー",
-        labelBg: "bg-gold-900/80 text-gold-300",
         holographic: true,
+        badge: "bg-gold-500 text-gold-900",
       };
-    case "rare":
+    case "trader":
       return {
-        badge: "bg-harvest-500 text-white",
-        stars: "★★",
-        glow: "shadow-[0_0_15px_rgba(107,142,35,0.3)]",
-        gradient: "from-harvest-400 via-harvest-500 to-harvest-600",
-        border: "border-2 border-harvest-400",
-        label: "レア",
-        labelBg: "bg-harvest-800/80 text-harvest-200",
-        holographic: false,
-      };
-    default:
-      return {
-        badge: "bg-concrete-400 text-white",
-        stars: "★",
-        glow: "",
+        glow: "shadow-[0_0_20px_rgba(75,85,99,0.4)]",
         gradient: "from-concrete-400 via-concrete-500 to-concrete-600",
-        border: "border border-concrete-300",
-        label: "コモン",
-        labelBg: "bg-concrete-700/80 text-concrete-200",
-        holographic: false,
+        border: "border-2 border-concrete-400",
+        holographic: true,
+        badge: "bg-concrete-500 text-white",
       };
   }
 }

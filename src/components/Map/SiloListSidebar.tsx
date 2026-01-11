@@ -2,7 +2,6 @@
 
 import { silos } from "@/data";
 import { useCollection } from "@/context/CollectionContext";
-import { getRarityStyles } from "@/lib/styles";
 
 interface SiloListSidebarProps {
   selectedId?: string | null;
@@ -31,7 +30,6 @@ export default function SiloListSidebar({
         {silos.map((silo) => {
           const isCollected = hasCard(silo.id);
           const isSelected = selectedId === silo.id;
-          const rarityStyles = getRarityStyles(silo.rarity);
 
           return (
             <button
@@ -47,20 +45,11 @@ export default function SiloListSidebar({
             >
               {isCollected ? (
                 <>
-                  <div className="flex items-start justify-between gap-2">
-                    <span
-                      className={`font-display text-sm ${isSelected ? "text-white" : "text-concrete-900"}`}
-                    >
-                      {silo.name}
-                    </span>
-                    <span
-                      className={`shrink-0 px-1.5 py-0.5 rounded text-xs ${
-                        isSelected ? "bg-white/20 text-white" : rarityStyles.badge
-                      }`}
-                    >
-                      {rarityStyles.stars}
-                    </span>
-                  </div>
+                  <span
+                    className={`font-display text-sm ${isSelected ? "text-white" : "text-concrete-900"}`}
+                  >
+                    {silo.name}
+                  </span>
                   <p
                     className={`text-xs mt-1 ${isSelected ? "text-white/70" : "text-concrete-500"}`}
                   >
