@@ -43,23 +43,39 @@ export default function QuizPage() {
     addWrongAnswer,
     removeWrongAnswer,
     getWrongAnswerQuizIds,
+    addAnsweredQuiz,
+    isQuizAnswered,
+    getAnsweredQuizIds,
   } = useCollection();
 
   // 復習モード用state
   const [isReviewMode, setIsReviewMode] = useState<boolean>(false);
   const [reviewQuizzes, setReviewQuizzes] = useState<Quiz[]>([]);
 
-  const getRandomQuiz = (category: CardCategory) => {
+  const getRandomQuiz = (
+    category: CardCategory,
+    recentIdsOverride?: string[]
+  ) => {
     const categoryQuizzes = quizzes.filter((q) => q.category === category);
-    // 未獲得カードのクイズを優先
-    const uncollectedQuizzes = categoryQuizzes.filter(
+    const unansweredQuizzes = categoryQuizzes.filter(
+      (q) => !isQuizAnswered(q.id)
+    );
+    // 未獲得カードのクイズを優先（未回答のみ対象）
+    const uncollectedQuizzes = unansweredQuizzes.filter(
       (q) => !hasCard(q.cardId)
     );
     const availableQuizzes =
-      uncollectedQuizzes.length > 0 ? uncollectedQuizzes : categoryQuizzes;
+      uncollectedQuizzes.length > 0
+        ? uncollectedQuizzes
+        : unansweredQuizzes.length > 0
+          ? unansweredQuizzes
+          : categoryQuizzes;
 
     // 直近2-3問を除外してランダム選択
-    return selectQuizAvoidingDuplicates(availableQuizzes, recentQuizIds);
+    return selectQuizAvoidingDuplicates(
+      availableQuizzes,
+      recentIdsOverride ?? recentQuizIds
+    );
   };
 
   const handleCategorySelect = (category: CardCategory) => {
@@ -77,7 +93,16 @@ export default function QuizPage() {
 
     // カテゴリ内から3問ランダム選択
     const categoryQuizzes = quizzes.filter((q) => q.category === category);
-    const selectedQuizzes = getRandomQuizzes(categoryQuizzes, 3, recentQuizIds);
+    const unansweredQuizzes = categoryQuizzes.filter(
+      (q) => !isQuizAnswered(q.id)
+    );
+    const availableQuizzes =
+      unansweredQuizzes.length > 0 ? unansweredQuizzes : categoryQuizzes;
+    const selectedQuizzes = getRandomQuizzes(
+      availableQuizzes,
+      3,
+      recentQuizIds
+    );
 
     if (selectedQuizzes.length > 0) {
       setChallengeQuestions(selectedQuizzes);
@@ -109,6 +134,7 @@ export default function QuizPage() {
 
     setSelectedAnswer(answerIndex);
     incrementQuizAttempts(selectedCategory);
+    addAnsweredQuiz(currentQuiz!.id);
 
     // クイズIDを履歴に追加（直近3問まで保持）
     setRecentQuizIds((prev) => [...prev.slice(-2), currentQuiz!.id]);
@@ -193,6 +219,31 @@ export default function QuizPage() {
     }
   };
 
+  const handleSkipAnswered = () => {
+    if (!selectedCategory || !currentQuiz || selectedAnswer !== null) return;
+    const nextRecent = [...recentQuizIds.slice(-2), currentQuiz.id];
+    setRecentQuizIds(nextRecent);
+    const nextQuiz = getRandomQuiz(selectedCategory, nextRecent);
+    if (nextQuiz && nextQuiz.id !== currentQuiz.id) {
+      setCurrentQuiz(nextQuiz);
+      setQuizState("quiz");
+      return;
+    }
+    // これ以上スキップできるクイズがない場合はカテゴリ選択へ戻る
+    setCurrentQuiz(null);
+    setSelectedCategory(null);
+    setQuizState("select");
+  };
+
+  const getFacilityProgress = (cardId: string) => {
+    const total = quizzes.filter((q) => q.cardId === cardId).length;
+    const answeredIds = getAnsweredQuizIds();
+    const answered = quizzes.filter(
+      (q) => q.cardId === cardId && answeredIds.includes(q.id)
+    ).length;
+    return { answered, total };
+  };
+
   const handleChallengeEnd = () => {
     // チャレンジ/復習モードを終了して初期状態に戻る
     setIsChallengeMode(false);
@@ -268,7 +319,7 @@ export default function QuizPage() {
                 カテゴリを選択
               </h2>
               <p className="text-concrete-600">
-                クイズに正解してカードをゲットしよう
+                同じ施設は「初めての正解」でカードをゲットしよう
               </p>
             </motion.div>
 
@@ -367,7 +418,7 @@ export default function QuizPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="inline-flex items-center gap-2"
+                  className="inline-flex items-center gap-2 flex-wrap"
                 >
                   <div
                     className={`bg-gradient-to-r ${getCategoryColors(selectedCategory!).gradient} text-white px-4 py-2 rounded-full text-sm font-display shadow-lg flex items-center gap-2`}
@@ -393,6 +444,27 @@ export default function QuizPage() {
                       {currentQuestionIndex + 1} / {reviewQuizzes.length}
                     </div>
                   )}
+                  {currentQuiz && (
+                    <div className="bg-white/80 text-concrete-700 px-3 py-1 rounded-full text-xs font-mono shadow-sm">
+                      この施設 {getFacilityProgress(currentQuiz.cardId).answered} /
+                      {getFacilityProgress(currentQuiz.cardId).total}
+                    </div>
+                  )}
+                  {!isChallengeMode &&
+                    !isReviewMode &&
+                    isQuizAnswered(currentQuiz.id) && (
+                      <>
+                        <div className="bg-concrete-100 text-concrete-700 px-3 py-1 rounded-full text-xs font-display shadow-sm">
+                          回答済み
+                        </div>
+                        <button
+                          onClick={handleSkipAnswered}
+                          className="text-xs font-display text-concrete-600 hover:text-concrete-800 underline underline-offset-4"
+                        >
+                          スキップ
+                        </button>
+                      </>
+                    )}
                 </motion.div>
               </div>
 
@@ -535,6 +607,22 @@ export default function QuizPage() {
               <h3 className="font-display text-4xl text-concrete-900 mb-4">
                 {isCorrect ? "正解！" : "不正解..."}
               </h3>
+              {isCorrect && earnedCard && (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gold-400 to-harvest-500 text-gold-900 font-display shadow-lg mb-4"
+                >
+                  <span className="text-xl">✨</span>
+                  NEW CARD!
+                  <span className="text-xl">✨</span>
+                </motion.div>
+              )}
+              {isCorrect && !earnedCard && (
+                <p className="text-sm text-concrete-500 mb-4">
+                  この施設のカードはすでに獲得済みです
+                </p>
+              )}
 
               {/* 不正解時に正解を表示 */}
               {!isCorrect && (
@@ -551,6 +639,11 @@ export default function QuizPage() {
               <div className="bg-concrete-50 rounded-2xl p-6 mb-8 max-w-lg mx-auto">
                 <p className="text-concrete-700 leading-relaxed">
                   {currentQuiz.explanation}
+                </p>
+                <p className="text-xs text-concrete-500 mt-3">
+                  この施設の理解度:{" "}
+                  {getFacilityProgress(currentQuiz.cardId).answered} /
+                  {getFacilityProgress(currentQuiz.cardId).total}
                 </p>
               </div>
 

@@ -22,6 +22,7 @@ const initialState: CollectionState = {
   totalQuizAttempts: 0,
   correctAnswers: 0,
   wrongAnswerQuizIds: [],
+  answeredQuizIds: [],
   categoryStats: initialCategoryStats,
 };
 
@@ -47,6 +48,9 @@ interface CollectionContextType {
   removeWrongAnswer: (quizId: string) => void;
   getWrongAnswerQuizIds: () => string[];
   getCategoryAccuracy: (category: CardCategory) => number;
+  addAnsweredQuiz: (quizId: string) => void;
+  isQuizAnswered: (quizId: string) => boolean;
+  getAnsweredQuizIds: () => string[];
 }
 
 const CollectionContext = createContext<CollectionContextType | undefined>(
@@ -68,6 +72,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
           ...initialState,
           ...parsed,
           wrongAnswerQuizIds: parsed.wrongAnswerQuizIds ?? [],
+          answeredQuizIds: parsed.answeredQuizIds ?? [],
           categoryStats: parsed.categoryStats ?? initialCategoryStats,
         });
       } catch {
@@ -151,6 +156,26 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
     return state.wrongAnswerQuizIds;
   };
 
+  const addAnsweredQuiz = (quizId: string) => {
+    setState((prev) => {
+      if (prev.answeredQuizIds.includes(quizId)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        answeredQuizIds: [...prev.answeredQuizIds, quizId],
+      };
+    });
+  };
+
+  const isQuizAnswered = (quizId: string) => {
+    return state.answeredQuizIds.includes(quizId);
+  };
+
+  const getAnsweredQuizIds = () => {
+    return state.answeredQuizIds;
+  };
+
   const getCategoryAccuracy = (category: CardCategory) => {
     const stats = state.categoryStats[category];
     if (stats.attempts === 0) return 0;
@@ -194,6 +219,9 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
         removeWrongAnswer,
         getWrongAnswerQuizIds,
         getCategoryAccuracy,
+        addAnsweredQuiz,
+        isQuizAnswered,
+        getAnsweredQuizIds,
       }}
     >
       {children}

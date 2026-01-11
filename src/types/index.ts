@@ -79,6 +79,8 @@ export interface CollectionState {
   correctAnswers: number;
   // 復習モード用: 誤答クイズIDリスト
   wrongAnswerQuizIds: string[];
+  // 回答済みクイズIDリスト
+  answeredQuizIds: string[];
   // カテゴリ別統計
   categoryStats: Record<CardCategory, CategoryStats>;
 }
