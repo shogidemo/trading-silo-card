@@ -63,29 +63,39 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
 
   // localStorageから読み込み（マイグレーション対応）
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        // 旧フォーマットからのマイグレーション
-        setState({
-          ...initialState,
-          ...parsed,
-          wrongAnswerQuizIds: parsed.wrongAnswerQuizIds ?? [],
-          answeredQuizIds: parsed.answeredQuizIds ?? [],
-          categoryStats: parsed.categoryStats ?? initialCategoryStats,
-        });
-      } catch {
-        setState(initialState);
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          // 旧フォーマットからのマイグレーション
+          setState({
+            ...initialState,
+            ...parsed,
+            wrongAnswerQuizIds: parsed.wrongAnswerQuizIds ?? [],
+            answeredQuizIds: parsed.answeredQuizIds ?? [],
+            categoryStats: parsed.categoryStats ?? initialCategoryStats,
+          });
+        } catch {
+          localStorage.removeItem(STORAGE_KEY);
+          setState(initialState);
+        }
       }
+    } catch {
+      setState(initialState);
+    } finally {
+      setIsInitialized(true);
     }
-    setIsInitialized(true);
   }, []);
 
   // localStorageに保存
   useEffect(() => {
     if (isInitialized) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {
+        // ignore storage errors to avoid breaking UI
+      }
     }
   }, [state, isInitialized]);
 
