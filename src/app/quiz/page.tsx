@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCollection } from "@/context/CollectionContext";
@@ -19,7 +20,9 @@ import CardReveal from "@/components/Card/CardReveal";
 type QuizState = "select" | "quiz" | "result" | "reveal" | "challenge-summary";
 
 export default function QuizPage() {
+  const searchParams = useSearchParams();
   const [quizState, setQuizState] = useState<QuizState>("select");
+  const [initialCategoryProcessed, setInitialCategoryProcessed] = useState(false);
   const [selectedCategory, setSelectedCategory] =
     useState<CardCategory | null>(null);
   const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
@@ -77,6 +80,37 @@ export default function QuizPage() {
       recentIdsOverride ?? recentQuizIds
     );
   };
+
+  // URLクエリパラメータからカテゴリを読み取り、自動でクイズを開始
+  useEffect(() => {
+    if (initialCategoryProcessed) return;
+
+    const categoryParam = searchParams.get("category");
+    if (categoryParam && ["silo", "grain", "trader"].includes(categoryParam)) {
+      const category = categoryParam as CardCategory;
+      const categoryQuizzes = quizzes.filter((q) => q.category === category);
+      const unansweredQuizzes = categoryQuizzes.filter(
+        (q) => !isQuizAnswered(q.id)
+      );
+      const uncollectedQuizzes = unansweredQuizzes.filter(
+        (q) => !hasCard(q.cardId)
+      );
+      const availableQuizzes =
+        uncollectedQuizzes.length > 0
+          ? uncollectedQuizzes
+          : unansweredQuizzes.length > 0
+            ? unansweredQuizzes
+            : categoryQuizzes;
+
+      const quiz = selectQuizAvoidingDuplicates(availableQuizzes, []);
+      if (quiz) {
+        setSelectedCategory(category);
+        setCurrentQuiz(quiz);
+        setQuizState("quiz");
+      }
+      setInitialCategoryProcessed(true);
+    }
+  }, [searchParams, initialCategoryProcessed, hasCard, isQuizAnswered]);
 
   const handleCategorySelect = (category: CardCategory) => {
     setSelectedCategory(category);

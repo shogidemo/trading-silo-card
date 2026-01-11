@@ -86,7 +86,7 @@ export default function Home() {
             <p className="font-mono text-3xl sm:text-4xl font-bold text-gold-600">
               {progress.collected}
             </p>
-            <p className="text-xs sm:text-sm text-concrete-500 uppercase tracking-wider mt-1">
+            <p className="text-xs sm:text-sm text-concrete-500 uppercase tracking-wider mt-1 font-english">
               Collected
             </p>
           </div>
@@ -94,7 +94,7 @@ export default function Home() {
             <p className="font-mono text-3xl sm:text-4xl font-bold text-harvest-500">
               {progress.total}
             </p>
-            <p className="text-xs sm:text-sm text-concrete-500 uppercase tracking-wider mt-1">
+            <p className="text-xs sm:text-sm text-concrete-500 uppercase tracking-wider mt-1 font-english">
               Total Cards
             </p>
           </div>
@@ -107,7 +107,7 @@ export default function Home() {
                 : 0}
               <span className="text-xl">%</span>
             </p>
-            <p className="text-xs sm:text-sm text-concrete-500 uppercase tracking-wider mt-1">
+            <p className="text-xs sm:text-sm text-concrete-500 uppercase tracking-wider mt-1 font-english">
               Accuracy
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function Home() {
       <motion.section variants={itemVariants} className="mb-12">
         <div className="relative">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-medium text-concrete-600 uppercase tracking-wider">
+            <span className="text-sm font-medium text-concrete-600 uppercase tracking-wider font-english">
               Collection Progress
             </span>
             <span className="font-mono text-lg font-bold text-gold-600">
@@ -151,44 +151,48 @@ export default function Home() {
             };
 
             return (
-              <motion.div
+              <Link
                 key={category.id}
-                className="group relative vintage-border rounded-2xl overflow-hidden bg-concrete-50 transition-all duration-300 hover:shadow-xl"
-                whileHover={{ y: -8 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + index * 0.1 }}
+                href={`/quiz?category=${category.id}`}
               >
-                <div
-                  className={`bg-gradient-to-br ${colors[category.id]} p-5 text-white`}
+                <motion.div
+                  className="group relative vintage-border rounded-2xl overflow-hidden bg-concrete-50 transition-all duration-300 hover:shadow-xl cursor-pointer h-full"
+                  whileHover={{ y: -8 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + index * 0.1 }}
                 >
-                  <span className="text-4xl block mb-2 group-hover:scale-110 transition-transform">
-                    {category.icon}
-                  </span>
-                  <h4 className="font-display text-xl">{category.name}</h4>
-                  <p className="text-xs opacity-80 uppercase tracking-wider">
-                    {category.nameEn}
-                  </p>
-                </div>
-
-                <div className="p-5">
-                  <p className="text-sm text-concrete-600 mb-4">
-                    {category.description}
-                  </p>
-
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 h-1.5 bg-concrete-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${colors[category.id]}`}
-                        style={{ width: `${catProgress.percentage}%` }}
-                      />
-                    </div>
-                    <span className="font-mono text-sm text-concrete-600">
-                      {catProgress.collected}/{catProgress.total}
+                  <div
+                    className={`bg-gradient-to-br ${colors[category.id]} p-5 text-white`}
+                  >
+                    <span className="text-4xl block mb-2 group-hover:scale-110 transition-transform">
+                      {category.icon}
                     </span>
+                    <h4 className="font-display text-xl">{category.name}</h4>
+                    <p className="text-xs opacity-80 uppercase tracking-wider font-english">
+                      {category.nameEn}
+                    </p>
                   </div>
-                </div>
-              </motion.div>
+
+                  <div className="p-5">
+                    <p className="text-sm text-concrete-600 mb-4">
+                      {category.description}
+                    </p>
+
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-1.5 bg-concrete-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full bg-gradient-to-r ${colors[category.id]}`}
+                          style={{ width: `${catProgress.percentage}%` }}
+                        />
+                      </div>
+                      <span className="font-mono text-sm text-concrete-600">
+                        {catProgress.collected}/{catProgress.total}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
             );
           })}
         </div>
