@@ -27,7 +27,7 @@ export default function SiloListSidebar({
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-2 -mr-2 pr-2">
-        {silos.map((silo) => {
+        {[...silos].sort((a, b) => b.coordinates.lat - a.coordinates.lat).map((silo) => {
           const isCollected = hasCard(silo.id);
           const isSelected = selectedId === silo.id;
 
