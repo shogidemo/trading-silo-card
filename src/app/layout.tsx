@@ -3,8 +3,7 @@ import { Zen_Maru_Gothic, M_PLUS_Rounded_1c, JetBrains_Mono, Nunito } from "next
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { CollectionProvider } from "@/context/CollectionContext";
-import Header from "@/components/Layout/Header";
-import Sidebar from "@/components/Layout/Sidebar";
+import { Header, Sidebar } from "@/components/Layout";
 
 const zenMaru = Zen_Maru_Gothic({
   subsets: ["latin"],

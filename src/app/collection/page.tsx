@@ -8,7 +8,7 @@ import { CATEGORY_INFO } from "@/constants";
 import { CardCategory } from "@/types";
 import { allCards } from "@/data";
 import { containerVariants, itemVariants, getCategoryColors } from "@/lib";
-import FlipCard from "@/components/Card/FlipCard";
+import { FlipCard } from "@/components/Card";
 
 export default function CollectionPage() {
   const [selectedCategory, setSelectedCategory] = useState<

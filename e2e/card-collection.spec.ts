@@ -49,6 +49,12 @@ test.describe("カード収集フロー", () => {
     let attempts = 0;
 
     while (!foundNewCard && attempts < 10) {
+      // カテゴリ選択画面に戻っている場合は再選択
+      const categoryHeading = page.locator("h2").filter({ hasText: "カテゴリを選択" });
+      if (await categoryHeading.isVisible({ timeout: 500 }).catch(() => false)) {
+        await selectCategory(page, "grain");
+      }
+
       const options = page.locator("main button").filter({
         has: page.locator("span.font-display"),
       });
@@ -94,6 +100,12 @@ test.describe("カード収集フロー", () => {
     let attempts = 0;
 
     while (!foundNewCard && attempts < 10) {
+      // カテゴリ選択画面に戻っている場合は再選択
+      const categoryHeading = page.locator("h2").filter({ hasText: "カテゴリを選択" });
+      if (await categoryHeading.isVisible({ timeout: 500 }).catch(() => false)) {
+        await selectCategory(page, "grain");
+      }
+
       const options = page.locator("main button").filter({
         has: page.locator("span.font-display"),
       });
@@ -132,6 +144,12 @@ test.describe("カード収集フロー", () => {
     let attempts = 0;
 
     while (!foundNewCard && attempts < 10) {
+      // カテゴリ選択画面に戻っている場合は再選択
+      const categoryHeading = page.locator("h2").filter({ hasText: "カテゴリを選択" });
+      if (await categoryHeading.isVisible({ timeout: 500 }).catch(() => false)) {
+        await selectCategory(page, "grain");
+      }
+
       const options = page.locator("main button").filter({
         has: page.locator("span.font-display"),
       });
