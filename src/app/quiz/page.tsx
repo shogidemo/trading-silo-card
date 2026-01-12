@@ -14,6 +14,7 @@ import {
   getCategoryColors,
   selectQuizAvoidingDuplicates,
   getRandomQuizzes,
+  shuffleArray,
 } from "@/lib";
 import CardReveal from "@/components/Card/CardReveal";
 
@@ -54,6 +55,11 @@ export default function QuizPage() {
   // 復習モード用state
   const [isReviewMode, setIsReviewMode] = useState<boolean>(false);
   const [reviewQuizzes, setReviewQuizzes] = useState<Quiz[]>([]);
+
+  const withShuffledOptions = (quiz: Quiz): Quiz => ({
+    ...quiz,
+    options: shuffleArray(quiz.options),
+  });
 
   const getRandomQuiz = (
     category: CardCategory,
@@ -98,7 +104,7 @@ export default function QuizPage() {
         const quiz = selectQuizAvoidingDuplicates(availableQuizzes, []);
         if (quiz) {
           setSelectedCategory(card.category);
-          setCurrentQuiz(quiz);
+          setCurrentQuiz(withShuffledOptions(quiz));
           setQuizState("quiz");
           setInitialCategoryProcessed(true);
           return;
@@ -126,7 +132,7 @@ export default function QuizPage() {
       const quiz = selectQuizAvoidingDuplicates(availableQuizzes, []);
       if (quiz) {
         setSelectedCategory(category);
-        setCurrentQuiz(quiz);
+        setCurrentQuiz(withShuffledOptions(quiz));
         setQuizState("quiz");
       }
     }
@@ -137,7 +143,7 @@ export default function QuizPage() {
     setSelectedCategory(category);
     const quiz = getRandomQuiz(category);
     if (quiz) {
-      setCurrentQuiz(quiz);
+      setCurrentQuiz(withShuffledOptions(quiz));
       setQuizState("quiz");
     }
   };
@@ -160,10 +166,11 @@ export default function QuizPage() {
     );
 
     if (selectedQuizzes.length > 0) {
-      setChallengeQuestions(selectedQuizzes);
+      const shuffledQuizzes = selectedQuizzes.map(withShuffledOptions);
+      setChallengeQuestions(shuffledQuizzes);
       setCurrentQuestionIndex(0);
       setChallengeResults([]);
-      setCurrentQuiz(selectedQuizzes[0]);
+      setCurrentQuiz(shuffledQuizzes[0]);
       setQuizState("quiz");
     }
   };
@@ -175,12 +182,13 @@ export default function QuizPage() {
     if (wrongQuizzes.length === 0) return;
 
     // 最初の問題のカテゴリを設定
-    setSelectedCategory(wrongQuizzes[0].category);
+    const shuffledQuizzes = wrongQuizzes.map(withShuffledOptions);
+    setSelectedCategory(shuffledQuizzes[0].category);
     setIsReviewMode(true);
-    setReviewQuizzes(wrongQuizzes);
+    setReviewQuizzes(shuffledQuizzes);
     setCurrentQuestionIndex(0);
     setChallengeResults([]);
-    setCurrentQuiz(wrongQuizzes[0]);
+    setCurrentQuiz(shuffledQuizzes[0]);
     setQuizState("quiz");
   };
 
@@ -280,7 +288,7 @@ export default function QuizPage() {
     setRecentQuizIds(nextRecent);
     const nextQuiz = getRandomQuiz(selectedCategory, nextRecent);
     if (nextQuiz && nextQuiz.id !== currentQuiz.id) {
-      setCurrentQuiz(nextQuiz);
+      setCurrentQuiz(withShuffledOptions(nextQuiz));
       setQuizState("quiz");
       return;
     }
