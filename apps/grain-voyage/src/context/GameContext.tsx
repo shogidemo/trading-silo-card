@@ -19,12 +19,20 @@ import {
 // 型定義
 // ========================================
 
+export interface Cargo {
+  grainId: string;
+  grainName: string;
+  amount: number; // トン数
+}
+
 interface PlayerState {
   companyId: string;
   currentCellId: string; // マス制：現在のセルID
   fuel: number;
   maxFuel: number;
   money: number;
+  cargo: Cargo[];
+  maxCapacity: number; // 最大積載量（トン）
 }
 
 interface GameState {
@@ -46,6 +54,8 @@ type GameAction =
   | { type: "COMPLETE_MOVE" }
   | { type: "ENTER_PORT_ACTION" }
   | { type: "REFUEL"; amount: number }
+  | { type: "LOAD_CARGO"; grainId: string; grainName: string; amount: number; cost: number }
+  | { type: "UNLOAD_CARGO"; grainId: string; amount: number; revenue: number }
   | { type: "END_TURN" }
   | { type: "RESET_GAME" };
 
@@ -55,6 +65,9 @@ type GameAction =
 
 // 燃料補給コスト（円/燃料）
 const FUEL_COST_PER_UNIT = 10;
+
+// 船の最大積載量（トン）
+const SHIP_MAX_CAPACITY = 100;
 
 const initialState: GameState = {
   phase: "idle",
@@ -66,6 +79,8 @@ const initialState: GameState = {
     fuel: 100,
     maxFuel: 100,
     money: 10000,
+    cargo: [],
+    maxCapacity: SHIP_MAX_CAPACITY,
   },
   lastDiceValue: null,
   remainingMoves: 0,
@@ -207,6 +222,90 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case "LOAD_CARGO": {
+      // 港にいない場合は無視
+      const loadPortId = getPortIdFromCell(state.player.currentCellId);
+      if (!loadPortId) return state;
+
+      // 現在の積載量を計算
+      const currentLoad = state.player.cargo.reduce((sum, c) => sum + c.amount, 0);
+      const availableCapacity = state.player.maxCapacity - currentLoad;
+
+      // 積載可能量を計算
+      const actualLoad = Math.min(action.amount, availableCapacity);
+      if (actualLoad <= 0) return state;
+
+      // お金が足りるか確認
+      if (state.player.money < action.cost) return state;
+
+      // 既存の同じ穀物があるか確認
+      const existingCargoIndex = state.player.cargo.findIndex(
+        (c) => c.grainId === action.grainId
+      );
+
+      let newCargo: Cargo[];
+      if (existingCargoIndex >= 0) {
+        // 既存の積荷に追加
+        newCargo = state.player.cargo.map((c, i) =>
+          i === existingCargoIndex
+            ? { ...c, amount: c.amount + actualLoad }
+            : c
+        );
+      } else {
+        // 新しい積荷を追加
+        newCargo = [
+          ...state.player.cargo,
+          { grainId: action.grainId, grainName: action.grainName, amount: actualLoad },
+        ];
+      }
+
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          cargo: newCargo,
+          money: state.player.money - action.cost,
+        },
+      };
+    }
+
+    case "UNLOAD_CARGO": {
+      // 港にいない場合は無視
+      const unloadPortId = getPortIdFromCell(state.player.currentCellId);
+      if (!unloadPortId) return state;
+
+      // 該当する積荷を探す
+      const cargoIndex = state.player.cargo.findIndex(
+        (c) => c.grainId === action.grainId
+      );
+      if (cargoIndex < 0) return state;
+
+      const cargo = state.player.cargo[cargoIndex];
+      const actualUnload = Math.min(action.amount, cargo.amount);
+      if (actualUnload <= 0) return state;
+
+      // 積荷を更新
+      let newCargo: Cargo[];
+      if (cargo.amount - actualUnload <= 0) {
+        // 全て降ろした場合は削除
+        newCargo = state.player.cargo.filter((_, i) => i !== cargoIndex);
+      } else {
+        // 一部降ろした場合は量を減らす
+        newCargo = state.player.cargo.map((c, i) =>
+          i === cargoIndex ? { ...c, amount: c.amount - actualUnload } : c
+        );
+      }
+
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          cargo: newCargo,
+          money: state.player.money + action.revenue,
+        },
+      };
+    }
+
     case "END_TURN":
       return {
         ...state,
@@ -237,6 +336,8 @@ interface GameContextValue {
   completeMove: () => void;
   enterPortAction: () => void;
   refuel: (amount: number) => void;
+  loadCargo: (grainId: string, grainName: string, amount: number, cost: number) => void;
+  unloadCargo: (grainId: string, amount: number, revenue: number) => void;
   endTurn: () => void;
   resetGame: () => void;
   // ヘルパー
@@ -245,6 +346,8 @@ interface GameContextValue {
   getCurrentCell: () => RouteCell | undefined;
   getCurrentPort: () => (typeof ports)[0] | undefined;
   isAtPort: () => boolean;
+  getCurrentCargoAmount: () => number;
+  getAvailableCapacity: () => number;
   // 定数
   FUEL_COST_PER_UNIT: number;
 }
@@ -281,6 +384,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const refuel = useCallback((amount: number) => {
     dispatch({ type: "REFUEL", amount });
   }, []);
+
+  const loadCargo = useCallback(
+    (grainId: string, grainName: string, amount: number, cost: number) => {
+      dispatch({ type: "LOAD_CARGO", grainId, grainName, amount, cost });
+    },
+    []
+  );
+
+  const unloadCargo = useCallback(
+    (grainId: string, amount: number, revenue: number) => {
+      dispatch({ type: "UNLOAD_CARGO", grainId, amount, revenue });
+    },
+    []
+  );
 
   const endTurn = useCallback(() => {
     dispatch({ type: "END_TURN" });
@@ -332,6 +449,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return cell?.type === "port";
   }, [getCurrentCell]);
 
+  // 現在の積載量を取得
+  const getCurrentCargoAmount = useCallback(() => {
+    return state.player.cargo.reduce((sum, c) => sum + c.amount, 0);
+  }, [state.player.cargo]);
+
+  // 残り積載可能量を取得
+  const getAvailableCapacity = useCallback(() => {
+    return state.player.maxCapacity - getCurrentCargoAmount();
+  }, [state.player.maxCapacity, getCurrentCargoAmount]);
+
   const value: GameContextValue = {
     state,
     startGame,
@@ -340,6 +467,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     completeMove,
     enterPortAction,
     refuel,
+    loadCargo,
+    unloadCargo,
     endTurn,
     resetGame,
     getReachableCellIds,
@@ -347,6 +476,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     getCurrentCell,
     getCurrentPort,
     isAtPort,
+    getCurrentCargoAmount,
+    getAvailableCapacity,
     FUEL_COST_PER_UNIT,
   };
 

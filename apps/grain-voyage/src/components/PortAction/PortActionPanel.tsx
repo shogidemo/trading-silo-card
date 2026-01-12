@@ -2,13 +2,14 @@
 
 import { motion } from "framer-motion";
 import { useGame } from "@/context/GameContext";
+import CargoPanel from "./CargoPanel";
 
 interface PortActionPanelProps {
   onDepart: () => void;
 }
 
 export default function PortActionPanel({ onDepart }: PortActionPanelProps) {
-  const { state, getCurrentPort, refuel, FUEL_COST_PER_UNIT } = useGame();
+  const { state, getCurrentPort, refuel, getCurrentCargoAmount, FUEL_COST_PER_UNIT } = useGame();
   const port = getCurrentPort();
 
   if (!port) return null;
@@ -60,6 +61,12 @@ export default function PortActionPanel({ onDepart }: PortActionPanelProps) {
             </div>
           </div>
           <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">積載量</span>
+            <span className="text-sm font-medium text-blue-600">
+              {getCurrentCargoAmount()}/{player.maxCapacity}t
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">所持金</span>
             <span className="text-sm font-medium text-green-600">
               &#xA5;{player.money.toLocaleString()}
@@ -92,10 +99,9 @@ export default function PortActionPanel({ onDepart }: PortActionPanelProps) {
         )}
       </div>
 
-      {/* 積荷セクション（Phase 2で実装） */}
-      <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-        <h3 className="text-sm font-semibold text-blue-600 mb-2">積荷</h3>
-        <p className="text-sm text-blue-400">（Coming Soon）</p>
+      {/* 積荷セクション */}
+      <div className="mb-4">
+        <CargoPanel portId={port.id} />
       </div>
 
       {/* 出発ボタン */}

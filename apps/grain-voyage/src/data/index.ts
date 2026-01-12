@@ -13,3 +13,11 @@ export {
   getStartingCellId,
   type RouteCell,
 } from "./cells";
+export {
+  portStocks,
+  getPortStock,
+  getGrainBuyPrice,
+  getGrainSellPrice,
+  type GrainStock,
+  type PortStock,
+} from "./portStock";
