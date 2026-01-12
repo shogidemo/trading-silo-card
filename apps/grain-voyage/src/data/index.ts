@@ -21,3 +21,10 @@ export {
   type GrainStock,
   type PortStock,
 } from "./portStock";
+export {
+  missionTemplates,
+  generateMissions,
+  getMissionsFromPort,
+  getMissionsToPort,
+  type Mission,
+} from "./missions";

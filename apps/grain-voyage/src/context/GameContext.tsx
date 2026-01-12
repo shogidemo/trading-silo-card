@@ -13,6 +13,8 @@ import {
   getReachableCells,
   getStartingCellId,
   RouteCell,
+  generateMissions,
+  Mission,
 } from "@/data";
 
 // ========================================
@@ -35,6 +37,12 @@ interface PlayerState {
   maxCapacity: number; // 最大積載量（トン）
 }
 
+// ミッション進行状態
+interface ActiveMission extends Mission {
+  acceptedAtTurn: number;
+  cargoLoaded: boolean; // 積荷を積んだかどうか
+}
+
 interface GameState {
   phase: "idle" | "rolling" | "selecting_destination" | "moving" | "arrived" | "port_action";
   turn: number;
@@ -43,8 +51,13 @@ interface GameState {
   lastDiceValue: number | null;
   remainingMoves: number;
   moveHistory: string[]; // 訪問したセルのID履歴
+  // ミッション
+  availableMissions: Mission[];
+  activeMission: ActiveMission | null;
+  completedMissions: { mission: Mission; turnCompleted: number; bonusEarned: boolean }[];
   // 統計情報（スコア計算用）
   totalFuelCost: number;
+  totalMissionReward: number;
 }
 
 type GameAction =
@@ -56,6 +69,9 @@ type GameAction =
   | { type: "REFUEL"; amount: number }
   | { type: "LOAD_CARGO"; grainId: string; grainName: string; amount: number; cost: number }
   | { type: "UNLOAD_CARGO"; grainId: string; amount: number; revenue: number }
+  | { type: "ACCEPT_MISSION"; missionId: string }
+  | { type: "COMPLETE_MISSION" }
+  | { type: "REFRESH_MISSIONS" }
   | { type: "END_TURN" }
   | { type: "RESET_GAME" };
 
@@ -85,7 +101,11 @@ const initialState: GameState = {
   lastDiceValue: null,
   remainingMoves: 0,
   moveHistory: [],
+  availableMissions: [],
+  activeMission: null,
+  completedMissions: [],
   totalFuelCost: 0,
+  totalMissionReward: 0,
 };
 
 // ========================================
@@ -124,6 +144,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       const startCellId = getStartingCellId(action.startPortId);
       if (!startCellId) return state;
 
+      // 初期ミッションを生成
+      const initialMissions = generateMissions(3);
+
       return {
         ...initialState,
         phase: "idle",
@@ -134,6 +157,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           currentCellId: startCellId,
         },
         moveHistory: [startCellId],
+        availableMissions: initialMissions,
       };
     }
 
@@ -306,6 +330,100 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case "ACCEPT_MISSION": {
+      // 既にアクティブなミッションがある場合は無視
+      if (state.activeMission) return state;
+
+      // 指定されたミッションを探す
+      const mission = state.availableMissions.find(
+        (m) => m.id === action.missionId
+      );
+      if (!mission) return state;
+
+      // ミッションをアクティブに
+      const activeMission: ActiveMission = {
+        ...mission,
+        acceptedAtTurn: state.turn,
+        cargoLoaded: false,
+      };
+
+      // 利用可能なミッションから削除
+      const remainingMissions = state.availableMissions.filter(
+        (m) => m.id !== action.missionId
+      );
+
+      return {
+        ...state,
+        activeMission,
+        availableMissions: remainingMissions,
+      };
+    }
+
+    case "COMPLETE_MISSION": {
+      // アクティブなミッションがない場合は無視
+      if (!state.activeMission) return state;
+
+      const mission = state.activeMission;
+      const currentPortId = getPortIdFromCell(state.player.currentCellId);
+
+      // 目的地にいない場合は無視
+      if (currentPortId !== mission.toPortId) return state;
+
+      // 必要な積荷があるか確認
+      const hasCargo = state.player.cargo.some(
+        (c) => c.grainId === mission.grainId && c.amount >= mission.amount
+      );
+      if (!hasCargo) return state;
+
+      // ボーナス判定
+      const turnsElapsed = state.turn - mission.acceptedAtTurn;
+      const bonusEarned =
+        mission.bonusTurns !== undefined && turnsElapsed <= mission.bonusTurns;
+      const totalReward =
+        mission.reward + (bonusEarned ? mission.bonusReward || 0 : 0);
+
+      // 積荷から必要量を減らす
+      const cargoIndex = state.player.cargo.findIndex(
+        (c) => c.grainId === mission.grainId
+      );
+      let newCargo = [...state.player.cargo];
+      if (cargoIndex >= 0) {
+        const cargo = newCargo[cargoIndex];
+        if (cargo.amount - mission.amount <= 0) {
+          newCargo = newCargo.filter((_, i) => i !== cargoIndex);
+        } else {
+          newCargo[cargoIndex] = {
+            ...cargo,
+            amount: cargo.amount - mission.amount,
+          };
+        }
+      }
+
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          cargo: newCargo,
+          money: state.player.money + totalReward,
+        },
+        activeMission: null,
+        completedMissions: [
+          ...state.completedMissions,
+          { mission, turnCompleted: state.turn, bonusEarned },
+        ],
+        totalMissionReward: state.totalMissionReward + totalReward,
+      };
+    }
+
+    case "REFRESH_MISSIONS": {
+      // 新しいミッションを生成（アクティブなミッションがない場合のみ）
+      const newMissions = generateMissions(3);
+      return {
+        ...state,
+        availableMissions: newMissions,
+      };
+    }
+
     case "END_TURN":
       return {
         ...state,
@@ -338,6 +456,11 @@ interface GameContextValue {
   refuel: (amount: number) => void;
   loadCargo: (grainId: string, grainName: string, amount: number, cost: number) => void;
   unloadCargo: (grainId: string, amount: number, revenue: number) => void;
+  // ミッション
+  acceptMission: (missionId: string) => void;
+  completeMission: () => void;
+  refreshMissions: () => void;
+  canCompleteMission: () => boolean;
   endTurn: () => void;
   resetGame: () => void;
   // ヘルパー
@@ -398,6 +521,36 @@ export function GameProvider({ children }: { children: ReactNode }) {
     },
     []
   );
+
+  // ミッション関連
+  const acceptMission = useCallback((missionId: string) => {
+    dispatch({ type: "ACCEPT_MISSION", missionId });
+  }, []);
+
+  const completeMission = useCallback(() => {
+    dispatch({ type: "COMPLETE_MISSION" });
+  }, []);
+
+  const refreshMissions = useCallback(() => {
+    dispatch({ type: "REFRESH_MISSIONS" });
+  }, []);
+
+  // ミッションを完了できるかチェック
+  const canCompleteMission = useCallback(() => {
+    if (!state.activeMission) return false;
+
+    // 目的地にいるかチェック
+    const currentPortId = getPortIdFromCell(state.player.currentCellId);
+    if (currentPortId !== state.activeMission.toPortId) return false;
+
+    // 必要な積荷があるかチェック
+    const hasCargo = state.player.cargo.some(
+      (c) =>
+        c.grainId === state.activeMission!.grainId &&
+        c.amount >= state.activeMission!.amount
+    );
+    return hasCargo;
+  }, [state.activeMission, state.player.currentCellId, state.player.cargo]);
 
   const endTurn = useCallback(() => {
     dispatch({ type: "END_TURN" });
@@ -469,6 +622,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     refuel,
     loadCargo,
     unloadCargo,
+    acceptMission,
+    completeMission,
+    refreshMissions,
+    canCompleteMission,
     endTurn,
     resetGame,
     getReachableCellIds,

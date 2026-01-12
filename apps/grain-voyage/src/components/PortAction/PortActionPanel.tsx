@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useGame } from "@/context/GameContext";
 import CargoPanel from "./CargoPanel";
+import { MissionPanel } from "@/components/Mission";
 
 interface PortActionPanelProps {
   onDepart: () => void;
@@ -102,6 +103,12 @@ export default function PortActionPanel({ onDepart }: PortActionPanelProps) {
       {/* 積荷セクション */}
       <div className="mb-4">
         <CargoPanel portId={port.id} />
+      </div>
+
+      {/* ミッションセクション */}
+      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+        <h3 className="text-sm font-semibold text-gray-600 mb-3">ミッション</h3>
+        <MissionPanel />
       </div>
 
       {/* 出発ボタン */}
