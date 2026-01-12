@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -39,17 +40,17 @@ const companies = [
 // ゲームモード
 const gameModes = [
   {
+    id: "free",
+    name: "フリーモード",
+    description: "自由に航路を選んで配送。サイコロを振って日本を巡ろう",
+    icon: "🚢",
+    available: true,
+  },
+  {
     id: "scenario",
     name: "シナリオモード",
     description: "ストーリーを進めながら配船の基本を学ぶ",
     icon: "📖",
-    available: false,
-  },
-  {
-    id: "free",
-    name: "フリーモード",
-    description: "自由に航路を選んで配送、ハイスコアを目指す",
-    icon: "🚢",
     available: false,
   },
   {
@@ -62,8 +63,15 @@ const gameModes = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const [step, setStep] = useState<"title" | "company" | "mode">("title");
+
+  const handleModeSelect = (modeId: string) => {
+    if (modeId === "free" && selectedCompany) {
+      router.push(`/play?company=${selectedCompany}`);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8">
@@ -213,10 +221,13 @@ export default function Home() {
 
           <div className="space-y-4">
             {gameModes.map((mode) => (
-              <motion.div
+              <motion.button
                 key={mode.id}
+                onClick={() => mode.available && handleModeSelect(mode.id)}
                 whileHover={mode.available ? { scale: 1.01 } : {}}
-                className={`p-6 rounded-xl flex items-center gap-4 ${
+                whileTap={mode.available ? { scale: 0.99 } : {}}
+                disabled={!mode.available}
+                className={`w-full p-6 rounded-xl flex items-center gap-4 text-left ${
                   mode.available
                     ? "bg-white shadow hover:shadow-md cursor-pointer"
                     : "bg-navy-50 opacity-60 cursor-not-allowed"
@@ -229,22 +240,22 @@ export default function Home() {
                   </h3>
                   <p className="text-sm text-navy-600">{mode.description}</p>
                 </div>
-                {!mode.available && (
+                {mode.available ? (
+                  <span className="px-3 py-1 bg-ocean-100 text-ocean-700 text-sm rounded-full">
+                    プレイ可能
+                  </span>
+                ) : (
                   <span className="px-3 py-1 bg-navy-200 text-navy-600 text-sm rounded-full">
                     Coming Soon
                   </span>
                 )}
-              </motion.div>
+              </motion.button>
             ))}
           </div>
 
-          <div className="mt-12 p-6 bg-ocean-50 rounded-xl border border-ocean-200">
-            <h3 className="font-display text-lg text-navy-900 mb-2">
-              🚧 開発中
-            </h3>
+          <div className="mt-8 p-4 bg-navy-50 rounded-lg text-center">
             <p className="text-sm text-navy-600">
-              このゲームは現在開発中です。
-              シナリオモードから順次実装予定です。
+              フリーモード以外は開発中です
             </p>
           </div>
         </motion.div>
