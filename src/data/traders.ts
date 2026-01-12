@@ -94,6 +94,10 @@ export const traders: TraderCard[] = [
     description:
       "日本を代表する総合商社。穀物・飼料原料の調達から販売まで幅広く展開。",
     imageUrl: "/images/traders/mitsubishi.svg",
+    imageAttribution: {
+      label: "Mitsubishi Corporation Logo (Wikimedia Commons)",
+      url: "https://commons.wikimedia.org/wiki/File:Mitsubishi_Corporation.svg",
+    },
     foundedYear: 1954,
     headquarters: "東京都千代田区",
     mainProducts: ["トウモロコシ", "大豆", "小麦", "飼料原料"],
@@ -107,6 +111,10 @@ export const traders: TraderCard[] = [
     description:
       "総合商社として食料・穀物の調達から供給までを担う。",
     imageUrl: "/images/traders/sumitomo.svg",
+    imageAttribution: {
+      label: "Sumitomo Corporation logo (Wikimedia Commons)",
+      url: "https://commons.wikimedia.org/wiki/File:Sumitomo_Corporation_logo.svg",
+    },
     foundedYear: 1919,
     headquarters: "東京都千代田区",
     mainProducts: ["小麦", "大豆", "トウモロコシ", "砂糖"],
@@ -120,6 +128,10 @@ export const traders: TraderCard[] = [
     description:
       "自動車関連に加え、食料・穀物のトレーディングも手掛ける総合商社。",
     imageUrl: "/images/traders/toyota-tsusho.svg",
+    imageAttribution: {
+      label: "Toyota Tsusho Corporation Logo (Wikimedia Commons)",
+      url: "https://commons.wikimedia.org/wiki/File:Toyota_Tsusho_Corporation.svg",
+    },
     foundedYear: 1948,
     headquarters: "愛知県名古屋市",
     mainProducts: ["トウモロコシ", "大豆", "小麦", "飼料原料"],
@@ -132,6 +144,11 @@ export const traders: TraderCard[] = [
     name: "双日",
     description:
       "食料・農業分野で原料調達から国内供給までを担う総合商社。",
+    imageUrl: "/images/traders/sojitz.svg",
+    imageAttribution: {
+      label: "Sojitz Corporation Logo (Wikimedia Commons)",
+      url: "https://commons.wikimedia.org/wiki/File:Sojitz_Corporation_Logo.svg",
+    },
     foundedYear: 2003,
     headquarters: "東京都千代田区",
     mainProducts: ["小麦", "大豆", "トウモロコシ", "飼料原料"],
@@ -145,6 +162,10 @@ export const traders: TraderCard[] = [
     description:
       "食料・飼料分野に強みを持つ老舗商社。穀物の輸入・供給を担う。",
     imageUrl: "/images/traders/kanematsu.svg",
+    imageAttribution: {
+      label: "兼松株式会社 公式サイト",
+      url: "https://www.kanematsu.co.jp/",
+    },
     foundedYear: 1889,
     headquarters: "東京都港区",
     mainProducts: ["小麦", "大豆", "トウモロコシ", "飼料原料"],
@@ -158,6 +179,10 @@ export const traders: TraderCard[] = [
     description:
       "素材分野に加え、食品・穀物などの取引も手掛ける商社。",
     imageUrl: "/images/traders/nittetsu.webp",
+    imageAttribution: {
+      label: "日鉄物産株式会社 公式サイト",
+      url: "https://www.nst.nipponsteel.com/",
+    },
     foundedYear: 1950,
     headquarters: "東京都中央区",
     mainProducts: ["小麦", "大豆", "トウモロコシ", "飼料原料"],

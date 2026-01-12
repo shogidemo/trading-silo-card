@@ -1,7 +1,7 @@
 const path = require("path");
 
 const jiti = require("jiti")(__filename);
-const { quizzes } = jiti("../src/data/quizzes.ts");
+const { quizzes } = jiti("../src/data/quizzes/index.ts");
 const { allCards } = jiti("../src/data/index.ts");
 
 function fail(message) {
