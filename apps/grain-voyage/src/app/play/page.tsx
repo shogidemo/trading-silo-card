@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { GameProvider, useGame } from "@/context/GameContext";
 import { GameMapClient } from "@/components/Map";
 import { Dice } from "@/components/Dice";
+import { PortActionPanel } from "@/components/PortAction";
 import { ports, routeCells } from "@/data";
 
 // ゲームUI本体
@@ -16,11 +17,13 @@ function GamePlayContent() {
     startGame,
     rollDice,
     selectCell,
+    enterPortAction,
     endTurn,
     getReachableCellIds,
     canMoveTo,
     getCurrentPort,
     getCurrentCell,
+    isAtPort,
   } = useGame();
 
   const searchParams = useSearchParams();
@@ -61,8 +64,10 @@ function GamePlayContent() {
         return `${state.remainingMoves}マス移動できます。移動先をクリックしてください`;
       case "arrived":
         return currentPort
-          ? "港に到着しました！ターンを終了して次へ進みましょう"
+          ? "港に到着しました！"
           : "移動完了！ターンを終了してください";
+      case "port_action":
+        return `${currentPort?.name}で行動中...`;
       default:
         return "";
     }
@@ -248,12 +253,27 @@ function GamePlayContent() {
                     ? `${currentPort.name}に到着！`
                     : "移動完了！"}
                 </p>
-                <button
-                  onClick={endTurn}
-                  className="px-6 py-3 bg-ocean-600 text-white rounded-lg font-display hover:bg-ocean-700 transition-colors"
-                >
-                  ターン終了
-                </button>
+                {currentPort ? (
+                  <button
+                    onClick={enterPortAction}
+                    className="px-6 py-3 bg-ocean-600 text-white rounded-lg font-display hover:bg-ocean-700 transition-colors"
+                  >
+                    港に入る
+                  </button>
+                ) : (
+                  <button
+                    onClick={endTurn}
+                    className="px-6 py-3 bg-ocean-600 text-white rounded-lg font-display hover:bg-ocean-700 transition-colors"
+                  >
+                    ターン終了
+                  </button>
+                )}
+              </div>
+            )}
+
+            {state.phase === "port_action" && currentPort && (
+              <div className="w-full">
+                <PortActionPanel onDepart={endTurn} />
               </div>
             )}
           </div>

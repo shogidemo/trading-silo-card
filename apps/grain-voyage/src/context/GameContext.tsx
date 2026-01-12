@@ -28,13 +28,15 @@ interface PlayerState {
 }
 
 interface GameState {
-  phase: "idle" | "rolling" | "selecting_destination" | "moving" | "arrived";
+  phase: "idle" | "rolling" | "selecting_destination" | "moving" | "arrived" | "port_action";
   turn: number;
   maxTurns: number;
   player: PlayerState;
   lastDiceValue: number | null;
   remainingMoves: number;
   moveHistory: string[]; // 訪問したセルのID履歴
+  // 統計情報（スコア計算用）
+  totalFuelCost: number;
 }
 
 type GameAction =
@@ -42,12 +44,17 @@ type GameAction =
   | { type: "ROLL_DICE"; value: number }
   | { type: "SELECT_CELL"; cellId: string }
   | { type: "COMPLETE_MOVE" }
+  | { type: "ENTER_PORT_ACTION" }
+  | { type: "REFUEL"; amount: number }
   | { type: "END_TURN" }
   | { type: "RESET_GAME" };
 
 // ========================================
 // 初期状態
 // ========================================
+
+// 燃料補給コスト（円/燃料）
+const FUEL_COST_PER_UNIT = 10;
 
 const initialState: GameState = {
   phase: "idle",
@@ -63,6 +70,7 @@ const initialState: GameState = {
   lastDiceValue: null,
   remainingMoves: 0,
   moveHistory: [],
+  totalFuelCost: 0,
 };
 
 // ========================================
@@ -158,6 +166,47 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         remainingMoves: 0,
       };
 
+    case "ENTER_PORT_ACTION": {
+      // 港にいない場合は無視
+      const portId = getPortIdFromCell(state.player.currentCellId);
+      if (!portId) return state;
+
+      return {
+        ...state,
+        phase: "port_action",
+      };
+    }
+
+    case "REFUEL": {
+      // 港にいない場合は無視
+      const currentPortId = getPortIdFromCell(state.player.currentCellId);
+      if (!currentPortId) return state;
+
+      // 補給量の計算（最大燃料を超えない）
+      const maxRefuel = state.player.maxFuel - state.player.fuel;
+      const actualRefuel = Math.min(action.amount, maxRefuel);
+
+      // コスト計算
+      const cost = actualRefuel * FUEL_COST_PER_UNIT;
+
+      // お金が足りない場合は購入できる分だけ
+      const affordableAmount = Math.floor(state.player.money / FUEL_COST_PER_UNIT);
+      const finalRefuel = Math.min(actualRefuel, affordableAmount);
+      const finalCost = finalRefuel * FUEL_COST_PER_UNIT;
+
+      if (finalRefuel <= 0) return state;
+
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          fuel: state.player.fuel + finalRefuel,
+          money: state.player.money - finalCost,
+        },
+        totalFuelCost: state.totalFuelCost + finalCost,
+      };
+    }
+
     case "END_TURN":
       return {
         ...state,
@@ -186,6 +235,8 @@ interface GameContextValue {
   rollDice: (value: number) => void;
   selectCell: (cellId: string) => void;
   completeMove: () => void;
+  enterPortAction: () => void;
+  refuel: (amount: number) => void;
   endTurn: () => void;
   resetGame: () => void;
   // ヘルパー
@@ -193,6 +244,9 @@ interface GameContextValue {
   canMoveTo: (cellId: string) => boolean;
   getCurrentCell: () => RouteCell | undefined;
   getCurrentPort: () => (typeof ports)[0] | undefined;
+  isAtPort: () => boolean;
+  // 定数
+  FUEL_COST_PER_UNIT: number;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -218,6 +272,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const completeMove = useCallback(() => {
     dispatch({ type: "COMPLETE_MOVE" });
+  }, []);
+
+  const enterPortAction = useCallback(() => {
+    dispatch({ type: "ENTER_PORT_ACTION" });
+  }, []);
+
+  const refuel = useCallback((amount: number) => {
+    dispatch({ type: "REFUEL", amount });
   }, []);
 
   const endTurn = useCallback(() => {
@@ -264,18 +326,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return undefined;
   }, [getCurrentCell]);
 
+  // 港にいるかどうか
+  const isAtPort = useCallback(() => {
+    const cell = getCurrentCell();
+    return cell?.type === "port";
+  }, [getCurrentCell]);
+
   const value: GameContextValue = {
     state,
     startGame,
     rollDice,
     selectCell,
     completeMove,
+    enterPortAction,
+    refuel,
     endTurn,
     resetGame,
     getReachableCellIds,
     canMoveTo,
     getCurrentCell,
     getCurrentPort,
+    isAtPort,
+    FUEL_COST_PER_UNIT,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
