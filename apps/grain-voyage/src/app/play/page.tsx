@@ -28,6 +28,7 @@ function GamePlayContent() {
     isAtPort,
     isGameOver,
     canRollDice,
+    getCurrentCargoAmount,
   } = useGame();
 
   const searchParams = useSearchParams();
@@ -122,7 +123,7 @@ function GamePlayContent() {
             </Link>
             <h1 className="font-display text-lg text-navy-900">穀物航路</h1>
           </div>
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-4 text-sm">
             <div>
               <span className="text-navy-500">ターン:</span>
               <span className="ml-1 font-bold text-navy-900">
@@ -140,6 +141,17 @@ function GamePlayContent() {
               <span className="ml-1 font-bold text-gold-600">
                 ¥{state.player.money.toLocaleString()}
               </span>
+            </div>
+            <div className="border-l border-navy-200 pl-4">
+              <span className="text-navy-500">積荷:</span>
+              <span className="ml-1 font-bold text-orange-600">
+                {getCurrentCargoAmount()}/{state.player.maxCapacity}t
+              </span>
+              {state.player.cargo.length > 0 && (
+                <span className="ml-2 text-xs text-navy-400">
+                  ({state.player.cargo.map(c => `${c.grainName}${c.amount}t`).join(", ")})
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -202,6 +214,34 @@ function GamePlayContent() {
               </p>
             )}
           </div>
+
+          {/* 受注中ミッション */}
+          {state.activeMission && (
+            <div className="p-3 bg-amber-50 border-b border-amber-200">
+              <h2 className="text-xs text-amber-700 font-semibold mb-1 flex items-center gap-1">
+                <span>📦</span> 受注中ミッション
+              </h2>
+              <p className="text-sm font-bold text-amber-900 truncate">
+                {state.activeMission.title}
+              </p>
+              <div className="mt-1 flex items-center gap-2 text-xs">
+                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">
+                  {state.activeMission.fromPortName} → {state.activeMission.toPortName}
+                </span>
+                <span className="text-amber-600">
+                  {state.activeMission.grainName} {state.activeMission.amount}t
+                </span>
+              </div>
+              <div className="mt-1 text-xs text-amber-600">
+                報酬: ¥{state.activeMission.reward.toLocaleString()}
+                {state.activeMission.bonusTurns && (
+                  <span className="ml-1">
+                    (残り{Math.max(0, state.activeMission.bonusTurns - (state.turn - state.activeMission.acceptedAtTurn))}ターンでボーナス)
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* フェーズメッセージ */}
           <div className="p-4 bg-ocean-50 border-b border-ocean-100">
