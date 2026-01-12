@@ -7,6 +7,12 @@ export interface Coordinates {
   lng: number;
 }
 
+// 画像帰属情報
+export interface ImageAttribution {
+  label: string;
+  url?: string;
+}
+
 // 基本カード情報
 export interface BaseCard {
   id: string;
@@ -14,10 +20,7 @@ export interface BaseCard {
   name: string;
   description: string;
   imageUrl?: string;
-  imageAttribution?: {
-    label: string;
-    url?: string;
-  };
+  imageAttribution?: ImageAttribution;
 }
 
 // サイロカード
@@ -53,44 +56,3 @@ export interface TraderCard extends BaseCard {
 
 // すべてのカード型のユニオン
 export type Card = SiloCard | GrainCard | TraderCard;
-
-// クイズの選択肢
-export interface QuizOption {
-  text: string;
-  isCorrect: boolean;
-}
-
-export interface QuizSource {
-  title: string;
-  url: string;
-}
-
-// クイズ問題
-export interface Quiz {
-  id: string;
-  cardId: string;
-  category: CardCategory;
-  question: string;
-  options: QuizOption[];
-  explanation: string;
-  sources: QuizSource[];
-}
-
-// カテゴリ別統計
-export interface CategoryStats {
-  attempts: number;
-  correct: number;
-}
-
-// コレクション状態
-export interface CollectionState {
-  collectedCardIds: string[];
-  totalQuizAttempts: number;
-  correctAnswers: number;
-  // 復習モード用: 誤答クイズIDリスト
-  wrongAnswerQuizIds: string[];
-  // 回答済みクイズIDリスト
-  answeredQuizIds: string[];
-  // カテゴリ別統計
-  categoryStats: Record<CardCategory, CategoryStats>;
-}

@@ -1,4 +1,4 @@
-import { GrainCard } from "@/types";
+import { GrainCard } from "../types";
 
 export const grains: GrainCard[] = [
   {

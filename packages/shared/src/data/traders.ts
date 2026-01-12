@@ -1,4 +1,4 @@
-import { TraderCard } from "@/types";
+import { TraderCard } from "../types";
 
 export const traders: TraderCard[] = [
   {

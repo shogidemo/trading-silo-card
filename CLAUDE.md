@@ -4,70 +4,99 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-穀物サイロカードコレクション - An educational quiz-based card collection game about grain silos, grains, and trading companies. Users answer quizzes to collect cards in three categories: Silos (サイロ), Grains (穀物), and Traders (商社).
+**trading-silo** - A monorepo containing educational games about grain silos, grains, and trading companies.
+
+### Apps
+
+1. **card-collection** (`apps/card-collection/`) - Quiz-based card collection game. Users answer quizzes to collect cards in three categories: Silos, Grains, and Traders.
+2. **grain-voyage** (`apps/grain-voyage/`) - (Planned) Bulk ship simulation game. Players manage grain deliveries to silos across Japan.
+
+### Shared Package
+
+- **@trading-silo/shared** (`packages/shared/`) - Common data and types shared between apps (silos, grains, traders)
 
 ## Commands
 
 ```bash
-npm run dev          # Start development server (localhost:3000)
-npm run build        # Production build
-npm run lint         # ESLint
-npm run validate:data # Validate quiz/card data integrity
-npm run test:e2e     # Run Playwright E2E tests (auto-starts dev server)
-npm run test:e2e:ui  # Run Playwright tests with UI
+# Root level (Turborepo)
+pnpm install         # Install all dependencies
+pnpm dev             # Start all apps in dev mode
+pnpm build           # Build all apps
+pnpm lint            # Lint all apps
+
+# App-specific
+pnpm dev:card        # Start card-collection dev server
+pnpm dev:voyage      # Start grain-voyage dev server (planned)
+pnpm build:card      # Build card-collection
+pnpm build:voyage    # Build grain-voyage (planned)
+
+# Within apps/card-collection/
+pnpm dev             # Start development server (localhost:3000)
+pnpm build           # Production build
+pnpm lint            # ESLint
+pnpm validate:data   # Validate quiz/card data integrity
+pnpm test:e2e        # Run Playwright E2E tests
+pnpm test:e2e:ui     # Run Playwright tests with UI
 ```
 
 ## Architecture
 
-**Tech Stack**: Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, Leaflet/react-leaflet, Playwright
+**Tech Stack**: Turborepo, pnpm workspaces, Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, Leaflet/react-leaflet, Playwright
 
-### Key Directories
+### Directory Structure
 
-- `src/app/` - Next.js App Router pages
-  - `page.tsx` - Home with progress dashboard
-  - `quiz/page.tsx` - Quiz flow (category select → quiz → result → card reveal)
-  - `collection/page.tsx` - Card gallery with filtering
-  - `settings/page.tsx` - Settings with export/import/reset
-- `src/components/Card/` - Card display components (FlipCard, CardDetail, CardReveal)
-- `src/data/` - Static data files for grains, silos, traders, and quizzes
-- `src/context/CollectionContext.tsx` - Global state for collected cards and quiz stats (localStorage persistence)
-- `src/hooks/` - Custom hooks (useReducedMotion, useModalAccessibility)
-- `src/lib/` - Utility functions (animations, styles, quizUtils)
-- `src/types/index.ts` - TypeScript interfaces for Card, Quiz, CollectionState
-- `src/constants/` - Application constants
-- `e2e/` - Playwright E2E test files
+```
+trading-silo/
+├── apps/
+│   ├── card-collection/     # Quiz card collection game
+│   │   ├── src/
+│   │   │   ├── app/         # Next.js App Router pages
+│   │   │   ├── components/  # React components
+│   │   │   ├── context/     # React contexts
+│   │   │   ├── data/        # App-specific data (quizzes)
+│   │   │   ├── hooks/       # Custom hooks
+│   │   │   ├── lib/         # Utilities
+│   │   │   └── types/       # TypeScript types
+│   │   └── e2e/             # Playwright tests
+│   │
+│   └── grain-voyage/        # Bulk ship game (planned)
+│
+├── packages/
+│   └── shared/              # Shared data and types
+│       └── src/
+│           ├── data/        # silos.ts, grains.ts, traders.ts
+│           └── types/       # Card type definitions
+│
+├── turbo.json               # Turborepo config
+├── pnpm-workspace.yaml      # pnpm workspace config
+└── package.json             # Root package.json
+```
 
 ### Data Model
 
-Three card types extend `BaseCard`: `SiloCard`, `GrainCard`, `TraderCard`. Each has unique properties (e.g., silos have capacity/location, grains have nutrients/origins). Quizzes link to cards via `cardId` - correct answers unlock the associated card.
+Three card types extend `BaseCard`: `SiloCard`, `GrainCard`, `TraderCard`. Each has unique properties (e.g., silos have capacity/location with GPS coordinates, grains have nutrients/origins). Quizzes link to cards via `cardId`.
+
+**Shared data** (in `@trading-silo/shared`):
+- 25 silos with GPS coordinates
+- 7 grain types
+- 11 trading companies
 
 ### State Management
 
-`CollectionContext` provides:
+`CollectionContext` (card-collection app) provides:
 - `collectedCardIds` - IDs of earned cards
 - `totalQuizAttempts` / `correctAnswers` - Stats tracking
 - `categoryStats` - Per-category accuracy tracking
 - `wrongAnswerQuizIds` - Quiz IDs for review mode
-- Progress helpers: `getProgress()`, `getCategoryProgress()`, `getCategoryAccuracy()`
-- Review mode: `addWrongAnswer()`, `removeWrongAnswer()`, `getWrongAnswerQuizIds()`
 
-### Features
+### Features (card-collection)
 
-- **Quiz Modes**: Single quiz, 3-question challenge mode, review mode (wrong answers)
-- **Accessibility**: Keyboard navigation, screen reader support, reduced motion support
+- **Quiz Modes**: Single quiz, 3-question challenge mode, review mode
+- **Accessibility**: Keyboard navigation, screen reader support, reduced motion
 - **Data Management**: Export/import progress as JSON, reset progress
-- **Image Optimization**: Uses next/image for optimized image loading
-
-### Accessibility
-
-The app includes:
-- `useReducedMotion` hook for respecting user's motion preferences
-- `useModalAccessibility` hook for ESC key handling and focus trapping
-- Keyboard navigation for all interactive elements
-- ARIA attributes and screen reader announcements
+- **Image Optimization**: Uses next/image
 
 ### Testing
 
-- E2E tests in `e2e/` use Playwright, which auto-starts the dev server
-- Test helpers in `e2e/helpers/test-utils.ts` provide localStorage manipulation and quiz navigation utilities
+- E2E tests in `apps/card-collection/e2e/` use Playwright
 - localStorage key: `silo-card-collection`

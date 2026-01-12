@@ -1,4 +1,4 @@
-import { SiloCard } from "@/types";
+import { SiloCard } from "../types";
 
 export const silos: SiloCard[] = [
   {
@@ -104,7 +104,7 @@ export const silos: SiloCard[] = [
       url: "https://www.zsilo.co.jp/company/access/",
     },
     location: "茨城県神栖市",
-    coordinates: { lat: 35.9169, lng: 140.6680 },
+    coordinates: { lat: 35.9169, lng: 140.668 },
     capacity: "約24.5万トン",
     grains: ["トウモロコシ", "大豆", "小麦", "マイロ"],
     establishedYear: 1970,
@@ -304,7 +304,7 @@ export const silos: SiloCard[] = [
       url: "https://www.tomafu.co.jp/about/",
     },
     location: "北海道苫小牧市",
-    coordinates: { lat: 42.6410, lng: 141.6947 },
+    coordinates: { lat: 42.641, lng: 141.6947 },
     capacity: "約19万トン",
     grains: ["トウモロコシ", "大豆", "大豆粕", "マイロ"],
     establishedYear: 1970,
