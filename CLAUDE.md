@@ -9,16 +9,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev        # Start development server (localhost:3000)
-npm run build      # Production build
-npm run lint       # ESLint
-npm run test:e2e   # Run Playwright E2E tests
-npm run test:e2e:ui # Run Playwright tests with UI
+npm run dev          # Start development server (localhost:3000)
+npm run build        # Production build
+npm run lint         # ESLint
+npm run validate:data # Validate quiz/card data integrity
+npm run test:e2e     # Run Playwright E2E tests (auto-starts dev server)
+npm run test:e2e:ui  # Run Playwright tests with UI
 ```
 
 ## Architecture
 
-**Tech Stack**: Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, Playwright
+**Tech Stack**: Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, Leaflet/react-leaflet, Playwright
 
 ### Key Directories
 
@@ -33,6 +34,7 @@ npm run test:e2e:ui # Run Playwright tests with UI
 - `src/hooks/` - Custom hooks (useReducedMotion, useModalAccessibility)
 - `src/lib/` - Utility functions (animations, styles, quizUtils)
 - `src/types/index.ts` - TypeScript interfaces for Card, Quiz, CollectionState
+- `src/constants/` - Application constants
 - `e2e/` - Playwright E2E test files
 
 ### Data Model
@@ -63,3 +65,9 @@ The app includes:
 - `useModalAccessibility` hook for ESC key handling and focus trapping
 - Keyboard navigation for all interactive elements
 - ARIA attributes and screen reader announcements
+
+### Testing
+
+- E2E tests in `e2e/` use Playwright, which auto-starts the dev server
+- Test helpers in `e2e/helpers/test-utils.ts` provide localStorage manipulation and quiz navigation utilities
+- localStorage key: `silo-card-collection`
