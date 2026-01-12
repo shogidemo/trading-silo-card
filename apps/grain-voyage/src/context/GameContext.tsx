@@ -7,7 +7,13 @@ import {
   useCallback,
   ReactNode,
 } from "react";
-import { ports, routes, getConnectedPorts, getRouteBetween } from "@/data";
+import {
+  ports,
+  routeCells,
+  getReachableCells,
+  getStartingCellId,
+  RouteCell,
+} from "@/data";
 
 // ========================================
 // 型定義
@@ -15,7 +21,7 @@ import { ports, routes, getConnectedPorts, getRouteBetween } from "@/data";
 
 interface PlayerState {
   companyId: string;
-  currentPortId: string;
+  currentCellId: string; // マス制：現在のセルID
   fuel: number;
   maxFuel: number;
   money: number;
@@ -28,13 +34,13 @@ interface GameState {
   player: PlayerState;
   lastDiceValue: number | null;
   remainingMoves: number;
-  moveHistory: string[]; // 訪問した港のID履歴
+  moveHistory: string[]; // 訪問したセルのID履歴
 }
 
 type GameAction =
   | { type: "START_GAME"; companyId: string; startPortId: string }
   | { type: "ROLL_DICE"; value: number }
-  | { type: "SELECT_DESTINATION"; portId: string }
+  | { type: "SELECT_CELL"; cellId: string }
   | { type: "COMPLETE_MOVE" }
   | { type: "END_TURN" }
   | { type: "RESET_GAME" };
@@ -49,7 +55,7 @@ const initialState: GameState = {
   maxTurns: 30,
   player: {
     companyId: "",
-    currentPortId: "",
+    currentCellId: "",
     fuel: 100,
     maxFuel: 100,
     money: 10000,
@@ -60,12 +66,41 @@ const initialState: GameState = {
 };
 
 // ========================================
+// ヘルパー関数
+// ========================================
+
+// セルから港IDを取得
+function getPortIdFromCell(cellId: string): string | null {
+  const cell = routeCells.find((c) => c.id === cellId);
+  if (cell?.type === "port" && cell.portId) {
+    return cell.portId;
+  }
+  return null;
+}
+
+// 2つのセル間の距離（移動に必要なマス数）を計算
+function getDistanceBetweenCells(fromCellId: string, toCellId: string): number {
+  // 到達可能セルを取得して距離を計算
+  // 最大100マスまで探索
+  for (let moves = 1; moves <= 100; moves++) {
+    const reachable = getReachableCells(fromCellId, moves);
+    if (reachable.some((c) => c.id === toCellId)) {
+      return moves;
+    }
+  }
+  return -1; // 到達不可
+}
+
+// ========================================
 // Reducer
 // ========================================
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
-    case "START_GAME":
+    case "START_GAME": {
+      const startCellId = getStartingCellId(action.startPortId);
+      if (!startCellId) return state;
+
       return {
         ...initialState,
         phase: "idle",
@@ -73,10 +108,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         player: {
           ...initialState.player,
           companyId: action.companyId,
-          currentPortId: action.startPortId,
+          currentCellId: startCellId,
         },
-        moveHistory: [action.startPortId],
+        moveHistory: [startCellId],
       };
+    }
 
     case "ROLL_DICE":
       return {
@@ -86,27 +122,32 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         remainingMoves: action.value,
       };
 
-    case "SELECT_DESTINATION": {
-      const route = getRouteBetween(state.player.currentPortId, action.portId);
-      if (!route) return state;
+    case "SELECT_CELL": {
+      const distance = getDistanceBetweenCells(
+        state.player.currentCellId,
+        action.cellId
+      );
+      if (distance < 0 || distance > state.remainingMoves) return state;
 
-      const newRemainingMoves = state.remainingMoves - route.distance;
-      if (newRemainingMoves < 0) return state;
+      const newRemainingMoves = state.remainingMoves - distance;
 
-      // 燃料消費
-      const fuelCost = route.distance * 5;
+      // 燃料消費（1マスあたり2燃料）
+      const fuelCost = distance * 2;
       const newFuel = Math.max(0, state.player.fuel - fuelCost);
+
+      // 港に到着したかどうか
+      const arrivedAtPort = getPortIdFromCell(action.cellId) !== null;
 
       return {
         ...state,
-        phase: newRemainingMoves > 0 ? "selecting_destination" : "arrived",
+        phase: newRemainingMoves > 0 && !arrivedAtPort ? "selecting_destination" : "arrived",
         player: {
           ...state.player,
-          currentPortId: action.portId,
+          currentCellId: action.cellId,
           fuel: newFuel,
         },
-        remainingMoves: newRemainingMoves,
-        moveHistory: [...state.moveHistory, action.portId],
+        remainingMoves: arrivedAtPort ? 0 : newRemainingMoves,
+        moveHistory: [...state.moveHistory, action.cellId],
       };
     }
 
@@ -143,13 +184,14 @@ interface GameContextValue {
   // アクション
   startGame: (companyId: string, startPortId: string) => void;
   rollDice: (value: number) => void;
-  selectDestination: (portId: string) => void;
+  selectCell: (cellId: string) => void;
   completeMove: () => void;
   endTurn: () => void;
   resetGame: () => void;
   // ヘルパー
-  getReachablePorts: () => { portId: string; distance: number }[];
-  canMoveTo: (portId: string) => boolean;
+  getReachableCellIds: () => string[];
+  canMoveTo: (cellId: string) => boolean;
+  getCurrentCell: () => RouteCell | undefined;
   getCurrentPort: () => (typeof ports)[0] | undefined;
 }
 
@@ -170,8 +212,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "ROLL_DICE", value });
   }, []);
 
-  const selectDestination = useCallback((portId: string) => {
-    dispatch({ type: "SELECT_DESTINATION", portId });
+  const selectCell = useCallback((cellId: string) => {
+    dispatch({ type: "SELECT_CELL", cellId });
   }, []);
 
   const completeMove = useCallback(() => {
@@ -186,49 +228,53 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "RESET_GAME" });
   }, []);
 
-  // 現在位置から到達可能な港を取得
-  const getReachablePorts = useCallback(() => {
-    if (!state.player.currentPortId || state.remainingMoves <= 0) {
+  // 現在位置から到達可能なセルIDのリストを取得
+  const getReachableCellIds = useCallback(() => {
+    if (!state.player.currentCellId || state.remainingMoves <= 0) {
       return [];
     }
 
-    const connectedPortIds = getConnectedPorts(state.player.currentPortId);
-    const reachable: { portId: string; distance: number }[] = [];
+    const reachable = getReachableCells(
+      state.player.currentCellId,
+      state.remainingMoves
+    );
+    return reachable.map((c) => c.id);
+  }, [state.player.currentCellId, state.remainingMoves]);
 
-    for (const portId of connectedPortIds) {
-      const route = getRouteBetween(state.player.currentPortId, portId);
-      if (route && route.distance <= state.remainingMoves) {
-        reachable.push({ portId, distance: route.distance });
-      }
-    }
-
-    return reachable;
-  }, [state.player.currentPortId, state.remainingMoves]);
-
-  // 指定した港に移動可能かチェック
+  // 指定したセルに移動可能かチェック
   const canMoveTo = useCallback(
-    (portId: string) => {
-      const reachable = getReachablePorts();
-      return reachable.some((r) => r.portId === portId);
+    (cellId: string) => {
+      const reachableIds = getReachableCellIds();
+      return reachableIds.includes(cellId);
     },
-    [getReachablePorts]
+    [getReachableCellIds]
   );
 
-  // 現在の港を取得
+  // 現在のセルを取得
+  const getCurrentCell = useCallback(() => {
+    return routeCells.find((c) => c.id === state.player.currentCellId);
+  }, [state.player.currentCellId]);
+
+  // 現在の港を取得（港マスにいる場合のみ）
   const getCurrentPort = useCallback(() => {
-    return ports.find((p) => p.id === state.player.currentPortId);
-  }, [state.player.currentPortId]);
+    const cell = getCurrentCell();
+    if (cell?.type === "port" && cell.portId) {
+      return ports.find((p) => p.id === cell.portId);
+    }
+    return undefined;
+  }, [getCurrentCell]);
 
   const value: GameContextValue = {
     state,
     startGame,
     rollDice,
-    selectDestination,
+    selectCell,
     completeMove,
     endTurn,
     resetGame,
-    getReachablePorts,
+    getReachableCellIds,
     canMoveTo,
+    getCurrentCell,
     getCurrentPort,
   };
 

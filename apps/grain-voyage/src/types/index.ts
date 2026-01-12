@@ -43,6 +43,8 @@ export interface Route {
   to: string;    // 港ID
   distance: number;  // マス数
   type: "main" | "branch";
+  // 海上経由点（陸上を通らないようにするため）
+  waypoints?: { lat: number; lng: number }[];
   // 特殊効果
   effects?: RouteEffect[];
 }

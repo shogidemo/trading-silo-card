@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import { ports, routes, getConnectedPorts } from "@/data";
+import React, { useEffect, useMemo } from "react";
+import { MapContainer, TileLayer, useMap, CircleMarker, Tooltip } from "react-leaflet";
+import { ports, routes, routeCells, getCellsForRoute, RouteCell } from "@/data";
 import PortMarker from "./PortMarker";
 import RouteLayer from "./RouteLayer";
 
@@ -16,9 +16,32 @@ const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 interface GameMapProps {
+  // 旧API（互換性のため維持）
   selectedPortId?: string | null;
   shipPortId?: string | null;
   onPortSelect?: (id: string) => void;
+  // 新API（マス制用）
+  currentCellId?: string | null;
+  reachableCellIds?: string[];
+  onCellSelect?: (cellId: string) => void;
+  showCells?: boolean;
+}
+
+function FlyToCell({ cellId }: { cellId: string | null | undefined }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (cellId) {
+      const cell = routeCells.find((c) => c.id === cellId);
+      if (cell) {
+        map.flyTo([cell.coordinates.lat, cell.coordinates.lng], 8, {
+          duration: 0.8,
+        });
+      }
+    }
+  }, [cellId, map]);
+
+  return null;
 }
 
 function FlyToPort({ portId }: { portId: string | null | undefined }) {
@@ -61,15 +84,164 @@ function MapControls() {
   );
 }
 
+// 中間マスの表示コンポーネント
+function CellMarkers({
+  currentCellId,
+  reachableCellIds,
+  onCellSelect,
+}: {
+  currentCellId?: string | null;
+  reachableCellIds?: string[];
+  onCellSelect?: (cellId: string) => void;
+}) {
+  const reachableSet = useMemo(
+    () => new Set(reachableCellIds || []),
+    [reachableCellIds]
+  );
+
+  // 中間マスのみ表示（港マスは PortMarker で表示）
+  const intermediateCells = useMemo(
+    () => routeCells.filter((c) => c.type === "normal"),
+    []
+  );
+
+  return (
+    <>
+      {intermediateCells.map((cell) => {
+        const isReachable = reachableSet.has(cell.id);
+        const isCurrent = cell.id === currentCellId;
+
+        // マスのサイズと色（視認性向上）
+        const radius = isCurrent ? 10 : isReachable ? 9 : 6;
+        const fillColor = isCurrent
+          ? "#b8860b"
+          : isReachable
+            ? "#0ea5e9"
+            : "#1e40af";  // 濃い青で視認性向上
+        const fillOpacity = isCurrent ? 1 : isReachable ? 0.9 : 0.8;
+
+        return (
+          <React.Fragment key={cell.id}>
+            {/* 白い縁取り（下レイヤー） */}
+            <CircleMarker
+              center={[cell.coordinates.lat, cell.coordinates.lng]}
+              radius={radius + 2}
+              pathOptions={{
+                fillColor: "#ffffff",
+                fillOpacity: 1,
+                color: "#ffffff",
+                weight: 0,
+              }}
+            />
+            {/* メインのマーカー（上レイヤー） */}
+            <CircleMarker
+              center={[cell.coordinates.lat, cell.coordinates.lng]}
+              radius={radius}
+              pathOptions={{
+                fillColor,
+                fillOpacity,
+                color: isCurrent ? "#8b6914" : isReachable ? "#0369a1" : "#1e3a8a",
+                weight: isCurrent ? 3 : 2,
+              }}
+              eventHandlers={{
+                click: () => {
+                  if (isReachable && onCellSelect) {
+                    onCellSelect(cell.id);
+                  }
+                },
+              }}
+            >
+              {isReachable && (
+                <Tooltip>
+                  <span className="text-sm font-medium">ここに移動</span>
+                </Tooltip>
+              )}
+            </CircleMarker>
+          </React.Fragment>
+        );
+      })}
+    </>
+  );
+}
+
+// 船の現在位置マーカー
+function ShipMarker({ cellId }: { cellId: string }) {
+  const cell = routeCells.find((c) => c.id === cellId);
+  if (!cell) return null;
+
+  // 港マスの場合は PortMarker の hasShip で表示
+  if (cell.type === "port") return null;
+
+  return (
+    <CircleMarker
+      center={[cell.coordinates.lat, cell.coordinates.lng]}
+      radius={12}
+      pathOptions={{
+        fillColor: "#b8860b",
+        fillOpacity: 1,
+        color: "#8b6914",
+        weight: 3,
+      }}
+    >
+      <Tooltip permanent direction="top" offset={[0, -10]}>
+        <span className="text-lg">🚢</span>
+      </Tooltip>
+    </CircleMarker>
+  );
+}
+
 export default function GameMap({
   selectedPortId,
   shipPortId,
   onPortSelect,
+  currentCellId,
+  reachableCellIds = [],
+  onCellSelect,
+  showCells = false,
 }: GameMapProps) {
-  // 選択中の港から接続されている港のIDリスト
-  const connectedPortIds = selectedPortId
-    ? getConnectedPorts(selectedPortId)
-    : [];
+  // 現在のマスから港IDを取得（PortMarker用）
+  const currentPortId = useMemo(() => {
+    if (currentCellId) {
+      const cell = routeCells.find((c) => c.id === currentCellId);
+      if (cell?.type === "port") {
+        return cell.portId;
+      }
+    }
+    return shipPortId;
+  }, [currentCellId, shipPortId]);
+
+  // 到達可能なマスのセット
+  const reachableSet = useMemo(
+    () => new Set(reachableCellIds),
+    [reachableCellIds]
+  );
+
+  // 到達可能な港IDのセット
+  const reachablePortIds = useMemo(() => {
+    const portIds = new Set<string>();
+    for (const cellId of reachableCellIds) {
+      const cell = routeCells.find((c) => c.id === cellId);
+      if (cell?.type === "port" && cell.portId) {
+        portIds.add(cell.portId);
+      }
+    }
+    return portIds;
+  }, [reachableCellIds]);
+
+  // 港がクリックされた時の処理
+  const handlePortClick = (portId: string) => {
+    if (onCellSelect && showCells) {
+      // マス制の場合、港に対応するマスIDを見つけて選択
+      const cell = routeCells.find(
+        (c) => c.type === "port" && c.portId === portId && reachableSet.has(c.id)
+      );
+      if (cell) {
+        onCellSelect(cell.id);
+      }
+    } else if (onPortSelect) {
+      onPortSelect(portId);
+    }
+  };
 
   return (
     <MapContainer
@@ -80,35 +252,57 @@ export default function GameMap({
     >
       <TileLayer url={OSM_URL} attribution={OSM_ATTRIBUTION} />
       <MapControls />
-      <FlyToPort portId={selectedPortId} />
 
-      {/* 航路を描画 */}
+      {/* カメラ移動 */}
+      {showCells ? (
+        <FlyToCell cellId={currentCellId} />
+      ) : (
+        <FlyToPort portId={selectedPortId} />
+      )}
+
+      {/* 航路を描画（マスに沿った曲線で） */}
       {routes.map((route) => {
-        // 選択中の港に接続している航路をハイライト
-        const isHighlighted =
-          selectedPortId !== null &&
-          (route.from === selectedPortId || route.to === selectedPortId);
+        const cells = getCellsForRoute(route.id);
+        const isHighlighted = cells.some((c) => reachableSet.has(c.id));
 
         return (
           <RouteLayer
             key={route.id}
             route={route}
             ports={ports}
+            cells={cells}
             isHighlighted={isHighlighted}
           />
         );
       })}
 
-      {/* 港マーカーを描画 */}
-      {ports.map((port) => (
-        <PortMarker
-          key={port.id}
-          port={port}
-          isSelected={selectedPortId === port.id}
-          hasShip={shipPortId === port.id}
-          onSelect={onPortSelect}
+      {/* 中間マスを表示 */}
+      {showCells && (
+        <CellMarkers
+          currentCellId={currentCellId}
+          reachableCellIds={reachableCellIds}
+          onCellSelect={onCellSelect}
         />
-      ))}
+      )}
+
+      {/* 船の位置（中間マスにいる場合） */}
+      {showCells && currentCellId && <ShipMarker cellId={currentCellId} />}
+
+      {/* 港マーカーを描画 */}
+      {ports.map((port) => {
+        const isReachable = reachablePortIds.has(port.id);
+
+        return (
+          <PortMarker
+            key={port.id}
+            port={port}
+            isSelected={selectedPortId === port.id}
+            hasShip={currentPortId === port.id}
+            isReachable={isReachable}
+            onSelect={handlePortClick}
+          />
+        );
+      })}
     </MapContainer>
   );
 }

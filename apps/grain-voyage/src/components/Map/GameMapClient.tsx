@@ -15,21 +15,35 @@ const GameMap = dynamic(() => import("./GameMap"), {
 });
 
 interface GameMapClientProps {
+  // 旧API（互換性）
   selectedPortId?: string | null;
   shipPortId?: string | null;
   onPortSelect?: (id: string) => void;
+  // 新API（マス制用）
+  currentCellId?: string | null;
+  reachableCellIds?: string[];
+  onCellSelect?: (cellId: string) => void;
+  showCells?: boolean;
 }
 
 export default function GameMapClient({
   selectedPortId,
   shipPortId,
   onPortSelect,
+  currentCellId,
+  reachableCellIds,
+  onCellSelect,
+  showCells,
 }: GameMapClientProps) {
   return (
     <GameMap
       selectedPortId={selectedPortId}
       shipPortId={shipPortId}
       onPortSelect={onPortSelect}
+      currentCellId={currentCellId}
+      reachableCellIds={reachableCellIds}
+      onCellSelect={onCellSelect}
+      showCells={showCells}
     />
   );
 }

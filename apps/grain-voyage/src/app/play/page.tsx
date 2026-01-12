@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { GameProvider, useGame } from "@/context/GameContext";
 import { GameMapClient } from "@/components/Map";
 import { Dice } from "@/components/Dice";
-import { ports } from "@/data";
+import { ports, routeCells } from "@/data";
 
 // ゲームUI本体
 function GamePlayContent() {
@@ -15,11 +15,12 @@ function GamePlayContent() {
     state,
     startGame,
     rollDice,
-    selectDestination,
+    selectCell,
     endTurn,
-    getReachablePorts,
+    getReachableCellIds,
     canMoveTo,
     getCurrentPort,
+    getCurrentCell,
   } = useGame();
 
   const searchParams = useSearchParams();
@@ -34,17 +35,18 @@ function GamePlayContent() {
   }, [state.turn, companyId, startGame]);
 
   const currentPort = getCurrentPort();
-  const reachablePorts = getReachablePorts();
+  const currentCell = getCurrentCell();
+  const reachableCellIds = getReachableCellIds();
 
   // サイコロを振った時の処理
   const handleDiceRoll = (value: number) => {
     rollDice(value);
   };
 
-  // 港を選択した時の処理
-  const handlePortSelect = (portId: string) => {
-    if (state.phase === "selecting_destination" && canMoveTo(portId)) {
-      selectDestination(portId);
+  // セルを選択した時の処理
+  const handleCellSelect = (cellId: string) => {
+    if (state.phase === "selecting_destination" && canMoveTo(cellId)) {
+      selectCell(cellId);
     }
   };
 
@@ -56,13 +58,41 @@ function GamePlayContent() {
       case "rolling":
         return "サイコロを振っています...";
       case "selecting_destination":
-        return `${state.remainingMoves}マス移動できます。移動先の港をクリックしてください`;
+        return `${state.remainingMoves}マス移動できます。移動先をクリックしてください`;
       case "arrived":
-        return "港に到着しました！ターンを終了して次へ進みましょう";
+        return currentPort
+          ? "港に到着しました！ターンを終了して次へ進みましょう"
+          : "移動完了！ターンを終了してください";
       default:
         return "";
     }
   };
+
+  // 現在位置の表示名
+  const getCurrentPositionName = () => {
+    if (currentPort) {
+      return currentPort.name;
+    }
+    if (currentCell) {
+      // 航路上の場合はルート名を表示
+      return `${currentCell.routeId} (マス ${currentCell.index})`;
+    }
+    return "---";
+  };
+
+  // 到達可能な港のリストを取得
+  const getReachablePorts = () => {
+    const portList: { portId: string; cellId: string }[] = [];
+    for (const cellId of reachableCellIds) {
+      const cell = routeCells.find((c) => c.id === cellId);
+      if (cell?.type === "port" && cell.portId) {
+        portList.push({ portId: cell.portId, cellId: cell.id });
+      }
+    }
+    return portList;
+  };
+
+  const reachablePorts = getReachablePorts();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,38 +136,40 @@ function GamePlayContent() {
         {/* マップ */}
         <div className="flex-1 relative">
           <GameMapClient
-            selectedPortId={
-              state.phase === "selecting_destination"
-                ? null
-                : state.player.currentPortId
-            }
-            shipPortId={state.player.currentPortId}
-            onPortSelect={handlePortSelect}
+            currentCellId={state.player.currentCellId}
+            reachableCellIds={reachableCellIds}
+            onCellSelect={handleCellSelect}
+            showCells={true}
           />
 
-          {/* 到達可能な港のハイライト表示 */}
+          {/* 到達可能な港のパネル */}
           {state.phase === "selecting_destination" && reachablePorts.length > 0 && (
             <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-              <p className="text-sm text-navy-600 mb-2">移動可能な港:</p>
+              <p className="text-sm text-navy-600 mb-2">到達可能な港:</p>
               <div className="space-y-1">
-                {reachablePorts.map(({ portId, distance }) => {
+                {reachablePorts.map(({ portId, cellId }) => {
                   const port = ports.find((p) => p.id === portId);
                   return (
                     <button
-                      key={portId}
-                      onClick={() => handlePortSelect(portId)}
+                      key={cellId}
+                      onClick={() => handleCellSelect(cellId)}
                       className="w-full text-left px-3 py-2 rounded bg-ocean-50 hover:bg-ocean-100 transition-colors"
                     >
                       <span className="font-medium text-navy-900">
-                        {port?.name}
-                      </span>
-                      <span className="text-xs text-navy-500 ml-2">
-                        ({distance}マス)
+                        ⚓ {port?.name}
                       </span>
                     </button>
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* 移動可能マス数の表示 */}
+          {state.phase === "selecting_destination" && (
+            <div className="absolute bottom-4 left-4 bg-ocean-600 text-white px-4 py-2 rounded-lg shadow-lg">
+              <span className="text-lg font-bold">{state.remainingMoves}</span>
+              <span className="ml-1 text-sm">マス移動可能</span>
             </div>
           )}
         </div>
@@ -148,8 +180,13 @@ function GamePlayContent() {
           <div className="p-4 border-b border-ocean-100">
             <h2 className="text-sm text-navy-500 mb-1">現在地</h2>
             <p className="font-display text-xl text-navy-900">
-              {currentPort?.name || "---"}
+              {getCurrentPositionName()}
             </p>
+            {!currentPort && currentCell && (
+              <p className="text-sm text-navy-500 mt-1">
+                🚢 航路上
+              </p>
+            )}
           </div>
 
           {/* フェーズメッセージ */}
@@ -175,13 +212,16 @@ function GamePlayContent() {
                 <div className="text-6xl font-display text-ocean-600 mb-4">
                   {state.lastDiceValue}
                 </div>
-                <p className="text-navy-600">
+                <p className="text-navy-600 mb-2">
                   残り <span className="font-bold">{state.remainingMoves}</span> マス
                 </p>
-                {reachablePorts.length === 0 && (
+                <p className="text-xs text-navy-400 mb-4">
+                  マップ上の青いマスをクリックして移動
+                </p>
+                {reachableCellIds.length === 0 && (
                   <div className="mt-4">
                     <p className="text-sm text-rust-600 mb-2">
-                      移動可能な港がありません
+                      移動可能なマスがありません
                     </p>
                     <button
                       onClick={endTurn}
@@ -201,10 +241,12 @@ function GamePlayContent() {
                   animate={{ scale: 1 }}
                   className="text-6xl mb-4"
                 >
-                  ⚓
+                  {currentPort ? "⚓" : "🚢"}
                 </motion.div>
                 <p className="text-navy-600 mb-4">
-                  {currentPort?.name}に到着！
+                  {currentPort
+                    ? `${currentPort.name}に到着！`
+                    : "移動完了！"}
                 </p>
                 <button
                   onClick={endTurn}
@@ -220,18 +262,26 @@ function GamePlayContent() {
           <div className="p-4 border-t border-ocean-100 max-h-40 overflow-y-auto">
             <h3 className="text-sm text-navy-500 mb-2">移動履歴</h3>
             <div className="flex flex-wrap gap-1">
-              {state.moveHistory.map((portId, index) => {
-                const port = ports.find((p) => p.id === portId);
+              {state.moveHistory.slice(-10).map((cellId, index) => {
+                const cell = routeCells.find((c) => c.id === cellId);
+                const port = cell?.type === "port" && cell.portId
+                  ? ports.find((p) => p.id === cell.portId)
+                  : null;
+
+                const isLast = index === state.moveHistory.slice(-10).length - 1;
+
                 return (
                   <span
-                    key={`${portId}-${index}`}
+                    key={`${cellId}-${index}`}
                     className={`text-xs px-2 py-1 rounded ${
-                      index === state.moveHistory.length - 1
+                      isLast
                         ? "bg-ocean-100 text-ocean-700"
-                        : "bg-navy-100 text-navy-600"
+                        : port
+                          ? "bg-gold-100 text-gold-700"
+                          : "bg-navy-100 text-navy-600"
                     }`}
                   >
-                    {port?.name.replace("港", "")}
+                    {port ? `⚓${port.name.replace("港", "")}` : `🚢${cell?.index || "?"}`}
                   </span>
                 );
               })}
