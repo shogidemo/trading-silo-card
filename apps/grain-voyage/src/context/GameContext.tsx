@@ -43,8 +43,19 @@ interface ActiveMission extends Mission {
   cargoLoaded: boolean; // 積荷を積んだかどうか
 }
 
+// スコア結果
+export interface ScoreResult {
+  missionsCompleted: number;
+  totalRevenue: number; // 総収益
+  totalFuelCost: number; // 総燃料費
+  bonusCount: number; // ボーナス獲得数
+  finalMoney: number; // 最終所持金
+  rank: "S" | "A" | "B" | "C" | "D";
+  endReason: "turn_limit" | "fuel_empty" | "manual";
+}
+
 interface GameState {
-  phase: "idle" | "rolling" | "selecting_destination" | "moving" | "arrived" | "port_action";
+  phase: "idle" | "rolling" | "selecting_destination" | "moving" | "arrived" | "port_action" | "game_end";
   turn: number;
   maxTurns: number;
   player: PlayerState;
@@ -58,6 +69,8 @@ interface GameState {
   // 統計情報（スコア計算用）
   totalFuelCost: number;
   totalMissionReward: number;
+  // ゲーム終了
+  scoreResult: ScoreResult | null;
 }
 
 type GameAction =
@@ -73,6 +86,7 @@ type GameAction =
   | { type: "COMPLETE_MISSION" }
   | { type: "REFRESH_MISSIONS" }
   | { type: "END_TURN" }
+  | { type: "END_GAME"; reason: "turn_limit" | "fuel_empty" | "manual" }
   | { type: "RESET_GAME" };
 
 // ========================================
@@ -106,7 +120,17 @@ const initialState: GameState = {
   completedMissions: [],
   totalFuelCost: 0,
   totalMissionReward: 0,
+  scoreResult: null,
 };
+
+// ランク計算
+function calculateRank(finalMoney: number): "S" | "A" | "B" | "C" | "D" {
+  if (finalMoney >= 20000) return "S";
+  if (finalMoney >= 15000) return "A";
+  if (finalMoney >= 12000) return "B";
+  if (finalMoney >= 10000) return "C";
+  return "D";
+}
 
 // ========================================
 // ヘルパー関数
@@ -424,14 +448,52 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
-    case "END_TURN":
+    case "END_TURN": {
+      const newTurn = state.turn + 1;
+      // ターン上限に達した場合はゲーム終了
+      if (newTurn > state.maxTurns) {
+        const bonusCount = state.completedMissions.filter((m) => m.bonusEarned).length;
+        const scoreResult: ScoreResult = {
+          missionsCompleted: state.completedMissions.length,
+          totalRevenue: state.totalMissionReward,
+          totalFuelCost: state.totalFuelCost,
+          bonusCount,
+          finalMoney: state.player.money,
+          rank: calculateRank(state.player.money),
+          endReason: "turn_limit",
+        };
+        return {
+          ...state,
+          phase: "game_end",
+          scoreResult,
+        };
+      }
       return {
         ...state,
         phase: "idle",
-        turn: state.turn + 1,
+        turn: newTurn,
         lastDiceValue: null,
         remainingMoves: 0,
       };
+    }
+
+    case "END_GAME": {
+      const bonusCount = state.completedMissions.filter((m) => m.bonusEarned).length;
+      const scoreResult: ScoreResult = {
+        missionsCompleted: state.completedMissions.length,
+        totalRevenue: state.totalMissionReward,
+        totalFuelCost: state.totalFuelCost,
+        bonusCount,
+        finalMoney: state.player.money,
+        rank: calculateRank(state.player.money),
+        endReason: action.reason,
+      };
+      return {
+        ...state,
+        phase: "game_end",
+        scoreResult,
+      };
+    }
 
     case "RESET_GAME":
       return initialState;
@@ -461,8 +523,13 @@ interface GameContextValue {
   completeMission: () => void;
   refreshMissions: () => void;
   canCompleteMission: () => boolean;
+  // ターン・ゲーム終了
   endTurn: () => void;
+  endGame: (reason: "fuel_empty" | "manual") => void;
   resetGame: () => void;
+  // ヘルパー
+  isGameOver: () => boolean;
+  canRollDice: () => boolean;
   // ヘルパー
   getReachableCellIds: () => string[];
   canMoveTo: (cellId: string) => boolean;
@@ -552,8 +619,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return hasCargo;
   }, [state.activeMission, state.player.currentCellId, state.player.cargo]);
 
+  // ゲーム終了判定
+  const isGameOver = useCallback(() => {
+    return state.phase === "game_end";
+  }, [state.phase]);
+
+  // サイコロを振れるかチェック
+  const canRollDice = useCallback(() => {
+    // 燃料がない場合はゲーム終了
+    if (state.player.fuel <= 0) return false;
+    // idleフェーズでのみ振れる
+    return state.phase === "idle";
+  }, [state.phase, state.player.fuel]);
+
   const endTurn = useCallback(() => {
     dispatch({ type: "END_TURN" });
+  }, []);
+
+  const endGame = useCallback((reason: "fuel_empty" | "manual") => {
+    dispatch({ type: "END_GAME", reason });
   }, []);
 
   const resetGame = useCallback(() => {
@@ -627,7 +711,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     refreshMissions,
     canCompleteMission,
     endTurn,
+    endGame,
     resetGame,
+    isGameOver,
+    canRollDice,
     getReachableCellIds,
     canMoveTo,
     getCurrentCell,

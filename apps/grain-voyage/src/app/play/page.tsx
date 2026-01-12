@@ -8,6 +8,7 @@ import { GameProvider, useGame } from "@/context/GameContext";
 import { GameMapClient } from "@/components/Map";
 import { Dice } from "@/components/Dice";
 import { PortActionPanel } from "@/components/PortAction";
+import { GameResult } from "@/components/GameResult";
 import { ports, routeCells } from "@/data";
 
 // ゲームUI本体
@@ -19,11 +20,14 @@ function GamePlayContent() {
     selectCell,
     enterPortAction,
     endTurn,
+    endGame,
     getReachableCellIds,
     canMoveTo,
     getCurrentPort,
     getCurrentCell,
     isAtPort,
+    isGameOver,
+    canRollDice,
   } = useGame();
 
   const searchParams = useSearchParams();
@@ -57,6 +61,9 @@ function GamePlayContent() {
   const getPhaseMessage = () => {
     switch (state.phase) {
       case "idle":
+        if (state.player.fuel <= 0) {
+          return "燃料が尽きました...";
+        }
         return "サイコロを振って移動先を決めましょう";
       case "rolling":
         return "サイコロを振っています...";
@@ -68,6 +75,8 @@ function GamePlayContent() {
           : "移動完了！ターンを終了してください";
       case "port_action":
         return `${currentPort?.name}で行動中...`;
+      case "game_end":
+        return "ゲーム終了！";
       default:
         return "";
     }
@@ -208,8 +217,27 @@ function GamePlayContent() {
 
           {/* サイコロエリア */}
           <div className="flex-1 flex flex-col items-center justify-center p-6">
-            {state.phase === "idle" && (
+            {state.phase === "idle" && canRollDice() && (
               <Dice onRoll={handleDiceRoll} size="lg" />
+            )}
+
+            {state.phase === "idle" && !canRollDice() && (
+              <div className="text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="text-6xl mb-4"
+                >
+                  ⛽
+                </motion.div>
+                <p className="text-rust-600 mb-4">燃料が尽きました</p>
+                <button
+                  onClick={() => endGame("fuel_empty")}
+                  className="px-6 py-3 bg-rust-600 text-white rounded-lg font-display hover:bg-rust-700 transition-colors"
+                >
+                  ゲーム終了
+                </button>
+              </div>
             )}
 
             {state.phase === "selecting_destination" && (
@@ -276,6 +304,19 @@ function GamePlayContent() {
                 <PortActionPanel onDepart={endTurn} />
               </div>
             )}
+
+            {state.phase === "game_end" && (
+              <div className="text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="text-6xl mb-4"
+                >
+                  🏁
+                </motion.div>
+                <p className="text-navy-600">結果を確認してください</p>
+              </div>
+            )}
           </div>
 
           {/* 移動履歴 */}
@@ -309,6 +350,9 @@ function GamePlayContent() {
           </div>
         </aside>
       </div>
+
+      {/* ゲーム結果モーダル */}
+      {isGameOver() && <GameResult />}
     </div>
   );
 }
