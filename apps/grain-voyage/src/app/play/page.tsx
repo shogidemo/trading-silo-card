@@ -104,16 +104,16 @@ function GamePlayContent() {
     return "---";
   };
 
-  // 到達可能な港のリストを取得
+  // 到達可能な港のリストを取得（portIdでユニーク化）
   const getReachablePorts = () => {
-    const portList: { portId: string; cellId: string }[] = [];
+    const portMap = new Map<string, { portId: string; cellId: string }>();
     for (const cellId of reachableCellIds) {
       const cell = routeCells.find((c) => c.id === cellId);
-      if (cell?.type === "port" && cell.portId) {
-        portList.push({ portId: cell.portId, cellId: cell.id });
+      if (cell?.type === "port" && cell.portId && !portMap.has(cell.portId)) {
+        portMap.set(cell.portId, { portId: cell.portId, cellId: cell.id });
       }
     }
-    return portList;
+    return Array.from(portMap.values());
   };
 
   const reachablePorts = getReachablePorts();
@@ -175,6 +175,8 @@ function GamePlayContent() {
             reachableCellIds={reachableCellIds}
             onCellSelect={handleCellSelect}
             showCells={true}
+            missionFromPortId={state.activeMission?.fromPortId}
+            missionToPortId={state.activeMission?.toPortId}
           />
 
           {/* 到達可能な港のパネル */}

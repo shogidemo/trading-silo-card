@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Marker, Popup } from "react-leaflet";
+import { Marker, Popup, Tooltip } from "react-leaflet";
 import { Port } from "@/types";
 
 interface PortMarkerProps {
@@ -9,6 +9,8 @@ interface PortMarkerProps {
   isSelected?: boolean;
   hasShip?: boolean;
   isReachable?: boolean;
+  isMissionFrom?: boolean;
+  isMissionTo?: boolean;
   onSelect?: (id: string) => void;
 }
 
@@ -16,7 +18,9 @@ interface PortMarkerProps {
 function createPortIcon(
   isSelected: boolean,
   hasShip: boolean,
-  isReachable: boolean
+  isReachable: boolean,
+  isMissionFrom: boolean,
+  isMissionTo: boolean
 ) {
   // SSR時はnullを返す（クライアントでのみ実行）
   if (typeof window === "undefined") return null;
@@ -24,9 +28,9 @@ function createPortIcon(
   // Leafletを動的に読み込み
   const L = require("leaflet");
 
-  const size = isSelected || isReachable ? 44 : 36;
+  const size = isSelected || isReachable || isMissionFrom || isMissionTo ? 44 : 36;
 
-  // 色の決定
+  // 色の決定（優先順位: 船 > 目的地 > 出発地 > 到達可能 > 選択 > 通常）
   let borderColor: string;
   let bgColor: string;
   let glowEffect = "";
@@ -35,6 +39,14 @@ function createPortIcon(
     borderColor = "#b8860b"; // gold
     bgColor = "#fef3c7";
     glowEffect = "box-shadow: 0 0 12px rgba(184, 134, 11, 0.5);";
+  } else if (isMissionTo) {
+    borderColor = "#dc2626"; // red-600（目的地）
+    bgColor = "#fef2f2"; // red-50
+    glowEffect = "box-shadow: 0 0 16px rgba(220, 38, 38, 0.5); animation: pulse 1.5s ease-in-out infinite;";
+  } else if (isMissionFrom) {
+    borderColor = "#16a34a"; // green-600（出発地）
+    bgColor = "#f0fdf4"; // green-50
+    glowEffect = "box-shadow: 0 0 16px rgba(22, 163, 74, 0.5); animation: pulse 1.5s ease-in-out infinite;";
   } else if (isReachable) {
     borderColor = "#0ea5e9"; // ocean-500
     bgColor = "#e0f2fe"; // ocean-100
@@ -47,6 +59,14 @@ function createPortIcon(
     bgColor = "#ffffff";
   }
 
+  // ミッション関連のラベル
+  let missionLabel = "";
+  if (isMissionTo && !hasShip) {
+    missionLabel = '<div style="position: absolute; top: -8px; right: -8px; background: #dc2626; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold;">🎯</div>';
+  } else if (isMissionFrom && !hasShip) {
+    missionLabel = '<div style="position: absolute; top: -8px; right: -8px; background: #16a34a; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold;">📦</div>';
+  }
+
   return L.divIcon({
     className: "custom-port-marker",
     html: `
@@ -57,6 +77,7 @@ function createPortIcon(
         }
       </style>
       <div style="
+        position: relative;
         width: ${size}px;
         height: ${size}px;
         border-radius: 50%;
@@ -70,6 +91,7 @@ function createPortIcon(
         ${glowEffect}
       ">
         ${hasShip ? "🚢" : "⚓"}
+        ${missionLabel}
       </div>
     `,
     iconSize: [size, size],
@@ -83,15 +105,20 @@ export default function PortMarker({
   isSelected = false,
   hasShip = false,
   isReachable = false,
+  isMissionFrom = false,
+  isMissionTo = false,
   onSelect,
 }: PortMarkerProps) {
   const icon = useMemo(
-    () => createPortIcon(isSelected, hasShip, isReachable),
-    [isSelected, hasShip, isReachable]
+    () => createPortIcon(isSelected, hasShip, isReachable, isMissionFrom, isMissionTo),
+    [isSelected, hasShip, isReachable, isMissionFrom, isMissionTo]
   );
 
   // SSR時やアイコンがない場合はレンダリングしない
   if (!icon) return null;
+
+  // 港名の短縮表示（「港」を省略）
+  const shortName = port.name.replace("港", "");
 
   return (
     <Marker
@@ -101,9 +128,35 @@ export default function PortMarker({
         click: () => onSelect?.(port.id),
       }}
     >
+      {/* 港名を常に表示するTooltip */}
+      <Tooltip
+        permanent
+        direction="bottom"
+        offset={[0, 20]}
+        className="port-name-tooltip"
+      >
+        <span className={`text-xs font-semibold ${
+          isMissionTo ? "text-red-600" :
+          isMissionFrom ? "text-green-600" :
+          hasShip ? "text-amber-700" :
+          "text-navy-700"
+        }`}>
+          {shortName}
+        </span>
+      </Tooltip>
       <Popup>
         <div className="text-center min-w-[150px]">
           <h3 className="font-bold text-navy-900 mb-1">{port.name}</h3>
+          {isMissionTo && (
+            <p className="text-xs text-red-600 font-medium mb-1">
+              🎯 ミッション目的地
+            </p>
+          )}
+          {isMissionFrom && (
+            <p className="text-xs text-green-600 font-medium mb-1">
+              📦 ミッション出発地
+            </p>
+          )}
           {isReachable && (
             <p className="text-xs text-ocean-600 font-medium mb-1">
               クリックして移動

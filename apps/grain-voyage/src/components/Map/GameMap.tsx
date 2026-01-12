@@ -25,6 +25,9 @@ interface GameMapProps {
   reachableCellIds?: string[];
   onCellSelect?: (cellId: string) => void;
   showCells?: boolean;
+  // ミッション関連
+  missionFromPortId?: string | null;
+  missionToPortId?: string | null;
 }
 
 function FlyToCell({ cellId }: { cellId: string | null | undefined }) {
@@ -198,6 +201,8 @@ export default function GameMap({
   reachableCellIds = [],
   onCellSelect,
   showCells = false,
+  missionFromPortId,
+  missionToPortId,
 }: GameMapProps) {
   // 現在のマスから港IDを取得（PortMarker用）
   const currentPortId = useMemo(() => {
@@ -291,6 +296,8 @@ export default function GameMap({
       {/* 港マーカーを描画 */}
       {ports.map((port) => {
         const isReachable = reachablePortIds.has(port.id);
+        const isMissionFrom = missionFromPortId === port.id;
+        const isMissionTo = missionToPortId === port.id;
 
         return (
           <PortMarker
@@ -299,6 +306,8 @@ export default function GameMap({
             isSelected={selectedPortId === port.id}
             hasShip={currentPortId === port.id}
             isReachable={isReachable}
+            isMissionFrom={isMissionFrom}
+            isMissionTo={isMissionTo}
             onSelect={handlePortClick}
           />
         );

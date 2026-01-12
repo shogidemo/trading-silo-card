@@ -24,6 +24,9 @@ interface GameMapClientProps {
   reachableCellIds?: string[];
   onCellSelect?: (cellId: string) => void;
   showCells?: boolean;
+  // ミッション関連
+  missionFromPortId?: string | null;
+  missionToPortId?: string | null;
 }
 
 export default function GameMapClient({
@@ -34,6 +37,8 @@ export default function GameMapClient({
   reachableCellIds,
   onCellSelect,
   showCells,
+  missionFromPortId,
+  missionToPortId,
 }: GameMapClientProps) {
   return (
     <GameMap
@@ -44,6 +49,8 @@ export default function GameMapClient({
       reachableCellIds={reachableCellIds}
       onCellSelect={onCellSelect}
       showCells={showCells}
+      missionFromPortId={missionFromPortId}
+      missionToPortId={missionToPortId}
     />
   );
 }
