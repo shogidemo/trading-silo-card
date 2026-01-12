@@ -31,8 +31,9 @@ export interface Port {
   name: string;
   coordinates: { lat: number; lng: number };
   capacity: number;        // 受入能力（トン/ターン）
-  acceptableGrains: string[];  // 受入可能穀物ID
-  currentDemand: Record<string, number>;  // 穀物IDごとの需要係数
+  acceptableGrains: string[];  // 受入可能穀物名
+  currentDemand: Record<string, number>;  // 穀物名ごとの需要係数
+  siloIds: string[];       // この港に含まれるサイロのID
 }
 
 // 航路

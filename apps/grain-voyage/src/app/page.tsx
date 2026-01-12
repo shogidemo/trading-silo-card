@@ -101,8 +101,16 @@ export default function Home() {
             ゲームスタート
           </motion.button>
 
-          <div className="mt-12 text-sm text-navy-400">
-            <p>商社の配船担当として、バルク船で穀物を配送しよう</p>
+          <div className="mt-12 space-y-4">
+            <p className="text-sm text-navy-400">
+              商社の配船担当として、バルク船で穀物を配送しよう
+            </p>
+            <Link
+              href="/map"
+              className="inline-block px-4 py-2 text-sm text-ocean-600 hover:text-ocean-800 underline"
+            >
+              航路マップを見る →
+            </Link>
           </div>
         </motion.div>
       )}
