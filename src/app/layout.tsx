@@ -3,7 +3,7 @@ import { Zen_Maru_Gothic, M_PLUS_Rounded_1c, JetBrains_Mono, Nunito } from "next
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { CollectionProvider } from "@/context/CollectionContext";
-import { Header, Sidebar } from "@/components/Layout";
+import { Header, Sidebar, Footer } from "@/components/Layout";
 
 const zenMaru = Zen_Maru_Gothic({
   subsets: ["latin"],
@@ -58,6 +58,7 @@ export default function RootLayout({
           <div className="lg:ml-64 min-h-screen flex flex-col">
             <Header />
             <main className="relative flex-1">{children}</main>
+            <Footer />
           </div>
         </CollectionProvider>
       </body>
