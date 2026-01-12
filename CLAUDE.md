@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Apps
 
 1. **card-collection** (`apps/card-collection/`) - Quiz-based card collection game. Users answer quizzes to collect cards in three categories: Silos, Grains, and Traders.
-2. **grain-voyage** (`apps/grain-voyage/`) - (Planned) Bulk ship simulation game. Players manage grain deliveries to silos across Japan.
+2. **grain-voyage** (`apps/grain-voyage/`) - Bulk ship simulation game. As a trading company dispatcher, manage grain deliveries to silos across Japan. Features dice-based navigation (Momotetsu-style), AI competitor ships, and mission-based gameplay.
 
 ### Shared Package
 
@@ -26,9 +26,9 @@ pnpm lint            # Lint all apps
 
 # App-specific
 pnpm dev:card        # Start card-collection dev server
-pnpm dev:voyage      # Start grain-voyage dev server (planned)
+pnpm dev:voyage      # Start grain-voyage dev server (localhost:3001)
 pnpm build:card      # Build card-collection
-pnpm build:voyage    # Build grain-voyage (planned)
+pnpm build:voyage    # Build grain-voyage
 
 # Within apps/card-collection/
 pnpm dev             # Start development server (localhost:3000)
@@ -59,7 +59,17 @@ trading-silo/
 │   │   │   └── types/       # TypeScript types
 │   │   └── e2e/             # Playwright tests
 │   │
-│   └── grain-voyage/        # Bulk ship game (planned)
+│   └── grain-voyage/        # Bulk ship game
+│       ├── src/
+│       │   ├── app/         # Next.js App Router pages
+│       │   ├── components/  # React components
+│       │   ├── context/     # React contexts (GameContext)
+│       │   ├── data/        # App-specific data (routes, scenarios)
+│       │   ├── game/        # Game logic (engine, AI, events)
+│       │   ├── hooks/       # Custom hooks
+│       │   ├── lib/         # Utilities
+│       │   └── types/       # TypeScript types
+│       └── e2e/             # Playwright tests
 │
 ├── packages/
 │   └── shared/              # Shared data and types
