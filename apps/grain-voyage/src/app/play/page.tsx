@@ -9,7 +9,7 @@ import { GameMapClient } from "@/components/Map";
 import { Dice } from "@/components/Dice";
 import { PortActionPanel } from "@/components/PortAction";
 import { GameResult } from "@/components/GameResult";
-import { ports, routeCells } from "@/data";
+import { ports, routeCells, routes } from "@/data";
 
 // ゲームUI本体
 function GamePlayContent() {
@@ -25,7 +25,6 @@ function GamePlayContent() {
     canMoveTo,
     getCurrentPort,
     getCurrentCell,
-    isAtPort,
     isGameOver,
     canRollDice,
     getCurrentCargoAmount,
@@ -89,8 +88,18 @@ function GamePlayContent() {
       return currentPort.name;
     }
     if (currentCell) {
-      // 航路上の場合はルート名を表示
-      return `${currentCell.routeId} (マス ${currentCell.index})`;
+      // 航路上の場合は出発港→到着港の形式で表示
+      const route = routes.find((r) => r.id === currentCell.routeId);
+      if (route) {
+        const fromPort = ports.find((p) => p.id === route.from);
+        const toPort = ports.find((p) => p.id === route.to);
+        if (fromPort && toPort) {
+          const fromName = fromPort.name.replace("港", "");
+          const toName = toPort.name.replace("港", "");
+          return `${fromName}〜${toName}間`;
+        }
+      }
+      return "航行中";
     }
     return "---";
   };
@@ -282,16 +291,10 @@ function GamePlayContent() {
 
             {state.phase === "selecting_destination" && (
               <div className="text-center">
-                <div className="text-6xl font-display text-ocean-600 mb-4">
+                <div className="text-7xl font-display text-ocean-600 mb-2">
                   {state.lastDiceValue}
                 </div>
-                <p className="text-navy-600 mb-2">
-                  残り <span className="font-bold">{state.remainingMoves}</span> マス
-                </p>
-                <p className="text-xs text-navy-400 mb-4">
-                  マップ上の青いマスをクリックして移動
-                </p>
-                {reachableCellIds.length === 0 && (
+                {reachableCellIds.length === 0 ? (
                   <div className="mt-4">
                     <p className="text-sm text-rust-600 mb-2">
                       移動可能なマスがありません
@@ -303,6 +306,10 @@ function GamePlayContent() {
                       ターン終了
                     </button>
                   </div>
+                ) : (
+                  <p className="text-sm text-navy-500">
+                    移動先を選択
+                  </p>
                 )}
               </div>
             )}
@@ -357,36 +364,6 @@ function GamePlayContent() {
                 <p className="text-navy-600">結果を確認してください</p>
               </div>
             )}
-          </div>
-
-          {/* 移動履歴 */}
-          <div className="p-4 border-t border-ocean-100 max-h-40 overflow-y-auto">
-            <h3 className="text-sm text-navy-500 mb-2">移動履歴</h3>
-            <div className="flex flex-wrap gap-1">
-              {state.moveHistory.slice(-10).map((cellId, index) => {
-                const cell = routeCells.find((c) => c.id === cellId);
-                const port = cell?.type === "port" && cell.portId
-                  ? ports.find((p) => p.id === cell.portId)
-                  : null;
-
-                const isLast = index === state.moveHistory.slice(-10).length - 1;
-
-                return (
-                  <span
-                    key={`${cellId}-${index}`}
-                    className={`text-xs px-2 py-1 rounded ${
-                      isLast
-                        ? "bg-ocean-100 text-ocean-700"
-                        : port
-                          ? "bg-gold-100 text-gold-700"
-                          : "bg-navy-100 text-navy-600"
-                    }`}
-                  >
-                    {port ? `⚓${port.name.replace("港", "")}` : `🚢${cell?.index || "?"}`}
-                  </span>
-                );
-              })}
-            </div>
           </div>
         </aside>
       </div>
