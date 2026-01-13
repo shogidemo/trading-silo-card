@@ -117,6 +117,13 @@ function GamePlayContent() {
   };
 
   const reachablePorts = getReachablePorts();
+  const bonusRemainingTurns =
+    state.activeMission?.bonusTurns !== undefined
+      ? state.activeMission.bonusTurns -
+        (state.turn - state.activeMission.acceptedAtTurn)
+      : null;
+  const isBonusEligible =
+    bonusRemainingTurns !== null && bonusRemainingTurns >= 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -245,9 +252,13 @@ function GamePlayContent() {
               </div>
               <div className="mt-1 text-xs text-amber-600">
                 報酬: ¥{state.activeMission.reward.toLocaleString()}
-                {state.activeMission.bonusTurns && (
+                {bonusRemainingTurns !== null && (
                   <span className="ml-1">
-                    (残り{Math.max(0, state.activeMission.bonusTurns - (state.turn - state.activeMission.acceptedAtTurn))}ターンでボーナス)
+                    {isBonusEligible
+                      ? `(残り${bonusRemainingTurns}ターンでボーナス${
+                          bonusRemainingTurns === 0 ? "・今回まで" : ""
+                        })`
+                      : "(ボーナス期限切れ)"}
                   </span>
                 )}
               </div>

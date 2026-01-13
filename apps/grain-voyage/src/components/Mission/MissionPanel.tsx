@@ -10,21 +10,25 @@ export default function MissionPanel() {
     completeMission,
     canCompleteMission,
     getCurrentPort,
+    refreshMissions,
   } = useGame();
 
   const { availableMissions, activeMission, completedMissions } = state;
   const currentPort = getCurrentPort();
   const canComplete = canCompleteMission();
+  const hasAvailableMissions = availableMissions.length > 0;
 
   // ボーナス残りターンを計算
   const getBonusRemainingTurns = () => {
-    if (!activeMission || !activeMission.bonusTurns) return null;
+    if (!activeMission || activeMission.bonusTurns === undefined) return null;
     const turnsElapsed = state.turn - activeMission.acceptedAtTurn;
-    const remaining = activeMission.bonusTurns - turnsElapsed;
-    return remaining > 0 ? remaining : 0;
+    return activeMission.bonusTurns - turnsElapsed;
   };
 
   const bonusRemaining = getBonusRemainingTurns();
+  const hasBonus = bonusRemaining !== null;
+  const isBonusActive = hasBonus && bonusRemaining >= 0;
+  const isLastBonusTurn = isBonusActive && bonusRemaining === 0;
 
   return (
     <div className="space-y-4">
@@ -36,12 +40,13 @@ export default function MissionPanel() {
               <span>&#x1F4E6;</span>
               受注中のミッション
             </h3>
-            {bonusRemaining !== null && bonusRemaining > 0 && (
+            {isBonusActive && (
               <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
                 ボーナス: 残り{bonusRemaining}ターン
+                {isLastBonusTurn ? " (今回まで)" : ""}
               </span>
             )}
-            {bonusRemaining === 0 && (
+            {hasBonus && !isBonusActive && (
               <span className="text-xs px-2 py-1 bg-gray-100 text-gray-500 rounded-full">
                 ボーナス期限切れ
               </span>
@@ -92,7 +97,7 @@ export default function MissionPanel() {
                       (&#xA5;
                       {(
                         activeMission.reward +
-                        (bonusRemaining && bonusRemaining > 0
+                        (isBonusActive
                           ? activeMission.bonusReward || 0
                           : 0)
                       ).toLocaleString()}
@@ -112,7 +117,7 @@ export default function MissionPanel() {
       )}
 
       {/* 利用可能なミッション */}
-      {!activeMission && availableMissions.length > 0 && (
+      {!activeMission && hasAvailableMissions && (
         <div className="space-y-3">
           <h3 className="font-semibold text-gray-700 flex items-center gap-2">
             <span>&#x1F4CB;</span>
@@ -168,6 +173,15 @@ export default function MissionPanel() {
               </motion.div>
             ))}
           </AnimatePresence>
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <span>内容を更新したい場合はミッションを更新できます</span>
+            <button
+              onClick={refreshMissions}
+              className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors"
+            >
+              更新
+            </button>
+          </div>
         </div>
       )}
 
@@ -175,6 +189,12 @@ export default function MissionPanel() {
       {!activeMission && availableMissions.length === 0 && (
         <div className="p-4 bg-gray-50 rounded-lg text-center">
           <p className="text-gray-500">利用可能なミッションがありません</p>
+          <button
+            onClick={refreshMissions}
+            className="mt-3 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors"
+          >
+            ミッションを更新
+          </button>
         </div>
       )}
 

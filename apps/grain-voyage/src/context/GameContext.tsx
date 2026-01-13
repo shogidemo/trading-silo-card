@@ -441,6 +441,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "REFRESH_MISSIONS": {
       // 新しいミッションを生成（アクティブなミッションがない場合のみ）
+      if (state.activeMission) return state;
       const newMissions = generateMissions(3);
       return {
         ...state,
@@ -465,6 +466,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         return {
           ...state,
           phase: "game_end",
+          turn: newTurn,
           scoreResult,
         };
       }

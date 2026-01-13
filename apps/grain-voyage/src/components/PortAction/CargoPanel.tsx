@@ -26,6 +26,9 @@ export default function CargoPanel({ portId }: CargoPanelProps) {
   const currentCargoAmount = getCurrentCargoAmount();
   const availableCapacity = getAvailableCapacity();
 
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), max);
+
   // 積み込み量の変更
   const handleLoadAmountChange = (grainId: string, value: number) => {
     setLoadAmounts((prev) => ({ ...prev, [grainId]: value }));
@@ -38,7 +41,12 @@ export default function CargoPanel({ portId }: CargoPanelProps) {
 
   // 積み込み実行
   const handleLoad = (grain: GrainStock) => {
-    const amount = loadAmounts[grain.grainId] || 10;
+    const maxLoad = Math.min(availableCapacity, 100);
+    const useSmallStep = maxLoad > 0 && maxLoad < 10;
+    const minLoad = maxLoad <= 0 ? 0 : useSmallStep ? 1 : 10;
+    const defaultLoad = maxLoad <= 0 ? 0 : useSmallStep ? maxLoad : minLoad;
+    const rawAmount = loadAmounts[grain.grainId] ?? defaultLoad;
+    const amount = clamp(rawAmount, minLoad, maxLoad);
     const cost = amount * grain.buyPrice;
 
     if (amount <= 0) return;
@@ -46,7 +54,11 @@ export default function CargoPanel({ portId }: CargoPanelProps) {
     if (cost > player.money) return;
 
     loadCargo(grain.grainId, grain.grainName, amount, cost);
-    setLoadAmounts((prev) => ({ ...prev, [grain.grainId]: 10 }));
+
+    const nextCapacity = Math.max(availableCapacity - amount, 0);
+    const nextUseSmallStep = nextCapacity > 0 && nextCapacity < 10;
+    const nextDefault = nextUseSmallStep ? nextCapacity : Math.min(10, nextCapacity);
+    setLoadAmounts((prev) => ({ ...prev, [grain.grainId]: nextDefault }));
   };
 
   // 荷下ろし実行
@@ -127,10 +139,20 @@ export default function CargoPanel({ portId }: CargoPanelProps) {
           </h3>
           <div className="space-y-2">
             {portStock.grains.map((grain) => {
-              const amount = loadAmounts[grain.grainId] || 10;
+              const maxLoad = Math.min(availableCapacity, 100);
+              const useSmallStep = maxLoad > 0 && maxLoad < 10;
+              const minLoad = maxLoad <= 0 ? 0 : useSmallStep ? 1 : 10;
+              const stepLoad = maxLoad <= 0 ? 1 : useSmallStep ? 1 : 10;
+              const defaultLoad = maxLoad <= 0 ? 0 : useSmallStep ? maxLoad : minLoad;
+              const amount = clamp(
+                loadAmounts[grain.grainId] ?? defaultLoad,
+                minLoad,
+                maxLoad
+              );
               const cost = amount * grain.buyPrice;
               const canAfford = cost <= player.money;
-              const hasCapacity = amount <= availableCapacity;
+              const hasCapacity = amount > 0 && amount <= availableCapacity;
+              const isDisabled = maxLoad <= 0;
 
               return (
                 <motion.div
@@ -150,20 +172,20 @@ export default function CargoPanel({ portId }: CargoPanelProps) {
                   <div className="flex items-center gap-2">
                     <input
                       type="range"
-                      min={10}
-                      max={Math.min(availableCapacity, 100)}
-                      step={10}
+                      min={minLoad}
+                      max={maxLoad}
+                      step={stepLoad}
                       value={amount}
                       onChange={(e) =>
                         handleLoadAmountChange(grain.grainId, Number(e.target.value))
                       }
                       className="flex-1 h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer"
-                      disabled={availableCapacity <= 0}
+                      disabled={isDisabled}
                     />
                     <span className="text-sm w-12 text-right">{amount}t</span>
                     <button
                       onClick={() => handleLoad(grain)}
-                      disabled={!canAfford || !hasCapacity || availableCapacity <= 0}
+                      disabled={!canAfford || !hasCapacity || isDisabled}
                       className={`px-3 py-1 text-sm rounded transition-colors ${
                         canAfford && hasCapacity && availableCapacity > 0
                           ? "bg-amber-500 hover:bg-amber-600 text-white"

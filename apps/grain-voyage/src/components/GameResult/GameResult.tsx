@@ -111,20 +111,25 @@ export default function GameResult() {
                 完了したミッション
               </h4>
               <div className="space-y-1 max-h-32 overflow-y-auto">
-                {completedMissions.map((cm, i) => (
-                  <div
-                    key={i}
-                    className="text-xs p-2 bg-gray-50 rounded flex justify-between items-center"
-                  >
-                    <span className="truncate flex-1">{cm.mission.title}</span>
-                    <span className="text-green-600 ml-2 whitespace-nowrap">
-                      &#xA5;{cm.mission.reward.toLocaleString()}
-                      {cm.bonusEarned && (
-                        <span className="text-amber-500">+&#x1F31F;</span>
-                      )}
-                    </span>
-                  </div>
-                ))}
+                {completedMissions.map((cm, i) => {
+                  const missionReward =
+                    cm.mission.reward +
+                    (cm.bonusEarned ? cm.mission.bonusReward || 0 : 0);
+                  return (
+                    <div
+                      key={i}
+                      className="text-xs p-2 bg-gray-50 rounded flex justify-between items-center"
+                    >
+                      <span className="truncate flex-1">{cm.mission.title}</span>
+                      <span className="text-green-600 ml-2 whitespace-nowrap">
+                        &#xA5;{missionReward.toLocaleString()}
+                        {cm.bonusEarned && (
+                          <span className="text-amber-500">+&#x1F31F;</span>
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
