@@ -21,9 +21,11 @@ test.describe("Grain Voyage Game", () => {
       // アニメーションを待つ
       await page.waitForTimeout(800);
 
-      // 商社選択画面の要素を確認（いずれかの商社名が表示される）
-      const companyButton = page.getByRole("button", { name: /紅葉商事/i });
-      await expect(companyButton).toBeVisible({ timeout: 5000 });
+      // 商社選択画面のタイトルを確認
+      await expect(page.getByRole("heading", { name: /所属商社を選択/i })).toBeVisible({ timeout: 5000 });
+
+      // 商社選択ボタンが表示される（テキスト検索）
+      await expect(page.getByText("紅葉商事")).toBeVisible();
     });
 
     test("should navigate to play page through full flow", async ({ page }) => {
@@ -33,8 +35,8 @@ test.describe("Grain Voyage Game", () => {
       await page.getByRole("button", { name: /ゲームスタート/i }).click();
       await page.waitForTimeout(800);
 
-      // Step 2: 紅葉商事を選択
-      await page.getByRole("button", { name: /紅葉商事/i }).click();
+      // Step 2: 紅葉商事を選択（テキストを含むボタンをクリック）
+      await page.locator("button", { hasText: "紅葉商事" }).click();
 
       // 決定ボタンが表示されるまで待つ
       const confirmButton = page.getByRole("button", { name: "決定" });
@@ -51,8 +53,9 @@ test.describe("Grain Voyage Game", () => {
       await freeModeButton.click();
 
       // ゲーム画面に遷移
-      await expect(page.getByText("ターン:")).toBeVisible({ timeout: 10000 });
       await expect(page).toHaveURL(/\/play/, { timeout: 10000 });
+      // ゲーム画面のヘッダー（穀物航路）が表示されている
+      await expect(page.getByRole("heading", { name: /穀物航路/i })).toBeVisible({ timeout: 10000 });
     });
   });
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useGame } from "@/context/GameContext";
 import CargoPanel from "./CargoPanel";
 import { MissionPanel } from "@/components/Mission";
+import { AnchorIcon, FuelIcon, CargoIcon, CoinIcon, ShipIcon } from "@/components/Icons";
 
 interface PortActionPanelProps {
   onDepart: () => void;
@@ -29,96 +29,113 @@ export default function PortActionPanel({ onDepart }: PortActionPanelProps) {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-lg shadow-lg p-4 border border-gray-200"
-    >
-      {/* 港情報ヘッダー */}
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <span className="text-2xl">&#x2693;</span>
+    <div className="space-y-4">
+      {/* Port header */}
+      <div className="game-panel-gold p-3">
+        <h2 className="text-game-heading font-bold text-retro-navy flex items-center gap-2">
+          <AnchorIcon size={24} />
           {port.name}
         </h2>
-        <p className="text-sm text-gray-500">受入能力: {port.capacity.toLocaleString()}t/ターン</p>
+        <p className="text-game-small text-retro-navy">
+          受入能力: {port.capacity.toLocaleString()}t/ターン
+        </p>
       </div>
 
-      {/* 船の状態 */}
-      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-        <h3 className="text-sm font-semibold text-gray-600 mb-2">船の状態</h3>
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">燃料</span>
-            <div className="flex items-center gap-2">
-              <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-amber-500 transition-all"
-                  style={{ width: `${(player.fuel / player.maxFuel) * 100}%` }}
-                />
-              </div>
-              <span className="text-sm font-medium">
+      {/* Ship status */}
+      <div className="game-panel p-3">
+        <h3 className="text-game-body font-bold text-retro-navy mb-3 flex items-center gap-2">
+          <ShipIcon size={18} />
+          船の状態
+        </h3>
+        <div className="space-y-3">
+          {/* Fuel bar */}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-game-small text-retro-navy flex items-center gap-1">
+                <FuelIcon size={14} />
+                燃料
+              </span>
+              <span className="text-game-small font-bold text-retro-navy">
                 {player.fuel}/{player.maxFuel}
               </span>
             </div>
+            <div className="progress-game">
+              <div
+                className="progress-game-fill progress-game-fill-gold"
+                style={{ width: `${(player.fuel / player.maxFuel) * 100}%` }}
+              />
+            </div>
           </div>
+
+          {/* Cargo */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">積載量</span>
-            <span className="text-sm font-medium text-blue-600">
+            <span className="text-game-small text-retro-navy flex items-center gap-1">
+              <CargoIcon size={14} />
+              積載量
+            </span>
+            <span className="badge-game badge-game-seagreen text-game-small py-0.5">
               {getCurrentCargoAmount()}/{player.maxCapacity}t
             </span>
           </div>
+
+          {/* Money */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">所持金</span>
-            <span className="text-sm font-medium text-green-600">
-              &#xA5;{player.money.toLocaleString()}
+            <span className="text-game-small text-retro-navy flex items-center gap-1">
+              <CoinIcon size={14} />
+              所持金
+            </span>
+            <span className="badge-game badge-game-gold text-game-small py-0.5">
+              ¥{player.money.toLocaleString()}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 燃料補給セクション */}
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold text-gray-600 mb-2">
-          燃料補給 ({FUEL_COST_PER_UNIT}円/1燃料)
+      {/* Refuel section */}
+      <div className="game-panel p-3">
+        <h3 className="text-game-body font-bold text-retro-navy mb-2 flex items-center gap-2">
+          <FuelIcon size={18} />
+          燃料補給
+          <span className="text-game-small font-normal">({FUEL_COST_PER_UNIT}円/1燃料)</span>
         </h3>
         {fuelNeeded === 0 ? (
-          <p className="text-sm text-gray-500">燃料は満タンです</p>
+          <p className="text-game-small text-seagreen font-bold">燃料は満タンです！</p>
         ) : maxAffordable === 0 ? (
-          <p className="text-sm text-red-500">お金が足りません</p>
+          <p className="text-game-small text-vermillion font-bold">お金が足りません</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {refuelOptions.map((amount) => (
               <button
                 key={amount}
                 onClick={() => handleRefuel(amount)}
-                className="px-3 py-1.5 text-sm bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg transition-colors"
+                className="btn-game btn-game-gold py-1.5 px-3 text-game-small"
               >
-                +{amount} (&#xA5;{(amount * FUEL_COST_PER_UNIT).toLocaleString()})
+                +{amount} (¥{(amount * FUEL_COST_PER_UNIT).toLocaleString()})
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* 積荷セクション */}
-      <div className="mb-4">
+      {/* Cargo section */}
+      <div className="game-panel p-3">
         <CargoPanel portId={port.id} />
       </div>
 
-      {/* ミッションセクション */}
-      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-        <h3 className="text-sm font-semibold text-gray-600 mb-3">ミッション</h3>
+      {/* Mission section */}
+      <div className="game-panel p-3">
+        <h3 className="text-game-body font-bold text-retro-navy mb-3">ミッション</h3>
         <MissionPanel />
       </div>
 
-      {/* 出発ボタン */}
+      {/* Depart button */}
       <button
         onClick={onDepart}
-        className="w-full py-3 bg-ocean-600 hover:bg-ocean-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+        className="btn-game btn-game-primary w-full py-3 text-game-body flex items-center justify-center gap-2"
       >
-        <span>出発する</span>
-        <span className="text-lg">&#x1F6A2;</span>
+        <ShipIcon size={20} />
+        出発する
       </button>
-    </motion.div>
+    </div>
   );
 }

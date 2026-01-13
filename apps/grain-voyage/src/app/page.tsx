@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { ShipIcon, AnchorIcon, CargoIcon, TargetIcon } from "@/components/Icons";
 
 // 架空商社データ（企画書より）
 const companies = [
@@ -11,28 +11,28 @@ const companies = [
     id: "momiji",
     name: "紅葉商事",
     description: "穀物集荷に強み、バランス型",
-    color: "#dc2626",
+    color: "#d32f2f",
     specialty: "穀物集荷",
   },
   {
     id: "mitsuboshi",
     name: "三星物産",
     description: "ブラジル・豪州ルートにボーナス",
-    color: "#2563eb",
+    color: "#1a237e",
     specialty: "遠洋航路",
   },
   {
     id: "isetada",
     name: "伊勢忠商事",
     description: "国内流通に強み",
-    color: "#dc2626",
+    color: "#d32f2f",
     specialty: "国内配送",
   },
   {
     id: "global-grain",
     name: "グローバルグレイン",
     description: "大量輸送特化、燃費効率",
-    color: "#059669",
+    color: "#00897b",
     specialty: "大量輸送",
   },
 ];
@@ -43,21 +43,21 @@ const gameModes = [
     id: "free",
     name: "フリーモード",
     description: "自由に航路を選んで配送。サイコロを振って日本を巡ろう",
-    icon: "🚢",
+    Icon: ShipIcon,
     available: true,
   },
   {
     id: "scenario",
     name: "シナリオモード",
     description: "ストーリーを進めながら配船の基本を学ぶ",
-    icon: "📖",
+    Icon: CargoIcon,
     available: false,
   },
   {
     id: "challenge",
     name: "チャレンジモード",
     description: "特殊条件下での配送ミッションに挑戦",
-    icon: "🏆",
+    Icon: TargetIcon,
     available: false,
   },
 ];
@@ -74,191 +74,174 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-cream">
       {/* タイトル画面 */}
       {step === "title" && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <motion.div
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            className="text-6xl mb-6"
-          >
-            🚢
-          </motion.div>
+        <div className="text-center">
+          <div className="game-panel-gold p-8 mb-6">
+            <ShipIcon size={64} className="mx-auto text-retro-navy mb-4" />
+            <h1 className="font-display text-game-title md:text-4xl text-retro-navy mb-2">
+              穀物航路
+            </h1>
+            <p className="text-game-body text-retro-navy mb-1">
+              〜サイロへ届けろ！穀物配送〜
+            </p>
+            <p className="text-game-small text-retro-navy-lighter">
+              Grain Voyage - Bulk Ship Delivery Simulation
+            </p>
+          </div>
 
-          <h1 className="font-display text-4xl md:text-5xl text-navy-900 mb-4">
-            穀物航路
-          </h1>
-          <p className="text-lg text-navy-600 mb-2">
-            〜サイロへ届けろ！穀物配送〜
-          </p>
-          <p className="text-sm text-navy-500 mb-8">
-            Grain Voyage - Bulk Ship Delivery Simulation
-          </p>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             onClick={() => setStep("company")}
-            className="px-8 py-4 bg-ocean-600 text-white rounded-xl font-display text-lg shadow-lg hover:bg-ocean-700 transition-colors"
+            className="btn-game btn-game-primary px-8 py-4 text-game-heading"
           >
             ゲームスタート
-          </motion.button>
+          </button>
 
-          <div className="mt-12 space-y-4">
-            <p className="text-sm text-navy-400">
+          <div className="mt-8 game-panel p-4">
+            <p className="text-game-small text-retro-navy mb-3">
               商社の配船担当として、バルク船で穀物を配送しよう
             </p>
             <Link
               href="/map"
-              className="inline-block px-4 py-2 text-sm text-ocean-600 hover:text-ocean-800 underline"
+              className="text-game-small text-retro-navy-light hover:text-retro-navy underline"
             >
               航路マップを見る →
             </Link>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* 商社選択画面 */}
       {step === "company" && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-2xl"
-        >
+        <div className="w-full max-w-2xl">
           <button
             onClick={() => setStep("title")}
-            className="mb-6 text-navy-500 hover:text-navy-700 flex items-center gap-2"
+            className="btn-game btn-game-secondary mb-6 text-game-small"
           >
             ← 戻る
           </button>
 
-          <h2 className="font-display text-2xl text-navy-900 mb-2 text-center">
-            所属商社を選択
-          </h2>
-          <p className="text-navy-600 mb-8 text-center">
-            あなたが配船担当として働く商社を選んでください
-          </p>
+          <div className="game-panel-gold p-4 mb-6 text-center">
+            <h2 className="font-display text-game-heading text-retro-navy mb-1">
+              所属商社を選択
+            </h2>
+            <p className="text-game-small text-retro-navy">
+              あなたが配船担当として働く商社を選んでください
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {companies.map((company) => (
-              <motion.button
+              <button
                 key={company.id}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 onClick={() => setSelectedCompany(company.id)}
-                className={`p-6 rounded-xl text-left transition-all ${
+                className={`game-panel p-4 text-left transition-all ${
                   selectedCompany === company.id
-                    ? "bg-ocean-100 border-2 border-ocean-500 shadow-lg"
-                    : "bg-white border-2 border-transparent shadow hover:shadow-md"
+                    ? "ring-4 ring-gold"
+                    : ""
                 }`}
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div
-                    className="w-4 h-4 rounded-full"
+                    className="w-4 h-4 rounded-full border-2 border-retro-navy"
                     style={{ backgroundColor: company.color }}
                   />
-                  <h3 className="font-display text-lg text-navy-900">
+                  <h3 className="font-display text-game-body text-retro-navy">
                     {company.name}
                   </h3>
                 </div>
-                <p className="text-sm text-navy-600 mb-2">{company.description}</p>
-                <span className="inline-block px-2 py-1 bg-navy-100 text-navy-700 text-xs rounded">
+                <p className="text-game-small text-retro-navy-lighter mb-2">
+                  {company.description}
+                </p>
+                <span className="badge-game badge-game-seagreen text-game-small py-0.5">
                   特性: {company.specialty}
                 </span>
-              </motion.button>
+              </button>
             ))}
           </div>
 
           {selectedCompany && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-8 text-center"
-            >
+            <div className="mt-6 text-center">
               <button
                 onClick={() => setStep("mode")}
-                className="px-8 py-3 bg-ocean-600 text-white rounded-xl font-display shadow-lg hover:bg-ocean-700 transition-colors"
+                className="btn-game btn-game-gold px-8 py-3 text-game-body"
               >
                 決定
               </button>
-            </motion.div>
+            </div>
           )}
 
-          <p className="mt-6 text-xs text-navy-400 text-center">
+          <p className="mt-6 text-game-small text-retro-navy-lighter text-center">
             ※ 架空の商社名です。実在する企業とは関係ありません。
           </p>
-        </motion.div>
+        </div>
       )}
 
       {/* モード選択画面 */}
       {step === "mode" && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-2xl"
-        >
+        <div className="w-full max-w-2xl">
           <button
             onClick={() => setStep("company")}
-            className="mb-6 text-navy-500 hover:text-navy-700 flex items-center gap-2"
+            className="btn-game btn-game-secondary mb-6 text-game-small"
           >
             ← 戻る
           </button>
 
-          <h2 className="font-display text-2xl text-navy-900 mb-2 text-center">
-            ゲームモードを選択
-          </h2>
-          <p className="text-navy-600 mb-8 text-center">
-            所属:{" "}
-            <span className="font-bold">
-              {companies.find((c) => c.id === selectedCompany)?.name}
-            </span>
-          </p>
+          <div className="game-panel-gold p-4 mb-6 text-center">
+            <h2 className="font-display text-game-heading text-retro-navy mb-1">
+              ゲームモードを選択
+            </h2>
+            <p className="text-game-small text-retro-navy">
+              所属:{" "}
+              <span className="font-bold">
+                {companies.find((c) => c.id === selectedCompany)?.name}
+              </span>
+            </p>
+          </div>
 
           <div className="space-y-4">
             {gameModes.map((mode) => (
-              <motion.button
+              <button
                 key={mode.id}
                 onClick={() => mode.available && handleModeSelect(mode.id)}
-                whileHover={mode.available ? { scale: 1.01 } : {}}
-                whileTap={mode.available ? { scale: 0.99 } : {}}
                 disabled={!mode.available}
-                className={`w-full p-6 rounded-xl flex items-center gap-4 text-left ${
+                className={`w-full game-panel p-4 flex items-center gap-4 text-left ${
                   mode.available
-                    ? "bg-white shadow hover:shadow-md cursor-pointer"
-                    : "bg-navy-50 opacity-60 cursor-not-allowed"
+                    ? "hover:translate-x-1 hover:-translate-y-1 transition-transform"
+                    : "opacity-50 cursor-not-allowed"
                 }`}
               >
-                <div className="text-4xl">{mode.icon}</div>
+                <div className="game-panel-highlight p-3 rounded-lg">
+                  <mode.Icon size={32} className="text-retro-navy" />
+                </div>
                 <div className="flex-1">
-                  <h3 className="font-display text-lg text-navy-900">
+                  <h3 className="font-display text-game-body text-retro-navy">
                     {mode.name}
                   </h3>
-                  <p className="text-sm text-navy-600">{mode.description}</p>
+                  <p className="text-game-small text-retro-navy-lighter">
+                    {mode.description}
+                  </p>
                 </div>
                 {mode.available ? (
-                  <span className="px-3 py-1 bg-ocean-100 text-ocean-700 text-sm rounded-full">
+                  <span className="badge-game badge-game-seagreen text-game-small py-1">
                     プレイ可能
                   </span>
                 ) : (
-                  <span className="px-3 py-1 bg-navy-200 text-navy-600 text-sm rounded-full">
+                  <span className="badge-game text-game-small py-1" style={{ background: "#e0e0e0", borderColor: "#9e9e9e", color: "#616161" }}>
                     Coming Soon
                   </span>
                 )}
-              </motion.button>
+              </button>
             ))}
           </div>
 
-          <div className="mt-8 p-4 bg-navy-50 rounded-lg text-center">
-            <p className="text-sm text-navy-600">
+          <div className="mt-6 game-panel-highlight p-4 text-center">
+            <p className="text-game-small text-retro-navy">
               フリーモード以外は開発中です
             </p>
           </div>
-        </motion.div>
+        </div>
       )}
     </div>
   );
