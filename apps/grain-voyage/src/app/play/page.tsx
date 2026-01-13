@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -10,6 +10,10 @@ import { Dice } from "@/components/Dice";
 import { PortActionPanel } from "@/components/PortAction";
 import { GameResult } from "@/components/GameResult";
 import { ports, routeCells, routes } from "@/data";
+
+const MIN_SIDEBAR_WIDTH = 280;
+const MAX_SIDEBAR_WIDTH = 600;
+const DEFAULT_SIDEBAR_WIDTH = 320;
 
 const VALID_COMPANY_IDS = new Set([
   "momiji",
@@ -42,6 +46,48 @@ function GamePlayContent() {
   const companyId = companyParam && VALID_COMPANY_IDS.has(companyParam)
     ? companyParam
     : "momiji";
+
+  // サイドバーのリサイズ
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
+
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    resizeRef.current = { startX: e.clientX, startWidth: sidebarWidth };
+  }, [sidebarWidth]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing || !resizeRef.current) return;
+      const delta = resizeRef.current.startX - e.clientX;
+      const newWidth = Math.min(
+        MAX_SIDEBAR_WIDTH,
+        Math.max(MIN_SIDEBAR_WIDTH, resizeRef.current.startWidth + delta)
+      );
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      resizeRef.current = null;
+    };
+
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing]);
 
   // ゲーム初期化
   useEffect(() => {
@@ -139,9 +185,9 @@ function GamePlayContent() {
   const shouldConfirmExit = !isGameOver() && state.turn > 1;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* ヘッダー */}
-      <header className="bg-white/90 backdrop-blur-sm border-b border-ocean-200 px-4 py-2">
+      <header className="flex-shrink-0 z-50 bg-white/90 backdrop-blur-sm border-b border-ocean-200 px-4 py-2">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
             <Link
@@ -193,9 +239,9 @@ function GamePlayContent() {
       </header>
 
       {/* メインコンテンツ */}
-      <div className="flex-1 flex flex-col lg:flex-row">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* マップ */}
-        <div className="flex-1 relative min-h-[55vh] lg:min-h-0">
+        <div className="flex-1 relative min-h-[55vh] lg:min-h-0 overflow-hidden">
           <GameMapClient
             currentCellId={state.player.currentCellId}
             reachableCellIds={reachableCellIds}
@@ -237,8 +283,19 @@ function GamePlayContent() {
           )}
         </div>
 
+        {/* リサイズハンドル（デスクトップのみ） */}
+        <div
+          className="hidden lg:flex w-1.5 bg-ocean-100 hover:bg-ocean-300 cursor-col-resize items-center justify-center transition-colors"
+          onMouseDown={handleResizeStart}
+        >
+          <div className="w-0.5 h-8 bg-ocean-300 rounded-full" />
+        </div>
+
         {/* 右サイドパネル */}
-        <aside className="w-full bg-white border-t border-ocean-200 flex flex-col lg:w-80 lg:border-t-0 lg:border-l">
+        <aside
+          className="w-full bg-white border-t border-ocean-200 flex flex-col lg:border-t-0 lg:flex-shrink-0 overflow-y-auto"
+          style={{ width: sidebarWidth }}
+        >
           {/* 現在地情報 */}
           <div className="p-4 border-b border-ocean-100">
             <h2 className="text-sm text-navy-500 mb-1">現在地</h2>
