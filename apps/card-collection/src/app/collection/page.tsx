@@ -146,9 +146,11 @@ export default function CollectionPage() {
       <motion.div
         variants={itemVariants}
         className="flex gap-3 mb-10 overflow-x-auto pb-2"
+        data-testid="category-filter-group"
       >
         <motion.button
           onClick={() => setSelectedCategory("all")}
+          data-testid="category-filter-all"
           className={`px-6 py-3 rounded-2xl text-sm font-display whitespace-nowrap transition-all shadow-md ${
             selectedCategory === "all"
               ? "bg-gradient-to-r from-gold-500 to-gold-600 text-white"
@@ -170,6 +172,7 @@ export default function CollectionPage() {
             <motion.button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
+              data-testid={`category-filter-${category.id}`}
               className={`px-5 py-3 rounded-2xl text-sm font-display whitespace-nowrap transition-all shadow-md flex items-center gap-2 ${
                 isActive
                   ? `bg-gradient-to-r ${colors.gradient} text-white`

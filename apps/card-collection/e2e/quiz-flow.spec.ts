@@ -108,11 +108,11 @@ test.describe("穀物サイロカード - クイズフロー", () => {
     await expect(page.locator("h2")).toContainText("コレクション");
 
     // フィルターボタンが表示される
-    await expect(page.locator("button").filter({ hasText: "すべて" })).toBeVisible();
+    await expect(page.getByTestId("category-filter-all")).toBeVisible();
 
     // カテゴリフィルターが動作する
-    await page.locator("button").filter({ hasText: "穀物" }).click();
-    await expect(page.locator("button").filter({ hasText: "穀物" })).toHaveClass(
+    await page.getByTestId("category-filter-grain").click();
+    await expect(page.getByTestId("category-filter-grain")).toHaveClass(
       /bg-gradient/
     );
   });

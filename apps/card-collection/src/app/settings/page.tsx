@@ -68,6 +68,10 @@ export default function SettingsPage() {
         if (!imported || typeof imported !== "object" || Array.isArray(imported)) {
           throw new Error("無効なデータ形式です");
         }
+        const record = imported as Record<string, unknown>;
+        if (!("collectedCardIds" in record) || !Array.isArray(record.collectedCardIds)) {
+          throw new Error("collectedCardIdsが見つかりません");
+        }
         const validated: CollectionState = normalizeCollectionState(imported);
 
         // localStorageに保存
