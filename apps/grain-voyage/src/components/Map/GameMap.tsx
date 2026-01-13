@@ -143,11 +143,12 @@ export default function GameMap({
     : null;
 
   // ズーム・パン状態
-  const [zoom, setZoom] = useState(2);
+  const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // viewBox計算
   const viewBox = useMemo(() => {
@@ -172,12 +173,35 @@ export default function GameMap({
     setPan({ x: 0, y: 0 });
   }, []);
 
-  // マウスホイールでズーム
+  // マウスホイールでズーム（マウス位置を中心に）
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
+    const container = containerRef.current;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    // マウスの相対位置（0-1）
+    const mouseX = (e.clientX - rect.left) / rect.width;
+    const mouseY = (e.clientY - rect.top) / rect.height;
+
     const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
-    setZoom((z) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z + delta)));
-  }, []);
+    const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom + delta));
+
+    if (newZoom !== zoom) {
+      // マウス位置を基準にパンを調整
+      const zoomRatio = newZoom / zoom;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const mouseOffsetX = (e.clientX - rect.left - centerX);
+      const mouseOffsetY = (e.clientY - rect.top - centerY);
+
+      setPan(prev => ({
+        x: prev.x * zoomRatio + mouseOffsetX * (1 - zoomRatio),
+        y: prev.y * zoomRatio + mouseOffsetY * (1 - zoomRatio),
+      }));
+      setZoom(newZoom);
+    }
+  }, [zoom]);
 
   // ドラッグでパン
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -203,6 +227,7 @@ export default function GameMap({
 
   return (
     <div
+      ref={containerRef}
       className="relative h-full w-full overflow-hidden rounded-2xl border border-ocean-200 bg-gradient-to-b from-sky-100 via-sky-50 to-ocean-100"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -282,7 +307,7 @@ export default function GameMap({
                   points={points}
                   fill="none"
                   stroke="#ffffff"
-                  strokeWidth={isHighlighted ? 10 : 8}
+                  strokeWidth={(isHighlighted ? 10 : 8) / zoom}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   opacity={0.9}
@@ -291,7 +316,7 @@ export default function GameMap({
                   points={points}
                   fill="none"
                   stroke={isHighlighted ? "#0ea5e9" : "#1e40af"}
-                  strokeWidth={isHighlighted ? 6 : 4}
+                  strokeWidth={(isHighlighted ? 6 : 4) / zoom}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   opacity={isHighlighted ? 1 : 0.8}
@@ -476,9 +501,9 @@ export default function GameMap({
         </button>
       </div>
 
-      <div className="absolute bottom-4 right-4 flex items-center gap-3 rounded-full bg-white/90 px-4 py-2 text-xs text-navy-700 shadow-lg">
-        <span>🧭 デフォルメ航路図</span>
-        <span className="hidden sm:inline">{Math.round(zoom * 100)}%</span>
+      <div className="absolute bottom-3 left-4 z-20 flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs text-navy-700 shadow-lg backdrop-blur-sm">
+        <span>🧭</span>
+        <span>{Math.round(zoom * 100)}%</span>
       </div>
     </div>
   );
