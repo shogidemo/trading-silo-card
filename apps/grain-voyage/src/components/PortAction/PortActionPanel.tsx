@@ -2,7 +2,6 @@
 
 import { useGame } from "@/context/GameContext";
 import CargoPanel from "./CargoPanel";
-import { MissionPanel } from "@/components/Mission";
 import { AnchorIcon, FuelIcon, CargoIcon, CoinIcon, ShipIcon } from "@/components/Icons";
 
 interface PortActionPanelProps {
@@ -120,12 +119,6 @@ export default function PortActionPanel({ onDepart }: PortActionPanelProps) {
       {/* Cargo section */}
       <div className="game-panel p-3">
         <CargoPanel portId={port.id} />
-      </div>
-
-      {/* Mission section */}
-      <div className="game-panel p-3">
-        <h3 className="text-game-body font-bold text-retro-navy mb-3">ミッション</h3>
-        <MissionPanel />
       </div>
 
       {/* Depart button */}

@@ -7,6 +7,7 @@ import { GameProvider, useGame } from "@/context/GameContext";
 import { GameMapClient } from "@/components/Map";
 import { Dice } from "@/components/Dice";
 import { PortActionPanel } from "@/components/PortAction";
+import { MissionPanel } from "@/components/Mission";
 import { GameResult } from "@/components/GameResult";
 import { ports, routeCells, routes } from "@/data";
 import { FuelIcon, CoinIcon, CargoIcon, TurnIcon, ShipIcon, AnchorIcon, TargetIcon } from "@/components/Icons";
@@ -165,13 +166,6 @@ function GamePlayContent() {
   };
 
   const reachablePorts = getReachablePorts();
-  const bonusRemainingTurns =
-    state.activeMission?.bonusTurns !== undefined
-      ? state.activeMission.bonusTurns -
-        (state.turn - state.activeMission.acceptedAtTurn)
-      : null;
-  const isBonusEligible =
-    bonusRemainingTurns !== null && bonusRemainingTurns >= 0;
   const shouldConfirmExit = !isGameOver() && state.turn > 1;
 
   return (
@@ -281,33 +275,27 @@ function GamePlayContent() {
             </p>
           </div>
 
-          {/* Active mission */}
-          {state.activeMission && (
-            <div className="p-3 bg-gold-light border-b-4 border-gold-dark">
-              <h2 className="text-game-small text-retro-navy font-bold flex items-center gap-1 mb-1">
-                <CargoIcon size={14} />
-                受注中ミッション
+          {/* Missions */}
+          <div className="p-3 bg-cream border-b-4 border-retro-navy">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-game-small text-retro-navy font-bold flex items-center gap-1">
+                <TargetIcon size={14} />
+                ミッション
               </h2>
-              <p className="text-game-body font-bold text-retro-navy truncate">
-                {state.activeMission.title}
-              </p>
-              <div className="mt-1 flex items-center gap-2 text-game-small">
-                <span className="badge-game badge-game-seagreen py-0.5">
-                  {state.activeMission.fromPortName} → {state.activeMission.toPortName}
+              {state.activeMission ? (
+                <span className="badge-game badge-game-seagreen text-game-small py-0.5">
+                  受注中
                 </span>
-              </div>
-              <div className="mt-1 text-game-small text-retro-navy">
-                報酬: ¥{state.activeMission.reward.toLocaleString()}
-                {bonusRemainingTurns !== null && (
-                  <span className="ml-1">
-                    {isBonusEligible
-                      ? `(残り${bonusRemainingTurns}ターンでボーナス)`
-                      : "(期限切れ)"}
-                  </span>
-                )}
-              </div>
+              ) : (
+                <span className="badge-game text-game-small py-0.5" style={{ background: "#fff", borderColor: "#1a237e", color: "#1a237e" }}>
+                  選択可能
+                </span>
+              )}
             </div>
-          )}
+            <div className="max-h-[38vh] overflow-y-auto pr-1">
+              <MissionPanel />
+            </div>
+          </div>
 
           {/* Phase message */}
           <div className="p-3 bg-cream-dark border-b-4 border-retro-navy">
