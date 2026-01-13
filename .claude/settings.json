@@ -1,4 +1,8 @@
 {
+  "statusLine": {
+    "type": "command",
+    "command": "bunx ccstatusline@latest"
+  },
   "env": {
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1",
     "BASH_DEFAULT_TIMEOUT_MS": "30000",
