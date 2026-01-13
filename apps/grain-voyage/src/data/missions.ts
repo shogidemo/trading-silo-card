@@ -79,7 +79,7 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     toPortId: "port-hakata",
     toPortName: "博多港",
     reward: 2800,
-    bonusTurns: 9,
+    bonusTurns: 11,  // 太平洋直行ルート追加に伴い調整（9→11）
     bonusReward: 900,
   },
   {
@@ -93,7 +93,7 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     toPortId: "port-mizushima",
     toPortName: "水島港",
     reward: 2500,
-    bonusTurns: 7,
+    bonusTurns: 8,  // 太平洋直行ルート追加に伴い調整（7→8）
     bonusReward: 800,
   },
 
