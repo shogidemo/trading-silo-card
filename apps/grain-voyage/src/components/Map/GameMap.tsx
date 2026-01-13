@@ -1,19 +1,15 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, useMap, CircleMarker, Tooltip } from "react-leaflet";
-import { ports, routes, routeCells, getCellsForRoute, RouteCell } from "@/data";
-import PortMarker from "./PortMarker";
-import RouteLayer from "./RouteLayer";
-
-// 定数
-const INITIAL_CENTER: [number, number] = [36.5, 136.0];
-const INITIAL_ZOOM = 5;
-
-// タイルURL・帰属表示
-const OSM_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const OSM_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+import { useMemo } from "react";
+import { ports, routes, routeCells, getCellsForRoute } from "@/data";
+import {
+  LAND_SHAPES,
+  MAP_GRID_SIZE,
+  MAP_HEIGHT,
+  MAP_LAT_RANGE,
+  MAP_LNG_RANGE,
+  MAP_WIDTH,
+} from "@/data/mapLayout";
 
 interface GameMapProps {
   // 旧API（互換性のため維持）
@@ -30,168 +26,50 @@ interface GameMapProps {
   missionToPortId?: string | null;
 }
 
-function FlyToCell({ cellId }: { cellId: string | null | undefined }) {
-  const map = useMap();
+const projectToMap = (coordinates: { lat: number; lng: number }) => {
+  const x =
+    ((coordinates.lng - MAP_LNG_RANGE.min) /
+      (MAP_LNG_RANGE.max - MAP_LNG_RANGE.min)) *
+    MAP_WIDTH;
+  const y =
+    (1 -
+      (coordinates.lat - MAP_LAT_RANGE.min) /
+        (MAP_LAT_RANGE.max - MAP_LAT_RANGE.min)) *
+    MAP_HEIGHT;
 
-  useEffect(() => {
-    if (cellId) {
-      const cell = routeCells.find((c) => c.id === cellId);
-      if (cell) {
-        map.flyTo([cell.coordinates.lat, cell.coordinates.lng], 8, {
-          duration: 0.8,
-        });
-      }
-    }
-  }, [cellId, map]);
+  return { x, y };
+};
 
-  return null;
-}
+const getPortPosition = (portId: string) => {
+  const port = ports.find((p) => p.id === portId);
+  if (!port) return { x: 0, y: 0 };
+  return port.mapPosition ?? projectToMap(port.coordinates);
+};
 
-function FlyToPort({ portId }: { portId: string | null | undefined }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (portId) {
-      const port = ports.find((p) => p.id === portId);
-      if (port) {
-        map.flyTo([port.coordinates.lat, port.coordinates.lng], 8, {
-          duration: 1,
-        });
-      }
-    }
-  }, [portId, map]);
-
-  return null;
-}
-
-function MapControls() {
-  const map = useMap();
-
-  const handleResetView = () => {
-    map.flyTo(INITIAL_CENTER, INITIAL_ZOOM, { duration: 1 });
-  };
-
-  return (
-    <div className="leaflet-top leaflet-left" style={{ marginTop: "10px" }}>
-      <div className="leaflet-control leaflet-bar">
-        <button
-          onClick={handleResetView}
-          className="w-[30px] h-[30px] bg-white border-none flex items-center justify-center text-lg cursor-pointer hover:bg-gray-100"
-          title="日本全体を表示"
-          aria-label="日本全体を表示"
-        >
-          🗾
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// 中間マスの表示コンポーネント
-function CellMarkers({
-  currentCellId,
-  reachableCellIds,
-  onCellSelect,
-}: {
-  currentCellId?: string | null;
-  reachableCellIds?: string[];
-  onCellSelect?: (cellId: string) => void;
-}) {
-  const reachableSet = useMemo(
-    () => new Set(reachableCellIds || []),
-    [reachableCellIds]
-  );
-
-  // 中間マスのみ表示（港マスは PortMarker で表示）
-  const intermediateCells = useMemo(
-    () => routeCells.filter((c) => c.type === "normal"),
-    []
-  );
-
-  return (
-    <>
-      {intermediateCells.map((cell) => {
-        const isReachable = reachableSet.has(cell.id);
-        const isCurrent = cell.id === currentCellId;
-
-        // マスのサイズと色（視認性向上）
-        const radius = isCurrent ? 10 : isReachable ? 9 : 6;
-        const fillColor = isCurrent
-          ? "#b8860b"
-          : isReachable
-            ? "#0ea5e9"
-            : "#1e40af";  // 濃い青で視認性向上
-        const fillOpacity = isCurrent ? 1 : isReachable ? 0.9 : 0.8;
-
-        return (
-          <React.Fragment key={cell.id}>
-            {/* 白い縁取り（下レイヤー） */}
-            <CircleMarker
-              center={[cell.coordinates.lat, cell.coordinates.lng]}
-              radius={radius + 2}
-              pathOptions={{
-                fillColor: "#ffffff",
-                fillOpacity: 1,
-                color: "#ffffff",
-                weight: 0,
-              }}
-            />
-            {/* メインのマーカー（上レイヤー） */}
-            <CircleMarker
-              center={[cell.coordinates.lat, cell.coordinates.lng]}
-              radius={radius}
-              pathOptions={{
-                fillColor,
-                fillOpacity,
-                color: isCurrent ? "#8b6914" : isReachable ? "#0369a1" : "#1e3a8a",
-                weight: isCurrent ? 3 : 2,
-              }}
-              eventHandlers={{
-                click: () => {
-                  if (isReachable && onCellSelect) {
-                    onCellSelect(cell.id);
-                  }
-                },
-              }}
-            >
-              {isReachable && (
-                <Tooltip>
-                  <span className="text-sm font-medium">ここに移動</span>
-                </Tooltip>
-              )}
-            </CircleMarker>
-          </React.Fragment>
-        );
-      })}
-    </>
-  );
-}
-
-// 船の現在位置マーカー
-function ShipMarker({ cellId }: { cellId: string }) {
-  const cell = routeCells.find((c) => c.id === cellId);
-  if (!cell) return null;
-
-  // 港マスの場合は PortMarker の hasShip で表示
-  if (cell.type === "port") return null;
-
-  return (
-    <CircleMarker
-      center={[cell.coordinates.lat, cell.coordinates.lng]}
-      radius={12}
-      pathOptions={{
-        fillColor: "#b8860b",
-        fillOpacity: 1,
-        color: "#8b6914",
-        weight: 3,
-      }}
-    >
-      <Tooltip permanent direction="top" offset={[0, -10]}>
-        <span className="text-lg">🚢</span>
-      </Tooltip>
-    </CircleMarker>
-  );
-}
+const getPortStyle = (
+  isSelected: boolean,
+  hasShip: boolean,
+  isReachable: boolean,
+  isMissionFrom: boolean,
+  isMissionTo: boolean
+) => {
+  if (hasShip) {
+    return { stroke: "#b8860b", fill: "#fef3c7", glow: "url(#glow-gold)" };
+  }
+  if (isMissionTo) {
+    return { stroke: "#dc2626", fill: "#fef2f2", glow: "url(#glow-red)" };
+  }
+  if (isMissionFrom) {
+    return { stroke: "#16a34a", fill: "#f0fdf4", glow: "url(#glow-green)" };
+  }
+  if (isReachable) {
+    return { stroke: "#0ea5e9", fill: "#e0f2fe", glow: "url(#glow-ocean)" };
+  }
+  if (isSelected) {
+    return { stroke: "#0284c7", fill: "#ffffff", glow: "none" };
+  }
+  return { stroke: "#64748b", fill: "#ffffff", glow: "none" };
+};
 
 export default function GameMap({
   selectedPortId,
@@ -204,7 +82,11 @@ export default function GameMap({
   missionFromPortId,
   missionToPortId,
 }: GameMapProps) {
-  // 現在のマスから港IDを取得（PortMarker用）
+  const reachableSet = useMemo(
+    () => new Set(reachableCellIds),
+    [reachableCellIds]
+  );
+
   const currentPortId = useMemo(() => {
     if (currentCellId) {
       const cell = routeCells.find((c) => c.id === currentCellId);
@@ -215,13 +97,6 @@ export default function GameMap({
     return shipPortId;
   }, [currentCellId, shipPortId]);
 
-  // 到達可能なマスのセット
-  const reachableSet = useMemo(
-    () => new Set(reachableCellIds),
-    [reachableCellIds]
-  );
-
-  // 到達可能な港IDのセット
   const reachablePortIds = useMemo(() => {
     const portIds = new Set<string>();
     for (const cellId of reachableCellIds) {
@@ -233,10 +108,8 @@ export default function GameMap({
     return portIds;
   }, [reachableCellIds]);
 
-  // 港がクリックされた時の処理
   const handlePortClick = (portId: string) => {
     if (onCellSelect && showCells) {
-      // マス制の場合、港に対応するマスIDを見つけて選択
       const cell = routeCells.find(
         (c) => c.type === "port" && c.portId === portId && reachableSet.has(c.id)
       );
@@ -248,70 +121,258 @@ export default function GameMap({
     }
   };
 
+  const intermediateCells = useMemo(
+    () => routeCells.filter((c) => c.type === "normal"),
+    []
+  );
+
+  const shipCell = currentCellId
+    ? routeCells.find((c) => c.id === currentCellId)
+    : null;
+
   return (
-    <MapContainer
-      center={INITIAL_CENTER}
-      zoom={INITIAL_ZOOM}
-      className="h-full w-full"
-      scrollWheelZoom={true}
-    >
-      <TileLayer url={OSM_URL} attribution={OSM_ATTRIBUTION} />
-      <MapControls />
+    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-ocean-200 bg-gradient-to-b from-sky-100 via-sky-50 to-ocean-100">
+      <svg
+        viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+        className="absolute inset-0 h-full w-full"
+        role="img"
+        aria-label="デフォルメされた日本の航路マップ"
+      >
+        <defs>
+          <linearGradient id="seaGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#dff2ff" />
+            <stop offset="60%" stopColor="#bde7ff" />
+            <stop offset="100%" stopColor="#a6d6ff" />
+          </linearGradient>
+          <pattern
+            id="mapGrid"
+            width={MAP_GRID_SIZE}
+            height={MAP_GRID_SIZE}
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d={`M ${MAP_GRID_SIZE} 0 L 0 0 0 ${MAP_GRID_SIZE}`}
+              fill="none"
+              stroke="rgba(14, 165, 233, 0.12)"
+              strokeWidth="1"
+            />
+          </pattern>
+          <filter id="glow-ocean" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#38bdf8" />
+          </filter>
+          <filter id="glow-gold" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#fbbf24" />
+          </filter>
+          <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#f87171" />
+          </filter>
+          <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#4ade80" />
+          </filter>
+        </defs>
 
-      {/* カメラ移動 */}
-      {showCells ? (
-        <FlyToCell cellId={currentCellId} />
-      ) : (
-        <FlyToPort portId={selectedPortId} />
-      )}
+        <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#seaGradient)" />
+        <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#mapGrid)" />
 
-      {/* 航路を描画（マスに沿った曲線で） */}
-      {routes.map((route) => {
-        const cells = getCellsForRoute(route.id);
-        const isHighlighted = cells.some((c) => reachableSet.has(c.id));
+        <g opacity="0.9">
+          {LAND_SHAPES.map((shape) => (
+            <rect
+              key={shape.id}
+              x={shape.x}
+              y={shape.y}
+              width={shape.width}
+              height={shape.height}
+              rx={shape.rx}
+              fill="#e5f5d0"
+              stroke="#9ac98f"
+              strokeWidth="4"
+            />
+          ))}
+        </g>
 
-        return (
-          <RouteLayer
-            key={route.id}
-            route={route}
-            ports={ports}
-            cells={cells}
-            isHighlighted={isHighlighted}
-          />
-        );
-      })}
+        <g>
+          {routes.map((route) => {
+            const cells = getCellsForRoute(route.id);
+            const sortedCells = [...cells].sort((a, b) => a.index - b.index);
+            const points = sortedCells
+              .map((cell) => `${cell.coordinates.x},${cell.coordinates.y}`)
+              .join(" ");
+            const isHighlighted = sortedCells.some((cell) =>
+              reachableSet.has(cell.id)
+            );
 
-      {/* 中間マスを表示 */}
-      {showCells && (
-        <CellMarkers
-          currentCellId={currentCellId}
-          reachableCellIds={reachableCellIds}
-          onCellSelect={onCellSelect}
-        />
-      )}
+            return (
+              <g key={route.id}>
+                <polyline
+                  points={points}
+                  fill="none"
+                  stroke="#ffffff"
+                  strokeWidth={isHighlighted ? 10 : 8}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity={0.9}
+                />
+                <polyline
+                  points={points}
+                  fill="none"
+                  stroke={isHighlighted ? "#0ea5e9" : "#1e40af"}
+                  strokeWidth={isHighlighted ? 6 : 4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity={isHighlighted ? 1 : 0.8}
+                />
+              </g>
+            );
+          })}
+        </g>
 
-      {/* 船の位置（中間マスにいる場合） */}
-      {showCells && currentCellId && <ShipMarker cellId={currentCellId} />}
+        {showCells && (
+          <g>
+            {intermediateCells.map((cell) => {
+              const isReachable = reachableSet.has(cell.id);
+              const isCurrent = cell.id === currentCellId;
+              const radius = isCurrent ? 9 : isReachable ? 8 : 5;
+              const fill = isCurrent
+                ? "#b8860b"
+                : isReachable
+                  ? "#0ea5e9"
+                  : "#1e40af";
+              const stroke = isCurrent
+                ? "#8b6914"
+                : isReachable
+                  ? "#0369a1"
+                  : "#1e3a8a";
 
-      {/* 港マーカーを描画 */}
-      {ports.map((port) => {
-        const isReachable = reachablePortIds.has(port.id);
-        const isMissionFrom = missionFromPortId === port.id;
-        const isMissionTo = missionToPortId === port.id;
+              return (
+                <circle
+                  key={cell.id}
+                  cx={cell.coordinates.x}
+                  cy={cell.coordinates.y}
+                  r={radius}
+                  fill={fill}
+                  stroke={stroke}
+                  strokeWidth={isCurrent ? 3 : 2}
+                  opacity={isReachable ? 0.95 : 0.8}
+                  onClick={() => {
+                    if (isReachable && onCellSelect) {
+                      onCellSelect(cell.id);
+                    }
+                  }}
+                  style={{ cursor: isReachable ? "pointer" : "default" }}
+                />
+              );
+            })}
+          </g>
+        )}
 
-        return (
-          <PortMarker
-            key={port.id}
-            port={port}
-            isSelected={selectedPortId === port.id}
-            hasShip={currentPortId === port.id}
-            isReachable={isReachable}
-            isMissionFrom={isMissionFrom}
-            isMissionTo={isMissionTo}
-            onSelect={handlePortClick}
-          />
-        );
-      })}
-    </MapContainer>
+        {showCells && shipCell && shipCell.type === "normal" && (
+          <g>
+            <circle
+              cx={shipCell.coordinates.x}
+              cy={shipCell.coordinates.y}
+              r={14}
+              fill="#fef3c7"
+              stroke="#b8860b"
+              strokeWidth={3}
+            />
+            <text
+              x={shipCell.coordinates.x}
+              y={shipCell.coordinates.y + 6}
+              textAnchor="middle"
+              fontSize="18"
+            >
+              🚢
+            </text>
+          </g>
+        )}
+
+        <g>
+          {ports.map((port) => {
+            const position = getPortPosition(port.id);
+            const isSelected = selectedPortId === port.id;
+            const isReachable = reachablePortIds.has(port.id);
+            const hasShip = currentPortId === port.id;
+            const isMissionFrom = missionFromPortId === port.id;
+            const isMissionTo = missionToPortId === port.id;
+            const style = getPortStyle(
+              isSelected,
+              hasShip,
+              isReachable,
+              isMissionFrom,
+              isMissionTo
+            );
+            const shortName = port.name.replace("港", "");
+
+            return (
+              <g
+                key={port.id}
+                onClick={() => handlePortClick(port.id)}
+                style={{ cursor: isReachable || onPortSelect ? "pointer" : "default" }}
+              >
+                <circle
+                  cx={position.x}
+                  cy={position.y}
+                  r={20}
+                  fill={style.fill}
+                  stroke={style.stroke}
+                  strokeWidth={3}
+                  filter={style.glow}
+                />
+                <text
+                  x={position.x}
+                  y={position.y + 6}
+                  textAnchor="middle"
+                  fontSize="18"
+                >
+                  {hasShip ? "🚢" : "⚓"}
+                </text>
+                {(isMissionFrom || isMissionTo) && !hasShip && (
+                  <g>
+                    <circle
+                      cx={position.x + 14}
+                      cy={position.y - 16}
+                      r={8}
+                      fill={isMissionTo ? "#dc2626" : "#16a34a"}
+                    />
+                    <text
+                      x={position.x + 14}
+                      y={position.y - 12}
+                      textAnchor="middle"
+                      fontSize="10"
+                      fill="#ffffff"
+                    >
+                      {isMissionTo ? "🎯" : "📦"}
+                    </text>
+                  </g>
+                )}
+                <text
+                  x={position.x}
+                  y={position.y + 32}
+                  textAnchor="middle"
+                  className="font-display"
+                  fontSize="14"
+                  fill={
+                    isMissionTo
+                      ? "#dc2626"
+                      : isMissionFrom
+                        ? "#16a34a"
+                        : hasShip
+                          ? "#b8860b"
+                          : "#1e293b"
+                  }
+                >
+                  {shortName}
+                </text>
+              </g>
+            );
+          })}
+        </g>
+      </svg>
+
+      <div className="absolute bottom-4 right-4 flex items-center gap-3 rounded-full bg-white/90 px-4 py-2 text-xs text-navy-700 shadow-lg">
+        <span>🧭 デフォルメ航路図</span>
+        <span className="hidden sm:inline">縦横移動のみ</span>
+      </div>
+    </div>
   );
 }

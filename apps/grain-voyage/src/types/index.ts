@@ -30,6 +30,7 @@ export interface Port {
   id: string;
   name: string;
   coordinates: { lat: number; lng: number };
+  mapPosition?: { x: number; y: number };
   capacity: number;        // 受入能力（トン/ターン）
   acceptableGrains: string[];  // 受入可能穀物名
   currentDemand: Record<string, number>;  // 穀物名ごとの需要係数
@@ -45,6 +46,8 @@ export interface Route {
   type: "main" | "branch";
   // 海上経由点（陸上を通らないようにするため）
   waypoints?: { lat: number; lng: number }[];
+  // デフォルメマップ用の経由点（縦横移動）
+  mapWaypoints?: { x: number; y: number }[];
   // 特殊効果
   effects?: RouteEffect[];
 }

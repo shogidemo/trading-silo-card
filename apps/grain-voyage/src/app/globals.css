@@ -190,17 +190,3 @@
     transition-duration: 0.01ms !important;
   }
 }
-
-/* Leaflet customization for maritime theme */
-.leaflet-popup-content-wrapper {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.leaflet-popup-content {
-  margin: 8px 12px;
-}
-
-.leaflet-popup-tip {
-  background: white;
-}

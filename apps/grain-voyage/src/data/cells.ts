@@ -1,5 +1,6 @@
 import { ports } from "./ports";
 import { routes } from "./routes";
+import { MAP_HEIGHT, MAP_LNG_RANGE, MAP_LAT_RANGE, MAP_WIDTH } from "./mapLayout";
 
 /**
  * 航路上のマス（セル）
@@ -9,7 +10,7 @@ export interface RouteCell {
   id: string;
   routeId: string;
   index: number; // 航路上の位置（0から始まる）
-  coordinates: { lat: number; lng: number };
+  coordinates: { x: number; y: number };
   type: "normal" | "port"; // 港マスか通常マスか
   portId?: string; // 港マスの場合のみ
 }
@@ -18,13 +19,13 @@ export interface RouteCell {
  * 2点間の座標を線形補間
  */
 function lerp(
-  from: { lat: number; lng: number },
-  to: { lat: number; lng: number },
+  from: { x: number; y: number },
+  to: { x: number; y: number },
   t: number
-): { lat: number; lng: number } {
+): { x: number; y: number } {
   return {
-    lat: from.lat + (to.lat - from.lat) * t,
-    lng: from.lng + (to.lng - from.lng) * t,
+    x: from.x + (to.x - from.x) * t,
+    y: from.y + (to.y - from.y) * t,
   };
 }
 
@@ -33,30 +34,53 @@ function lerp(
  * 始点と終点を含む全体のパスに対して均等にセルを配置
  */
 function generateCellsAlongPath(
-  startCoord: { lat: number; lng: number },
-  endCoord: { lat: number; lng: number },
-  waypoints: { lat: number; lng: number }[] | undefined,
+  startCoord: { x: number; y: number },
+  endCoord: { x: number; y: number },
+  waypoints: { x: number; y: number }[] | undefined,
   cellCount: number // セルの総数（始点と終点を含む）
-): { lat: number; lng: number }[] {
+): { x: number; y: number }[] {
   // 全ての点を配列にまとめる
-  const allPoints = [startCoord, ...(waypoints || []), endCoord];
+  const rawPoints = [startCoord, ...(waypoints || []), endCoord];
+
+  // 斜め移動を避けるため、必要なら直角の経由点を追加
+  const allPoints: { x: number; y: number }[] = [];
+  rawPoints.forEach((point, index) => {
+    if (index === 0) {
+      allPoints.push(point);
+      return;
+    }
+    const prev = rawPoints[index - 1];
+    if (prev.x !== point.x && prev.y !== point.y) {
+      const corner = { x: point.x, y: prev.y };
+      if (corner.x !== prev.x || corner.y !== prev.y) {
+        allPoints.push(corner);
+      }
+    }
+    allPoints.push(point);
+  });
+
+  const normalizedPoints = allPoints.filter((point, index) => {
+    if (index === 0) return true;
+    const prev = allPoints[index - 1];
+    return point.x !== prev.x || point.y !== prev.y;
+  });
 
   // 各セグメントの長さを計算
   const segmentLengths: number[] = [];
   let totalLength = 0;
 
-  for (let i = 0; i < allPoints.length - 1; i++) {
-    const p1 = allPoints[i];
-    const p2 = allPoints[i + 1];
+  for (let i = 0; i < normalizedPoints.length - 1; i++) {
+    const p1 = normalizedPoints[i];
+    const p2 = normalizedPoints[i + 1];
     const length = Math.sqrt(
-      Math.pow(p2.lat - p1.lat, 2) + Math.pow(p2.lng - p1.lng, 2)
+      Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)
     );
     segmentLengths.push(length);
     totalLength += length;
   }
 
   // セルの座標を生成
-  const cellCoords: { lat: number; lng: number }[] = [];
+  const cellCoords: { x: number; y: number }[] = [];
 
   for (let i = 0; i < cellCount; i++) {
     const targetDistance = (i / (cellCount - 1)) * totalLength;
@@ -79,12 +103,33 @@ function generateCellsAlongPath(
     const t = segmentLength > 0 ? Math.min(1, distanceInSegment / segmentLength) : 0;
 
     // 補間
-    const p1 = allPoints[segmentIndex];
-    const p2 = allPoints[segmentIndex + 1];
+    const p1 = normalizedPoints[segmentIndex];
+    const p2 = normalizedPoints[segmentIndex + 1];
     cellCoords.push(lerp(p1, p2, t));
   }
 
   return cellCoords;
+}
+
+function projectToMap(coordinates: { lat: number; lng: number }): { x: number; y: number } {
+  const x =
+    ((coordinates.lng - MAP_LNG_RANGE.min) /
+      (MAP_LNG_RANGE.max - MAP_LNG_RANGE.min)) *
+    MAP_WIDTH;
+  const y =
+    (1 -
+      (coordinates.lat - MAP_LAT_RANGE.min) /
+        (MAP_LAT_RANGE.max - MAP_LAT_RANGE.min)) *
+    MAP_HEIGHT;
+
+  return { x, y };
+}
+
+function getPortMapPosition(portId: string): { x: number; y: number } | null {
+  const port = ports.find((p) => p.id === portId);
+  if (!port) return null;
+  if (port.mapPosition) return port.mapPosition;
+  return projectToMap(port.coordinates);
 }
 
 /**
@@ -97,16 +142,19 @@ function generateAllCells(): RouteCell[] {
     const fromPort = ports.find((p) => p.id === route.from);
     const toPort = ports.find((p) => p.id === route.to);
 
-    if (!fromPort || !toPort) continue;
+    const fromPosition = getPortMapPosition(route.from);
+    const toPosition = getPortMapPosition(route.to);
+
+    if (!fromPort || !toPort || !fromPosition || !toPosition) continue;
 
     // セルの総数 = distance + 1（始点と終点を含む）
     const cellCount = route.distance + 1;
 
     // ウェイポイントに沿ってセル座標を生成
     const cellCoords = generateCellsAlongPath(
-      fromPort.coordinates,
-      toPort.coordinates,
-      route.waypoints,
+      fromPosition,
+      toPosition,
+      route.mapWaypoints,
       cellCount
     );
 

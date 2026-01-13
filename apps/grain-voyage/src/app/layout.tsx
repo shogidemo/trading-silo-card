@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Zen_Maru_Gothic, M_PLUS_Rounded_1c, JetBrains_Mono } from "next/font/google";
-import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 const zenMaru = Zen_Maru_Gothic({
