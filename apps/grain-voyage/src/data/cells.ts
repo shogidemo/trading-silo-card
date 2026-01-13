@@ -10,7 +10,7 @@ export interface RouteCell {
   id: string;
   routeId: string;
   index: number; // 航路上の位置（0から始まる）
-  coordinates: { x: number; y: number };
+  coordinates: { x: number; y: number }; // デフォルメマップ上の座標
   type: "normal" | "port"; // 港マスか通常マスか
   portId?: string; // 港マスの場合のみ
 }
@@ -233,17 +233,26 @@ export function getReachableCells(
   if (moves <= 0) return [];
 
   const reachable: RouteCell[] = [];
-  const visited = new Set<string>();
+  const reachableIds = new Set<string>();
+  const bestRemainingMoves = new Map<string, number>();
 
   function dfs(cellId: string, remainingMoves: number) {
-    if (remainingMoves < 0 || visited.has(cellId)) return;
+    if (remainingMoves < 0) return;
 
-    visited.add(cellId);
+    const previousBest = bestRemainingMoves.get(cellId);
+    if (previousBest !== undefined && previousBest >= remainingMoves) {
+      return;
+    }
+    bestRemainingMoves.set(cellId, remainingMoves);
+
     const cell = routeCells.find((c) => c.id === cellId);
     if (!cell) return;
 
     // 到達したマスを追加（remainingMoves >= 0 なら到達可能）
-    reachable.push(cell);
+    if (!reachableIds.has(cell.id)) {
+      reachableIds.add(cell.id);
+      reachable.push(cell);
+    }
 
     // 両方向に探索
     const nextForward = getNextCell(cellId, 1);

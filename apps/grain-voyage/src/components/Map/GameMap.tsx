@@ -126,6 +126,15 @@ export default function GameMap({
     []
   );
 
+  const highlightedRouteIds = useMemo(() => {
+    if (showCells) return new Set<string>();
+    if (!selectedPortId) return new Set<string>();
+    const connected = routes.filter(
+      (route) => route.from === selectedPortId || route.to === selectedPortId
+    );
+    return new Set(connected.map((route) => route.id));
+  }, [selectedPortId, showCells]);
+
   const shipCell = currentCellId
     ? routeCells.find((c) => c.id === currentCellId)
     : null;
@@ -197,9 +206,9 @@ export default function GameMap({
             const points = sortedCells
               .map((cell) => `${cell.coordinates.x},${cell.coordinates.y}`)
               .join(" ");
-            const isHighlighted = sortedCells.some((cell) =>
-              reachableSet.has(cell.id)
-            );
+            const isHighlighted = showCells
+              ? sortedCells.some((cell) => reachableSet.has(cell.id))
+              : highlightedRouteIds.has(route.id);
 
             return (
               <g key={route.id}>
@@ -309,6 +318,11 @@ export default function GameMap({
                 onClick={() => handlePortClick(port.id)}
                 style={{ cursor: isReachable || onPortSelect ? "pointer" : "default" }}
               >
+                <title>
+                  {`${port.name}${hasShip ? "（現在地）" : ""}${
+                    isMissionFrom ? "（出発地）" : isMissionTo ? "（目的地）" : ""
+                  }${isReachable ? "（到達可能）" : ""}`}
+                </title>
                 <circle
                   cx={position.x}
                   cy={position.y}
