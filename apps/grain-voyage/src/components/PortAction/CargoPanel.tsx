@@ -62,17 +62,19 @@ export default function CargoPanel({ portId }: CargoPanelProps) {
   };
 
   // 荷下ろし実行
-  const handleUnload = (grainId: string) => {
+  const handleUnload = (grainId: string, amountOverride?: number) => {
     const cargo = player.cargo.find((c) => c.grainId === grainId);
     if (!cargo) return;
 
-    const amount = unloadAmounts[grainId] || cargo.amount;
+    const rawAmount = amountOverride ?? unloadAmounts[grainId] ?? cargo.amount;
+    const amount = clamp(rawAmount, 1, cargo.amount);
     const grainInPort = portStock?.grains.find((g) => g.grainId === grainId);
     const sellPrice = grainInPort?.sellPrice || 0;
     const revenue = amount * sellPrice;
 
     unloadCargo(grainId, amount, revenue);
-    setUnloadAmounts((prev) => ({ ...prev, [grainId]: 0 }));
+    const remainingAmount = Math.max(cargo.amount - amount, 0);
+    setUnloadAmounts((prev) => ({ ...prev, [grainId]: remainingAmount }));
   };
 
   return (
@@ -100,25 +102,50 @@ export default function CargoPanel({ portId }: CargoPanelProps) {
                 (g) => g.grainId === cargo.grainId
               );
               const sellPrice = grainInPort?.sellPrice;
+              const unloadAmount = clamp(
+                unloadAmounts[cargo.grainId] ?? cargo.amount,
+                1,
+                cargo.amount
+              );
+              const unloadRevenue = sellPrice ? unloadAmount * sellPrice : 0;
 
               return (
                 <div
                   key={cargo.grainId}
-                  className="flex items-center justify-between text-sm"
+                  className="text-sm"
                 >
-                  <span className="text-blue-800">
-                    {cargo.grainName}: {cargo.amount}t
-                  </span>
-                  {sellPrice && (
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-blue-800">
+                      {cargo.grainName}: {cargo.amount}t
+                    </span>
+                    {sellPrice && (
                       <span className="text-xs text-green-600">
                         売値: &#xA5;{sellPrice}/t
                       </span>
+                    )}
+                  </div>
+                  {sellPrice && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <input
+                        type="range"
+                        min={1}
+                        max={cargo.amount}
+                        step={1}
+                        value={unloadAmount}
+                        onChange={(e) =>
+                          handleUnloadAmountChange(
+                            cargo.grainId,
+                            Number(e.target.value)
+                          )
+                        }
+                        className="flex-1 h-2 bg-green-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <span className="text-xs w-12 text-right">{unloadAmount}t</span>
                       <button
-                        onClick={() => handleUnload(cargo.grainId)}
-                        className="px-2 py-0.5 text-xs bg-green-100 hover:bg-green-200 text-green-700 rounded transition-colors"
+                        onClick={() => handleUnload(cargo.grainId, unloadAmount)}
+                        className="px-2 py-1 text-xs bg-green-100 hover:bg-green-200 text-green-700 rounded transition-colors"
                       >
-                        全て売る (&#xA5;{(cargo.amount * sellPrice).toLocaleString()})
+                        売却 (&#xA5;{unloadRevenue.toLocaleString()})
                       </button>
                     </div>
                   )}

@@ -33,9 +33,9 @@ export default function MapPage() {
       </header>
 
       {/* メインコンテンツ */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex flex-col lg:flex-row">
         {/* マップ */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-h-[55vh] lg:min-h-0">
           <GameMapClient
             selectedPortId={selectedPortId}
             onPortSelect={setSelectedPortId}
@@ -43,7 +43,7 @@ export default function MapPage() {
         </div>
 
         {/* サイドパネル */}
-        <aside className="w-80 bg-white border-l border-ocean-200 overflow-y-auto">
+        <aside className="w-full bg-white border-t border-ocean-200 overflow-y-auto lg:w-80 lg:border-t-0 lg:border-l">
           {selectedPort ? (
             <div className="p-4">
               <h2 className="font-display text-lg text-navy-900 mb-2">

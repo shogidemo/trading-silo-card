@@ -11,6 +11,13 @@ import { PortActionPanel } from "@/components/PortAction";
 import { GameResult } from "@/components/GameResult";
 import { ports, routeCells, routes } from "@/data";
 
+const VALID_COMPANY_IDS = new Set([
+  "momiji",
+  "mitsuboshi",
+  "isetada",
+  "global-grain",
+]);
+
 // ゲームUI本体
 function GamePlayContent() {
   const {
@@ -31,7 +38,10 @@ function GamePlayContent() {
   } = useGame();
 
   const searchParams = useSearchParams();
-  const companyId = searchParams.get("company") || "momiji";
+  const companyParam = searchParams.get("company");
+  const companyId = companyParam && VALID_COMPANY_IDS.has(companyParam)
+    ? companyParam
+    : "momiji";
 
   // ゲーム初期化
   useEffect(() => {
@@ -64,7 +74,9 @@ function GamePlayContent() {
         if (state.player.fuel <= 0) {
           return "燃料が尽きました...";
         }
-        return "サイコロを振って移動先を決めましょう";
+        return currentPort
+          ? "サイコロを振るか、港で行動しましょう"
+          : "サイコロを振って移動先を決めましょう";
       case "rolling":
         return "サイコロを振っています...";
       case "selecting_destination":
@@ -124,6 +136,7 @@ function GamePlayContent() {
       : null;
   const isBonusEligible =
     bonusRemainingTurns !== null && bonusRemainingTurns >= 0;
+  const shouldConfirmExit = !isGameOver() && state.turn > 1;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -134,12 +147,18 @@ function GamePlayContent() {
             <Link
               href="/"
               className="text-navy-500 hover:text-navy-700"
+              onClick={(event) => {
+                if (!shouldConfirmExit) return;
+                if (!window.confirm("ゲームを終了してタイトルへ戻りますか？")) {
+                  event.preventDefault();
+                }
+              }}
             >
               ← 終了
             </Link>
             <h1 className="font-display text-lg text-navy-900">穀物航路</h1>
           </div>
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex flex-wrap items-center justify-end gap-3 text-xs sm:text-sm">
             <div>
               <span className="text-navy-500">ターン:</span>
               <span className="ml-1 font-bold text-navy-900">
@@ -174,9 +193,9 @@ function GamePlayContent() {
       </header>
 
       {/* メインコンテンツ */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex flex-col lg:flex-row">
         {/* マップ */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-h-[55vh] lg:min-h-0">
           <GameMapClient
             currentCellId={state.player.currentCellId}
             reachableCellIds={reachableCellIds}
@@ -219,7 +238,7 @@ function GamePlayContent() {
         </div>
 
         {/* 右サイドパネル */}
-        <aside className="w-80 bg-white border-l border-ocean-200 flex flex-col">
+        <aside className="w-full bg-white border-t border-ocean-200 flex flex-col lg:w-80 lg:border-t-0 lg:border-l">
           {/* 現在地情報 */}
           <div className="p-4 border-b border-ocean-100">
             <h2 className="text-sm text-navy-500 mb-1">現在地</h2>
@@ -272,6 +291,8 @@ function GamePlayContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-sm text-navy-700"
+              role="status"
+              aria-live="polite"
             >
               {getPhaseMessage()}
             </motion.p>
@@ -280,7 +301,17 @@ function GamePlayContent() {
           {/* サイコロエリア */}
           <div className="flex-1 flex flex-col items-center justify-center p-6">
             {state.phase === "idle" && canRollDice() && (
-              <Dice onRoll={handleDiceRoll} size="lg" />
+              <>
+                <Dice onRoll={handleDiceRoll} size="lg" />
+                {currentPort && (
+                  <button
+                    onClick={enterPortAction}
+                    className="mt-4 px-4 py-2 rounded-lg border border-ocean-200 text-sm text-navy-700 hover:bg-ocean-50 transition-colors"
+                  >
+                    港で行動する
+                  </button>
+                )}
+              </>
             )}
 
             {state.phase === "idle" && !canRollDice() && (
@@ -293,6 +324,14 @@ function GamePlayContent() {
                   ⛽
                 </motion.div>
                 <p className="text-rust-600 mb-4">燃料が尽きました</p>
+                {currentPort && (
+                  <button
+                    onClick={enterPortAction}
+                    className="mb-3 px-6 py-2 border border-ocean-200 text-navy-700 rounded-lg hover:bg-ocean-50 transition-colors"
+                  >
+                    港で補給する
+                  </button>
+                )}
                 <button
                   onClick={() => endGame("fuel_empty")}
                   className="px-6 py-3 bg-rust-600 text-white rounded-lg font-display hover:bg-rust-700 transition-colors"
