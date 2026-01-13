@@ -220,6 +220,37 @@ export function generateMissions(count: number = 3): Mission[] {
 }
 
 /**
+ * 既存のミッションと重複しないようにミッションを生成
+ * @param count 生成するミッション数
+ * @param existingMissions 既存のミッション（重複を避けるため）
+ */
+export function generateMissionsExcluding(
+  count: number,
+  existingMissions: { fromPortId: string; toPortId: string; grainId: string }[]
+): Mission[] {
+  // 既存ミッションと同じルート・穀物の組み合わせを除外
+  const existingKeys = new Set(
+    existingMissions.map((m) => `${m.fromPortId}-${m.toPortId}-${m.grainId}`)
+  );
+
+  const availableTemplates = missionTemplates.filter(
+    (t) => !existingKeys.has(`${t.fromPortId}-${t.toPortId}-${t.grainId}`)
+  );
+
+  // 利用可能なテンプレートが足りない場合は全体からランダム選択
+  const templates =
+    availableTemplates.length >= count ? availableTemplates : missionTemplates;
+
+  const shuffled = [...templates].sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, count);
+
+  return selected.map((template, index) => ({
+    ...template,
+    id: `mission-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+  }));
+}
+
+/**
  * 特定の港から出発するミッションをフィルタ
  */
 export function getMissionsFromPort(

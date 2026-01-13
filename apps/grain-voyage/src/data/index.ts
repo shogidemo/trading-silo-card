@@ -24,6 +24,7 @@ export {
 export {
   missionTemplates,
   generateMissions,
+  generateMissionsExcluding,
   getMissionsFromPort,
   getMissionsToPort,
   type Mission,

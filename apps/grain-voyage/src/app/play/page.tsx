@@ -9,6 +9,7 @@ import { GameMapClient } from "@/components/Map";
 import { Dice } from "@/components/Dice";
 import { PortActionPanel } from "@/components/PortAction";
 import { GameResult } from "@/components/GameResult";
+import MissionPanel from "@/components/Mission/MissionPanel";
 import { ports, routeCells, routes } from "@/data";
 
 const MIN_SIDEBAR_WIDTH = 280;
@@ -175,14 +176,10 @@ function GamePlayContent() {
   };
 
   const reachablePorts = getReachablePorts();
-  const bonusRemainingTurns =
-    state.activeMission?.bonusTurns !== undefined
-      ? state.activeMission.bonusTurns -
-        (state.turn - state.activeMission.acceptedAtTurn)
-      : null;
-  const isBonusEligible =
-    bonusRemainingTurns !== null && bonusRemainingTurns >= 0;
   const shouldConfirmExit = !isGameOver() && state.turn > 1;
+
+  // 最初のアクティブミッションを取得（マップ表示用）
+  const firstActiveMission = state.activeMissions[0] ?? null;
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -247,9 +244,16 @@ function GamePlayContent() {
             reachableCellIds={reachableCellIds}
             onCellSelect={handleCellSelect}
             showCells={true}
-            missionFromPortId={state.activeMission?.fromPortId}
-            missionToPortId={state.activeMission?.toPortId}
+            missionFromPortId={firstActiveMission?.fromPortId}
+            missionToPortId={firstActiveMission?.toPortId}
           />
+
+          {/* 常時表示ミッションパネル */}
+          {state.phase !== "game_end" && (
+            <div className="absolute bottom-4 right-4 w-72 z-10">
+              <MissionPanel variant="sidebar" />
+            </div>
+          )}
 
           {/* 到達可能な港のパネル */}
           {state.phase === "selecting_destination" && reachablePorts.length > 0 && (
@@ -309,35 +313,15 @@ function GamePlayContent() {
             )}
           </div>
 
-          {/* 受注中ミッション */}
-          {state.activeMission && (
+          {/* 受注中ミッション数 */}
+          {state.activeMissions.length > 0 && (
             <div className="p-3 bg-amber-50 border-b border-amber-200">
-              <h2 className="text-xs text-amber-700 font-semibold mb-1 flex items-center gap-1">
-                <span>📦</span> 受注中ミッション
+              <h2 className="text-xs text-amber-700 font-semibold flex items-center gap-1">
+                <span>📦</span> 受注中ミッション: {state.activeMissions.length}/3件
               </h2>
-              <p className="text-sm font-bold text-amber-900 truncate">
-                {state.activeMission.title}
+              <p className="text-xs text-amber-600 mt-1">
+                詳細はマップ上のパネルを確認
               </p>
-              <div className="mt-1 flex items-center gap-2 text-xs">
-                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">
-                  {state.activeMission.fromPortName} → {state.activeMission.toPortName}
-                </span>
-                <span className="text-amber-600">
-                  {state.activeMission.grainName} {state.activeMission.amount}t
-                </span>
-              </div>
-              <div className="mt-1 text-xs text-amber-600">
-                報酬: ¥{state.activeMission.reward.toLocaleString()}
-                {bonusRemainingTurns !== null && (
-                  <span className="ml-1">
-                    {isBonusEligible
-                      ? `(残り${bonusRemainingTurns}ターンでボーナス${
-                          bonusRemainingTurns === 0 ? "・今回まで" : ""
-                        })`
-                      : "(ボーナス期限切れ)"}
-                  </span>
-                )}
-              </div>
             </div>
           )}
 
