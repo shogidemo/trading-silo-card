@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,11 +57,31 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const sidebarId = "primary-sidebar";
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
+
+  useEffect(() => {
+    if (!isMobileOpen) return;
+
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMobileOpen(false);
+      }
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleEsc);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [isMobileOpen]);
 
   return (
     <>
@@ -70,6 +90,8 @@ export default function Sidebar() {
         onClick={() => setIsMobileOpen(true)}
         className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-xl bg-concrete-900/90 backdrop-blur-sm text-gold-400 shadow-lg"
         aria-label="メニューを開く"
+        aria-controls={sidebarId}
+        aria-expanded={isMobileOpen}
       >
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -91,6 +113,7 @@ export default function Sidebar() {
 
       {/* サイドバー */}
       <aside
+        id={sidebarId}
         className={`
           fixed top-0 left-0 h-full w-64 bg-concrete-900 z-50
           transform transition-transform duration-300 ease-in-out
