@@ -29,7 +29,7 @@ export const routes: Route[] = [
       { lat: 41.8, lng: 142.8 },
       { lat: 42.0, lng: 142.0 },
     ],
-    mapWaypoints: [{ x: 600, y: 200 }],
+    mapWaypoints: [{ x: 620, y: 260 }, { x: 580, y: 260 }],
   },
 
   // ========================================
@@ -46,7 +46,7 @@ export const routes: Route[] = [
       { lat: 41.8, lng: 141.5 },
       { lat: 41.2, lng: 141.6 },
     ],
-    mapWaypoints: [{ x: 660, y: 280 }],
+    mapWaypoints: [{ x: 600, y: 250 }, { x: 600, y: 290 }],
   },
   {
     id: "route-hachinohe-kamaishi",
@@ -56,7 +56,7 @@ export const routes: Route[] = [
     type: "main",
     // 三陸海岸沿い（太平洋側を通る）
     waypoints: [{ lat: 39.9, lng: 141.9 }],
-    mapWaypoints: [{ x: 680, y: 350 }],
+    mapWaypoints: [{ x: 590, y: 345 }],
   },
 
   // ========================================
@@ -74,7 +74,7 @@ export const routes: Route[] = [
       { lat: 37.5, lng: 141.5 },
       { lat: 36.5, lng: 141.0 },
     ],
-    mapWaypoints: [{ x: 700, y: 420 }],
+    mapWaypoints: [{ x: 590, y: 410 }, { x: 580, y: 450 }],
   },
   // ========================================
   // 関東 → 中部（太平洋側）
@@ -93,7 +93,7 @@ export const routes: Route[] = [
       { lat: 34.3, lng: 138.0 },  // 遠州灘
       { lat: 34.5, lng: 137.2 },  // 渥美半島沖
     ],
-    mapWaypoints: [{ x: 680, y: 530 }],
+    mapWaypoints: [{ x: 540, y: 520 }, { x: 490, y: 560 }, { x: 430, y: 560 }],
   },
   // ========================================
   // 中部 → 関西 → 中国（瀬戸内海）
@@ -111,7 +111,7 @@ export const routes: Route[] = [
       { lat: 33.5, lng: 135.5 },  // 紀伊半島南端沖
       { lat: 34.0, lng: 135.0 },  // 紀伊水道
     ],
-    mapWaypoints: [{ x: 620, y: 600 }, { x: 560, y: 600 }],
+    mapWaypoints: [{ x: 420, y: 580 }, { x: 360, y: 560 }],
   },
   {
     id: "route-kobe-mizushima",
@@ -124,7 +124,7 @@ export const routes: Route[] = [
       { lat: 34.6, lng: 134.8 },  // 明石海峡西
       { lat: 34.5, lng: 134.2 },  // 播磨灘
     ],
-    mapWaypoints: [{ x: 480, y: 560 }],
+    mapWaypoints: [{ x: 310, y: 555 }],
   },
 
   // ========================================
@@ -144,7 +144,7 @@ export const routes: Route[] = [
       { lat: 32.5, lng: 131.8 },  // 豊後水道南
       { lat: 31.8, lng: 131.5 },  // 日向灘
     ],
-    mapWaypoints: [{ x: 440, y: 640 }, { x: 440, y: 720 }],
+    mapWaypoints: [{ x: 320, y: 580 }, { x: 320, y: 640 }, { x: 260, y: 680 }],
   },
   // ========================================
   // 日本海ルート
@@ -162,9 +162,9 @@ export const routes: Route[] = [
       { lat: 39.5, lng: 139.5 },  // 秋田沖
     ],
     mapWaypoints: [
-      { x: 520, y: 280 },   // 苫小牧から西へ向かう
-      { x: 440, y: 280 },   // 津軽海峡へ
-      { x: 440, y: 400 },   // 日本海を南下
+      { x: 490, y: 260 },   // 苫小牧から西へ向かう
+      { x: 420, y: 300 },   // 津軽海峡へ
+      { x: 420, y: 370 },   // 日本海を南下
     ],
   },
   {
@@ -181,7 +181,7 @@ export const routes: Route[] = [
       { lat: 34.5, lng: 132.0 },  // 山陰沖
       { lat: 34.0, lng: 130.8 },  // 対馬海峡東
     ],
-    mapWaypoints: [{ x: 400, y: 480 }, { x: 300, y: 520 }],
+    mapWaypoints: [{ x: 400, y: 450 }, { x: 320, y: 490 }, { x: 240, y: 540 }],
   },
 
   // ========================================
@@ -197,7 +197,7 @@ export const routes: Route[] = [
     waypoints: [
       { lat: 33.0, lng: 130.4 },  // 島原湾
     ],
-    mapWaypoints: [{ x: 280, y: 620 }],
+    mapWaypoints: [{ x: 220, y: 600 }],
   },
   {
     id: "route-yatsushiro-shibushi",
@@ -210,7 +210,7 @@ export const routes: Route[] = [
       { lat: 32.0, lng: 130.3 },  // 天草灘
       { lat: 31.5, lng: 130.8 },  // 薩摩半島東沖
     ],
-    mapWaypoints: [{ x: 200, y: 640 }],
+    mapWaypoints: [{ x: 170, y: 660 }, { x: 180, y: 700 }],
   },
   {
     id: "route-hakata-shibushi",
@@ -224,7 +224,7 @@ export const routes: Route[] = [
       { lat: 32.2, lng: 129.8 },  // 東シナ海
       { lat: 31.5, lng: 130.5 },  // 大隅半島西沖
     ],
-    mapWaypoints: [{ x: 180, y: 620 }, { x: 200, y: 660 }],
+    mapWaypoints: [{ x: 150, y: 600 }, { x: 130, y: 650 }, { x: 160, y: 690 }],
   },
 
   // ========================================
@@ -242,7 +242,7 @@ export const routes: Route[] = [
       { lat: 33.9, lng: 131.5 },  // 周防灘
       { lat: 33.95, lng: 130.9 }, // 関門海峡
     ],
-    mapWaypoints: [{ x: 360, y: 560 }],
+    mapWaypoints: [{ x: 260, y: 565 }, { x: 220, y: 575 }],
   },
   {
     id: "route-kobe-hakata",
@@ -257,7 +257,7 @@ export const routes: Route[] = [
       { lat: 34.0, lng: 132.0 },  // 広島湾
       { lat: 33.9, lng: 131.0 },  // 関門海峡
     ],
-    mapWaypoints: [{ x: 440, y: 580 }, { x: 360, y: 580 }],
+    mapWaypoints: [{ x: 300, y: 560 }, { x: 250, y: 570 }, { x: 210, y: 580 }],
   },
 ];
 
