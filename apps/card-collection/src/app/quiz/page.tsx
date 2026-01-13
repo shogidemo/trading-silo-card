@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -59,10 +59,13 @@ function QuizPageContent() {
   const [isReviewMode, setIsReviewMode] = useState<boolean>(false);
   const [reviewQuizzes, setReviewQuizzes] = useState<Quiz[]>([]);
 
-  const withShuffledOptions = (quiz: Quiz): Quiz => ({
-    ...quiz,
-    options: shuffleArray(quiz.options),
-  });
+  const withShuffledOptions = useCallback(
+    (quiz: Quiz): Quiz => ({
+      ...quiz,
+      options: shuffleArray(quiz.options),
+    }),
+    []
+  );
 
   const getRandomQuiz = (
     category: CardCategory,
@@ -99,7 +102,7 @@ function QuizPageContent() {
     }
   };
 
-  const handleReviewStart = () => {
+  const handleReviewStart = useCallback(() => {
     const wrongIds = getWrongAnswerQuizIds();
     const wrongQuizzes = quizzes.filter((q) => wrongIds.includes(q.id));
 
@@ -114,7 +117,7 @@ function QuizPageContent() {
     setChallengeResults([]);
     setCurrentQuiz(shuffledQuizzes[0]);
     setQuizState("quiz");
-  };
+  }, [getWrongAnswerQuizIds, withShuffledOptions]);
 
   // URLクエリパラメータからカテゴリ/カード/復習モードを読み取り、自動でクイズを開始
   useEffect(() => {
@@ -185,6 +188,8 @@ function QuizPageContent() {
     hasCard,
     isQuizAnswered,
     getWrongAnswerQuizIds,
+    handleReviewStart,
+    withShuffledOptions,
   ]);
 
   const handleChallengeStart = (category: CardCategory) => {

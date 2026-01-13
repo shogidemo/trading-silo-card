@@ -449,13 +449,17 @@ export default function SiloMap({ selectedSiloId, onSiloSelect }: SiloMapProps) 
                   .join(" ")}
               >
                 {isCollected ? (
-                  <Image
-                    src={silo.imageUrl}
-                    alt={silo.name}
-                    fill
-                    sizes="40px"
-                    className="silo-marker-image"
-                  />
+                  silo.imageUrl ? (
+                    <Image
+                      src={silo.imageUrl}
+                      alt={silo.name}
+                      fill
+                      sizes="40px"
+                      className="silo-marker-image"
+                    />
+                  ) : (
+                    <span className="map-marker-question">🏭</span>
+                  )
                 ) : (
                   <span className="map-marker-question">?</span>
                 )}
