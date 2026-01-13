@@ -51,14 +51,6 @@ export const portStocks: PortStock[] = [
     ],
   },
   {
-    portId: "port-tokachi",
-    grains: [
-      { grainId: "grain-corn", grainName: "トウモロコシ", buyPrice: 50, sellPrice: 70, stock: 800 },
-      { grainId: "grain-soybean", grainName: "大豆", buyPrice: 80, sellPrice: 100, stock: 600 },
-      { grainId: "grain-wheat", grainName: "小麦", buyPrice: 70, sellPrice: 90, stock: 400 },
-    ],
-  },
-  {
     portId: "port-tomakomai",
     grains: [
       { grainId: "grain-corn", grainName: "トウモロコシ", buyPrice: 55, sellPrice: 75, stock: 1200 },
@@ -91,15 +83,6 @@ export const portStocks: PortStock[] = [
       { grainId: "grain-wheat", grainName: "小麦", buyPrice: 90, sellPrice: 115, stock: 1000 },
     ],
   },
-  {
-    portId: "port-chiba",
-    grains: [
-      { grainId: "grain-corn", grainName: "トウモロコシ", buyPrice: 70, sellPrice: 95, stock: 1000 },
-      { grainId: "grain-soybean", grainName: "大豆", buyPrice: 100, sellPrice: 125, stock: 800 },
-      { grainId: "grain-wheat", grainName: "小麦", buyPrice: 90, sellPrice: 115, stock: 600 },
-    ],
-  },
-
   // === 北陸 ===
   {
     portId: "port-niigata",
@@ -112,17 +95,11 @@ export const portStocks: PortStock[] = [
 
   // === 中部 ===
   {
-    portId: "port-chita",
+    portId: "port-kinuura",
     grains: [
-      { grainId: "grain-corn", grainName: "トウモロコシ", buyPrice: 68, sellPrice: 90, stock: 1500 },
+      { grainId: "grain-corn", grainName: "トウモロコシ", buyPrice: 68, sellPrice: 90, stock: 2000 },
       { grainId: "grain-soybean", grainName: "大豆", buyPrice: 98, sellPrice: 120, stock: 1000 },
       { grainId: "grain-wheat", grainName: "小麦", buyPrice: 88, sellPrice: 110, stock: 800 },
-    ],
-  },
-  {
-    portId: "port-hekinan",
-    grains: [
-      { grainId: "grain-corn", grainName: "トウモロコシ", buyPrice: 68, sellPrice: 90, stock: 500 },
     ],
   },
 
@@ -168,14 +145,6 @@ export const portStocks: PortStock[] = [
     grains: [
       { grainId: "grain-corn", grainName: "トウモロコシ", buyPrice: 62, sellPrice: 88, stock: 1000 },
       { grainId: "grain-soybean", grainName: "大豆", buyPrice: 92, sellPrice: 118, stock: 700 },
-    ],
-  },
-  {
-    portId: "port-kagoshima",
-    grains: [
-      { grainId: "grain-corn", grainName: "トウモロコシ", buyPrice: 65, sellPrice: 92, stock: 1500 },
-      { grainId: "grain-soybean", grainName: "大豆", buyPrice: 95, sellPrice: 122, stock: 1000 },
-      { grainId: "grain-wheat", grainName: "小麦", buyPrice: 85, sellPrice: 112, stock: 600 },
     ],
   },
 ];

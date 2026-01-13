@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import { ports, routes, routeCells, getCellsForRoute } from "@/data";
 import {
   MAP_GRID_SIZE,
@@ -9,6 +9,10 @@ import {
   MAP_LNG_RANGE,
   MAP_WIDTH,
 } from "@/data/mapLayout";
+
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 10;
+const ZOOM_STEP = 0.25;
 
 interface GameMapProps {
   // 旧API（互換性のため維持）
@@ -138,10 +142,78 @@ export default function GameMap({
     ? routeCells.find((c) => c.id === currentCellId)
     : null;
 
+  // ズーム・パン状態
+  const [zoom, setZoom] = useState(2);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  // viewBox計算
+  const viewBox = useMemo(() => {
+    const width = MAP_WIDTH / zoom;
+    const height = MAP_HEIGHT / zoom;
+    const x = (MAP_WIDTH - width) / 2 - pan.x / zoom;
+    const y = (MAP_HEIGHT - height) / 2 - pan.y / zoom;
+    return `${x} ${y} ${width} ${height}`;
+  }, [zoom, pan]);
+
+  // ズームハンドラー
+  const handleZoomIn = useCallback(() => {
+    setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom((z) => Math.max(MIN_ZOOM, z - ZOOM_STEP));
+  }, []);
+
+  const handleZoomReset = useCallback(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, []);
+
+  // マウスホイールでズーム
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+    setZoom((z) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z + delta)));
+  }, []);
+
+  // ドラッグでパン
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
+  }, [pan]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    setPan({ x: dragStart.current.panX + dx, y: dragStart.current.panY + dy });
+  }, [isDragging]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-ocean-200 bg-gradient-to-b from-sky-100 via-sky-50 to-ocean-100">
+    <div
+      className="relative h-full w-full overflow-hidden rounded-2xl border border-ocean-200 bg-gradient-to-b from-sky-100 via-sky-50 to-ocean-100"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onWheel={handleWheel}
+      style={{ cursor: isDragging ? "grabbing" : "grab" }}
+    >
       <svg
-        viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+        ref={svgRef}
+        viewBox={viewBox}
         className="absolute inset-0 h-full w-full"
         role="img"
         aria-label="デフォルメされた日本の航路マップ"
@@ -184,11 +256,11 @@ export default function GameMap({
 
         {/* 日本地図背景 */}
         <image
-          href="/japan-map.svg"
-          x="50"
-          y="0"
-          width="900"
-          height="1350"
+          href="/japan-only.svg"
+          x="140"
+          y="40"
+          width="560"
+          height="750"
           opacity="0.85"
           preserveAspectRatio="xMidYMid meet"
         />
@@ -234,7 +306,7 @@ export default function GameMap({
             {intermediateCells.map((cell) => {
               const isReachable = reachableSet.has(cell.id);
               const isCurrent = cell.id === currentCellId;
-              const radius = isCurrent ? 9 : isReachable ? 8 : 5;
+              const baseRadius = isCurrent ? 9 : isReachable ? 8 : 5;
               const fill = isCurrent
                 ? "#b8860b"
                 : isReachable
@@ -251,10 +323,10 @@ export default function GameMap({
                   key={cell.id}
                   cx={cell.coordinates.x}
                   cy={cell.coordinates.y}
-                  r={radius}
+                  r={baseRadius / zoom}
                   fill={fill}
                   stroke={stroke}
-                  strokeWidth={isCurrent ? 3 : 2}
+                  strokeWidth={(isCurrent ? 3 : 2) / zoom}
                   opacity={isReachable ? 0.95 : 0.8}
                   onClick={() => {
                     if (isReachable && onCellSelect) {
@@ -273,16 +345,16 @@ export default function GameMap({
             <circle
               cx={shipCell.coordinates.x}
               cy={shipCell.coordinates.y}
-              r={14}
+              r={14 / zoom}
               fill="#fef3c7"
               stroke="#b8860b"
-              strokeWidth={3}
+              strokeWidth={3 / zoom}
             />
             <text
               x={shipCell.coordinates.x}
-              y={shipCell.coordinates.y + 6}
+              y={shipCell.coordinates.y + 6 / zoom}
               textAnchor="middle"
-              fontSize="18"
+              fontSize={18 / zoom}
             >
               🚢
             </text>
@@ -320,33 +392,33 @@ export default function GameMap({
                 <circle
                   cx={position.x}
                   cy={position.y}
-                  r={20}
+                  r={20 / zoom}
                   fill={style.fill}
                   stroke={style.stroke}
-                  strokeWidth={3}
+                  strokeWidth={3 / zoom}
                   filter={style.glow}
                 />
                 <text
                   x={position.x}
-                  y={position.y + 6}
+                  y={position.y + 6 / zoom}
                   textAnchor="middle"
-                  fontSize="18"
+                  fontSize={18 / zoom}
                 >
                   {hasShip ? "🚢" : "⚓"}
                 </text>
                 {(isMissionFrom || isMissionTo) && !hasShip && (
                   <g>
                     <circle
-                      cx={position.x + 14}
-                      cy={position.y - 16}
-                      r={8}
+                      cx={position.x + 14 / zoom}
+                      cy={position.y - 16 / zoom}
+                      r={8 / zoom}
                       fill={isMissionTo ? "#dc2626" : "#16a34a"}
                     />
                     <text
-                      x={position.x + 14}
-                      y={position.y - 12}
+                      x={position.x + 14 / zoom}
+                      y={position.y - 12 / zoom}
                       textAnchor="middle"
-                      fontSize="10"
+                      fontSize={10 / zoom}
                       fill="#ffffff"
                     >
                       {isMissionTo ? "🎯" : "📦"}
@@ -355,10 +427,10 @@ export default function GameMap({
                 )}
                 <text
                   x={position.x}
-                  y={position.y + 32}
+                  y={position.y + 32 / zoom}
                   textAnchor="middle"
                   className="font-display"
-                  fontSize="14"
+                  fontSize={14 / zoom}
                   fill={
                     isMissionTo
                       ? "#dc2626"
@@ -377,9 +449,36 @@ export default function GameMap({
         </g>
       </svg>
 
+      {/* ズームコントロール */}
+      <div className="absolute left-4 top-4 flex flex-col gap-2">
+        <button
+          onClick={handleZoomIn}
+          disabled={zoom >= MAX_ZOOM}
+          className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/90 text-xl font-bold text-navy-700 shadow-lg transition hover:bg-white disabled:opacity-50"
+          aria-label="拡大"
+        >
+          +
+        </button>
+        <button
+          onClick={handleZoomOut}
+          disabled={zoom <= MIN_ZOOM}
+          className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/90 text-xl font-bold text-navy-700 shadow-lg transition hover:bg-white disabled:opacity-50"
+          aria-label="縮小"
+        >
+          -
+        </button>
+        <button
+          onClick={handleZoomReset}
+          className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/90 text-sm text-navy-700 shadow-lg transition hover:bg-white"
+          aria-label="リセット"
+        >
+          ⟲
+        </button>
+      </div>
+
       <div className="absolute bottom-4 right-4 flex items-center gap-3 rounded-full bg-white/90 px-4 py-2 text-xs text-navy-700 shadow-lg">
         <span>🧭 デフォルメ航路図</span>
-        <span className="hidden sm:inline">縦横移動のみ</span>
+        <span className="hidden sm:inline">{Math.round(zoom * 100)}%</span>
       </div>
     </div>
   );

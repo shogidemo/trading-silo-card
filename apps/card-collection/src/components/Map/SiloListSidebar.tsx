@@ -18,7 +18,10 @@ export default function SiloListSidebar({
   const progress = getCategoryProgress("silo");
 
   return (
-    <div className="vintage-border rounded-2xl bg-concrete-50 p-4 h-full overflow-hidden flex flex-col">
+    <div
+      className="vintage-border rounded-2xl bg-concrete-50 p-4 h-full overflow-hidden flex flex-col"
+      data-testid="silo-sidebar"
+    >
       <div className="mb-4">
         <h3 className="font-display text-lg text-concrete-900 mb-1">
           サイロ一覧

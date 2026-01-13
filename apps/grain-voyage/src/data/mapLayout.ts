@@ -1,5 +1,5 @@
 export const MAP_WIDTH = 1000;
-export const MAP_HEIGHT = 1500;
+export const MAP_HEIGHT = 850;
 export const MAP_GRID_SIZE = 80;
 
 export const MAP_LAT_RANGE = { min: 30, max: 46 };

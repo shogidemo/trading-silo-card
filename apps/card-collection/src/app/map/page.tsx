@@ -49,7 +49,7 @@ export default function MapPage() {
           サイロマップ
         </h2>
         <p className="text-concrete-600">
-          日本全国のサイロの位置を確認しましょう
+          桃鉄風デフォルメマップで日本のサイロを巡ろう
         </p>
       </motion.div>
 
@@ -96,6 +96,12 @@ export default function MapPage() {
               <span className="text-concrete-600 font-bold text-xs">?</span>
             </div>
             <span className="text-concrete-600">未獲得サイロ</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-sky-500/80 border-2 border-white flex items-center justify-center">
+              <span className="text-white text-sm">🚢</span>
+            </div>
+            <span className="text-concrete-600">航路（縦横移動のみ）</span>
           </div>
         </div>
       </motion.div>

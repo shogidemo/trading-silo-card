@@ -8,38 +8,15 @@ import { Route } from "@/types";
  * waypoints は海上を通るための経由点
  *
  * 【航路構成】
- * - 太平洋ルート（メイン）: 釧路 → 苫小牧 → 八戸 → 鹿島 → 千葉 → 知多 → 神戸 → 水島 → 志布志 → 鹿児島
+ * - 太平洋ルート（メイン）: 釧路 → 苫小牧 → 八戸 → 鹿島 → 衣浦 → 神戸 → 水島 → 志布志
  * - 日本海ルート: 苫小牧 → 新潟 → 博多
- * - 支線: 十勝、釜石、碧南、八代 など
+ * - 支線: 釜石、八代 など
  */
 
 export const routes: Route[] = [
   // ========================================
   // 北海道エリア
   // ========================================
-  {
-    id: "route-kushiro-tokachi",
-    from: "port-kushiro",
-    to: "port-tokachi",
-    distance: 2,
-    type: "branch",
-    // 太平洋沿岸を通る（陸上を避ける）
-    waypoints: [{ lat: 42.5, lng: 143.8 }],
-    mapWaypoints: [{ x: 620, y: 210 }],
-  },
-  {
-    id: "route-tokachi-tomakomai",
-    from: "port-tokachi",
-    to: "port-tomakomai",
-    distance: 3,
-    type: "main",
-    // 襟裳岬沖を回る
-    waypoints: [
-      { lat: 41.9, lng: 143.2 },
-      { lat: 42.0, lng: 142.5 },
-    ],
-    mapWaypoints: [{ x: 600, y: 270 }],
-  },
   {
     id: "route-kushiro-tomakomai",
     from: "port-kushiro",
@@ -52,7 +29,7 @@ export const routes: Route[] = [
       { lat: 41.8, lng: 142.8 },
       { lat: 42.0, lng: 142.0 },
     ],
-    mapWaypoints: [{ x: 620, y: 270 }],
+    mapWaypoints: [{ x: 600, y: 200 }],
   },
 
   // ========================================
@@ -69,7 +46,7 @@ export const routes: Route[] = [
       { lat: 41.8, lng: 141.5 },
       { lat: 41.2, lng: 141.6 },
     ],
-    mapWaypoints: [{ x: 620, y: 270 }, { x: 620, y: 360 }],
+    mapWaypoints: [{ x: 660, y: 280 }],
   },
   {
     id: "route-hachinohe-kamaishi",
@@ -79,10 +56,7 @@ export const routes: Route[] = [
     type: "main",
     // 三陸海岸沿い（太平洋側を通る）
     waypoints: [{ lat: 39.9, lng: 141.9 }],
-    mapWaypoints: [
-      { x: 660, y: 360 },  // 太平洋へ
-      { x: 660, y: 420 },  // 三陸沖を南下
-    ],
+    mapWaypoints: [{ x: 680, y: 350 }],
   },
 
   // ========================================
@@ -100,54 +74,33 @@ export const routes: Route[] = [
       { lat: 37.5, lng: 141.5 },
       { lat: 36.5, lng: 141.0 },
     ],
-    mapWaypoints: [{ x: 660, y: 420 }, { x: 660, y: 500 }],
+    mapWaypoints: [{ x: 700, y: 420 }],
   },
-  {
-    id: "route-kashima-chiba",
-    from: "port-kashima",
-    to: "port-chiba",
-    distance: 2,
-    type: "main",
-    // 房総半島東岸沖
-    waypoints: [{ lat: 35.7, lng: 140.6 }],
-    mapWaypoints: [{ x: 640, y: 540 }],
-  },
-
   // ========================================
   // 関東 → 中部（太平洋側）
   // ========================================
   {
-    id: "route-chiba-chita",
-    from: "port-chiba",
-    to: "port-chita",
-    distance: 5,
+    id: "route-kashima-kinuura",
+    from: "port-kashima",
+    to: "port-kinuura",
+    distance: 6,
     type: "main",
     // 房総半島南端 → 伊豆諸島北側 → 遠州灘 → 伊勢湾
     waypoints: [
+      { lat: 35.7, lng: 140.6 },  // 房総半島東岸沖
       { lat: 35.0, lng: 139.9 },  // 房総半島南端沖
       { lat: 34.5, lng: 139.2 },  // 伊豆大島沖
       { lat: 34.3, lng: 138.0 },  // 遠州灘
       { lat: 34.5, lng: 137.2 },  // 渥美半島沖
     ],
-    mapWaypoints: [{ x: 640, y: 540 }, { x: 640, y: 610 }],
+    mapWaypoints: [{ x: 680, y: 530 }],
   },
-  {
-    id: "route-chita-hekinan",
-    from: "port-chita",
-    to: "port-hekinan",
-    distance: 1,
-    type: "branch",
-    // 三河湾内
-    waypoints: [{ lat: 34.9, lng: 136.95 }],
-    mapWaypoints: [{ x: 580, y: 630 }],
-  },
-
   // ========================================
   // 中部 → 関西 → 中国（瀬戸内海）
   // ========================================
   {
-    id: "route-chita-kobe",
-    from: "port-chita",
+    id: "route-kinuura-kobe",
+    from: "port-kinuura",
     to: "port-kobe",
     distance: 3,
     type: "main",
@@ -158,10 +111,7 @@ export const routes: Route[] = [
       { lat: 33.5, lng: 135.5 },  // 紀伊半島南端沖
       { lat: 34.0, lng: 135.0 },  // 紀伊水道
     ],
-    mapWaypoints: [
-      { x: 600, y: 660 },  // 伊勢湾から紀伊半島南へ
-      { x: 480, y: 660 },  // 西へ
-    ],
+    mapWaypoints: [{ x: 620, y: 600 }, { x: 560, y: 600 }],
   },
   {
     id: "route-kobe-mizushima",
@@ -174,7 +124,7 @@ export const routes: Route[] = [
       { lat: 34.6, lng: 134.8 },  // 明石海峡西
       { lat: 34.5, lng: 134.2 },  // 播磨灘
     ],
-    mapWaypoints: [{ x: 440, y: 600 }, { x: 440, y: 610 }],
+    mapWaypoints: [{ x: 480, y: 560 }],
   },
 
   // ========================================
@@ -194,25 +144,8 @@ export const routes: Route[] = [
       { lat: 32.5, lng: 131.8 },  // 豊後水道南
       { lat: 31.8, lng: 131.5 },  // 日向灘
     ],
-    mapWaypoints: [
-      { x: 440, y: 610 },  // 瀬戸内海から豊後水道へ
-      { x: 440, y: 700 },  // 豊後水道を南下
-      { x: 420, y: 780 },  // 日向灘を南下
-    ],
+    mapWaypoints: [{ x: 440, y: 640 }, { x: 440, y: 720 }],
   },
-  {
-    id: "route-shibushi-kagoshima",
-    from: "port-shibushi",
-    to: "port-kagoshima",
-    distance: 2,
-    type: "main",
-    // 大隅半島沖を回る
-    waypoints: [
-      { lat: 31.2, lng: 131.0 },  // 大隅半島南端沖
-    ],
-    mapWaypoints: [{ x: 420, y: 820 }, { x: 340, y: 820 }],
-  },
-
   // ========================================
   // 日本海ルート
   // ========================================
@@ -229,10 +162,9 @@ export const routes: Route[] = [
       { lat: 39.5, lng: 139.5 },  // 秋田沖
     ],
     mapWaypoints: [
-      { x: 480, y: 270 },   // 苫小牧から西へ向かう
-      { x: 480, y: 320 },   // 津軽海峡へ
-      { x: 320, y: 320 },   // 海峡を西へ通過→日本海
-      { x: 320, y: 440 },   // 日本海を南下
+      { x: 520, y: 280 },   // 苫小牧から西へ向かう
+      { x: 440, y: 280 },   // 津軽海峡へ
+      { x: 440, y: 400 },   // 日本海を南下
     ],
   },
   {
@@ -249,7 +181,7 @@ export const routes: Route[] = [
       { lat: 34.5, lng: 132.0 },  // 山陰沖
       { lat: 34.0, lng: 130.8 },  // 対馬海峡東
     ],
-    mapWaypoints: [{ x: 260, y: 440 }, { x: 260, y: 640 }],
+    mapWaypoints: [{ x: 400, y: 480 }, { x: 300, y: 520 }],
   },
 
   // ========================================
@@ -265,42 +197,34 @@ export const routes: Route[] = [
     waypoints: [
       { lat: 33.0, lng: 130.4 },  // 島原湾
     ],
-    mapWaypoints: [{ x: 240, y: 640 }, { x: 240, y: 720 }],
+    mapWaypoints: [{ x: 280, y: 620 }],
   },
   {
-    id: "route-yatsushiro-kagoshima",
+    id: "route-yatsushiro-shibushi",
     from: "port-yatsushiro",
-    to: "port-kagoshima",
+    to: "port-shibushi",
     distance: 3,
     type: "main",
-    // 八代海 → 天草灘 → 東シナ海 → 鹿児島湾（九州を南回り）
+    // 八代海 → 天草灘 → 日向灘
     waypoints: [
       { lat: 32.0, lng: 130.3 },  // 天草灘
-      { lat: 31.8, lng: 130.2 },  // 甑島沖
+      { lat: 31.5, lng: 130.8 },  // 薩摩半島東沖
     ],
-    mapWaypoints: [
-      { x: 200, y: 720 },   // 九州西側を南下
-      { x: 200, y: 820 },   // 九州南端
-      { x: 340, y: 820 },   // 東へ
-    ],
+    mapWaypoints: [{ x: 200, y: 640 }],
   },
   {
-    id: "route-hakata-kagoshima",
+    id: "route-hakata-shibushi",
     from: "port-hakata",
-    to: "port-kagoshima",
-    distance: 4,
+    to: "port-shibushi",
+    distance: 5,
     type: "main",
-    // 玄界灘 → 東シナ海 → 鹿児島湾（九州の西側を南回り）
+    // 玄界灘 → 東シナ海 → 日向灘
     waypoints: [
       { lat: 33.0, lng: 129.8 },  // 五島灘
       { lat: 32.2, lng: 129.8 },  // 東シナ海
-      { lat: 31.5, lng: 130.0 },  // 薩摩半島西
+      { lat: 31.5, lng: 130.5 },  // 大隅半島西沖
     ],
-    mapWaypoints: [
-      { x: 200, y: 640 },   // 九州西側へ
-      { x: 200, y: 820 },   // 南下
-      { x: 340, y: 820 },   // 九州南端を東へ
-    ],
+    mapWaypoints: [{ x: 180, y: 620 }, { x: 200, y: 660 }],
   },
 
   // ========================================
@@ -318,7 +242,7 @@ export const routes: Route[] = [
       { lat: 33.9, lng: 131.5 },  // 周防灘
       { lat: 33.95, lng: 130.9 }, // 関門海峡
     ],
-    mapWaypoints: [{ x: 320, y: 610 }, { x: 320, y: 640 }],
+    mapWaypoints: [{ x: 360, y: 560 }],
   },
   {
     id: "route-kobe-hakata",
@@ -333,10 +257,7 @@ export const routes: Route[] = [
       { lat: 34.0, lng: 132.0 },  // 広島湾
       { lat: 33.9, lng: 131.0 },  // 関門海峡
     ],
-    mapWaypoints: [
-      { x: 400, y: 620 },  // 瀬戸内海を西へ
-      { x: 260, y: 620 },  // 関門海峡経由
-    ],
+    mapWaypoints: [{ x: 440, y: 580 }, { x: 360, y: 580 }],
   },
 ];
 

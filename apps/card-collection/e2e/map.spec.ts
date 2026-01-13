@@ -25,7 +25,7 @@ test.describe("サイロマップ", () => {
       page.locator("h2").filter({ hasText: "サイロマップ" })
     ).toBeVisible();
     await expect(
-      page.locator("text=日本全国のサイロの位置を確認しましょう")
+      page.locator("text=桃鉄風デフォルメマップで日本のサイロを巡ろう")
     ).toBeVisible();
 
     // 戻るリンクが表示される
@@ -39,18 +39,16 @@ test.describe("サイロマップ", () => {
     // 凡例が表示される
     await expect(page.locator("text=獲得済みサイロ")).toBeVisible();
     await expect(page.locator("text=未獲得サイロ")).toBeVisible();
+    await expect(page.locator("text=航路（縦横移動のみ）")).toBeVisible();
   });
 
   test("地図コンテナが表示される", async ({ page }) => {
     await page.goto("/map");
 
-    // Leaflet地図コンテナが表示されるまで待機
-    await expect(page.locator(".leaflet-container")).toBeVisible({
-      timeout: 10000,
-    });
-
-    // OpenStreetMap帰属表示が表示される
-    await expect(page.locator("text=OpenStreetMap")).toBeVisible();
+    const map = page.getByTestId("deformed-map");
+    await expect(map).toBeVisible();
+    await expect(map).toHaveAttribute("data-map-cols");
+    await expect(map).toHaveAttribute("data-map-rows");
   });
 
   test("サイドバーにサイロが表示される", async ({ page }) => {
@@ -58,8 +56,7 @@ test.describe("サイロマップ", () => {
 
     // サイドバー内のボタン（サイロリスト）を取得
     const siloButtons = page
-      .locator(".vintage-border")
-      .first()
+      .getByTestId("silo-sidebar")
       .locator("button");
 
     // サイロが表示される（5つ以上）
@@ -75,13 +72,10 @@ test.describe("サイロマップ", () => {
     });
     await page.goto("/map");
 
-    // Leaflet地図が読み込まれるまで待機
-    await expect(page.locator(".leaflet-container")).toBeVisible({
-      timeout: 10000,
-    });
-
     // 獲得済みサイロボタンをクリック
-    const collectedSiloButton = page.getByRole("button", {
+    const collectedSiloButton = page
+      .getByTestId("silo-sidebar")
+      .getByRole("button", {
       name: "関東グレーンターミナルを選択",
     });
     await collectedSiloButton.click();
@@ -103,61 +97,73 @@ test.describe("サイロマップ", () => {
   test("マーカーが地図上に表示される", async ({ page }) => {
     await page.goto("/map");
 
-    // Leaflet地図が読み込まれるまで待機
-    await expect(page.locator(".leaflet-container")).toBeVisible({
-      timeout: 10000,
-    });
-
-    // マーカーが表示される（未収集状態なので?マーク）
-    await expect(page.locator(".silo-marker-uncollected").first()).toBeVisible({
-      timeout: 5000,
-    });
+    const markers = page.getByTestId("silo-marker");
+    await expect(markers.first()).toBeVisible();
+    const count = await markers.count();
+    expect(count).toBeGreaterThanOrEqual(5);
   });
 
-  test("レイヤーコントロールが表示される", async ({ page }) => {
+  test("デフォルメ地図が日本を表している", async ({ page }) => {
     await page.goto("/map");
 
-    // Leaflet地図が読み込まれるまで待機
-    await expect(page.locator(".leaflet-container")).toBeVisible({
-      timeout: 10000,
-    });
-
-    // レイヤーコントロールが表示される
-    await expect(page.locator(".leaflet-control-layers")).toBeVisible();
+    await expect(
+      page.locator('[data-cell-type="land"][data-x="18"][data-y="2"]')
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-cell-type="land"][data-x="13"][data-y="13"]')
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-cell-type="land"][data-x="5"][data-y="15"]')
+    ).toBeVisible();
   });
 
-  test("日本全体表示ボタンが動作する", async ({ page }) => {
+  test("船は縦横移動のみで航路を進む", async ({ page }) => {
     await setCollectionStateBeforeLoad(page, {
-      collectedCardIds: ["silo-kanto"],
+      collectedCardIds: ["silo-kanto", "silo-zenno-shibushi"],
     });
     await page.goto("/map");
 
-    // Leaflet地図が読み込まれるまで待機
-    await expect(page.locator(".leaflet-container")).toBeVisible({
-      timeout: 10000,
+    const ship = page.getByTestId("map-ship");
+
+    const getShipPosition = async () => {
+      const x = Number(await ship.getAttribute("data-grid-x"));
+      const y = Number(await ship.getAttribute("data-grid-y"));
+      return { x, y };
+    };
+
+    const sidebarButton = page
+      .getByTestId("silo-sidebar")
+      .getByRole("button", {
+        name: "全農サイロ志布志支店を選択",
+      });
+    await sidebarButton.click();
+
+    const positions: Array<{ x: number; y: number }> = [];
+    for (let i = 0; i < 6; i += 1) {
+      positions.push(await getShipPosition());
+      await page.waitForTimeout(300);
+    }
+
+    const uniquePositions = positions.filter((pos, index, arr) => {
+      if (index === 0) return true;
+      return pos.x !== arr[index - 1].x || pos.y !== arr[index - 1].y;
     });
 
-    // リセットボタンが表示される
-    const resetButton = page.locator(".reset-view-button");
-    await expect(resetButton).toBeVisible();
+    expect(uniquePositions.length).toBeGreaterThan(1);
 
-    // サイドバーで獲得済みサイロを選択してズーム
-    const collectedSiloButton = page.getByRole("button", {
-      name: "関東グレーンターミナルを選択",
-    });
-    await collectedSiloButton.click();
+    for (let i = 1; i < uniquePositions.length; i += 1) {
+      const prev = uniquePositions[i - 1];
+      const next = uniquePositions[i];
+      const dx = Math.abs(next.x - prev.x);
+      const dy = Math.abs(next.y - prev.y);
+      expect(dx + dy).toBe(1);
 
-    // 少し待機（アニメーション）
-    await page.waitForTimeout(1500);
-
-    // リセットボタンをクリック
-    await resetButton.click();
-
-    // アニメーション完了を待機
-    await page.waitForTimeout(1500);
-
-    // リセットボタンが引き続き表示される（ビューがリセットされた）
-    await expect(resetButton).toBeVisible();
+      await expect(
+        page.locator(
+          `[data-cell-type=\"sea\"][data-x=\"${next.x}\"][data-y=\"${next.y}\"]`
+        )
+      ).toBeVisible();
+    }
   });
 });
 
@@ -176,11 +182,6 @@ test.describe("サイロマップ - マーカー状態", () => {
     });
     await page.goto("/map");
 
-    // Leaflet地図が読み込まれるまで待機
-    await expect(page.locator(".leaflet-container")).toBeVisible({
-      timeout: 10000,
-    });
-
     // 獲得済みマーカーが表示される
     await expect(page.locator(".silo-marker-collected").first()).toBeVisible({
       timeout: 5000,
@@ -193,11 +194,6 @@ test.describe("サイロマップ - マーカー状態", () => {
       collectedCardIds: [],
     });
     await page.goto("/map");
-
-    // Leaflet地図が読み込まれるまで待機
-    await expect(page.locator(".leaflet-container")).toBeVisible({
-      timeout: 10000,
-    });
 
     // 未獲得マーカーのみが表示される
     await expect(page.locator(".silo-marker-uncollected").first()).toBeVisible({
