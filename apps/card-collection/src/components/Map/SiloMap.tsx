@@ -55,6 +55,18 @@ const DIRECTIONS: Array<[number, number]> = [
   [0, -1],
 ];
 
+const DIAGONAL_DIRECTIONS: Array<[number, number]> = [
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1],
+];
+
+const ALL_DIRECTIONS: Array<[number, number]> = [
+  ...DIRECTIONS,
+  ...DIAGONAL_DIRECTIONS,
+];
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
@@ -114,33 +126,75 @@ const findNearestCoastalSea = (start: GridPosition): GridPosition => {
   return { x: 0, y: 0 };
 };
 
-const findSeaPath = (start: GridPosition, goal: GridPosition): GridPosition[] => {
+type SeaPathOptions = {
+  avoidKeys?: Set<string>;
+  coastalPenalty?: number;
+  portPenalty?: number;
+};
+
+const findSeaPath = (
+  start: GridPosition,
+  goal: GridPosition,
+  options?: SeaPathOptions
+): GridPosition[] => {
   if (start.x === goal.x && start.y === goal.y) {
     return [start];
   }
+  const avoidKeys = options?.avoidKeys;
+  const coastalPenalty = options?.coastalPenalty ?? 0.4;
+  const portPenalty = options?.portPenalty ?? 2;
+  const startKey = toKey(start);
+  const goalKey = toKey(goal);
 
-  const queue: GridPosition[] = [start];
-  const visited = new Set<string>([toKey(start)]);
+  const distances = new Map<string, number>([[startKey, 0]]);
   const cameFrom = new Map<string, GridPosition>();
+  const queue: Array<{ pos: GridPosition; cost: number }> = [{ pos: start, cost: 0 }];
+
+  const isDiagonalMove = (dx: number, dy: number) =>
+    Math.abs(dx) === 1 && Math.abs(dy) === 1;
 
   while (queue.length > 0) {
-    const current = queue.shift()!;
-    if (current.x === goal.x && current.y === goal.y) {
+    let minIndex = 0;
+    for (let i = 1; i < queue.length; i += 1) {
+      if (queue[i].cost < queue[minIndex].cost) {
+        minIndex = i;
+      }
+    }
+
+    const [{ pos: current, cost: currentCost }] = queue.splice(minIndex, 1);
+    const currentKey = toKey(current);
+    if (currentKey === goalKey) {
       break;
     }
 
-    for (const [dx, dy] of DIRECTIONS) {
+    for (const [dx, dy] of ALL_DIRECTIONS) {
       const next = { x: current.x + dx, y: current.y + dy };
       if (!inBounds(next.x, next.y) || !isSea(next.x, next.y)) continue;
-      const key = toKey(next);
-      if (visited.has(key)) continue;
-      visited.add(key);
-      cameFrom.set(key, current);
-      queue.push(next);
+
+      if (isDiagonalMove(dx, dy)) {
+        if (!isSea(current.x + dx, current.y) || !isSea(current.x, current.y + dy)) {
+          continue;
+        }
+      }
+
+      const nextKey = toKey(next);
+      const baseCost = isDiagonalMove(dx, dy) ? Math.SQRT2 : 1;
+      const coastalCost = isCoastalSea(next.x, next.y) ? coastalPenalty : 0;
+      const avoidCost =
+        avoidKeys && avoidKeys.has(nextKey) && nextKey !== startKey && nextKey !== goalKey
+          ? portPenalty
+          : 0;
+      const nextCost = currentCost + baseCost + coastalCost + avoidCost;
+
+      if (nextCost < (distances.get(nextKey) ?? Number.POSITIVE_INFINITY)) {
+        distances.set(nextKey, nextCost);
+        cameFrom.set(nextKey, current);
+        queue.push({ pos: next, cost: nextCost });
+      }
     }
   }
 
-  if (!visited.has(toKey(goal))) {
+  if (!cameFrom.has(goalKey)) {
     return [start];
   }
 
@@ -192,6 +246,10 @@ export default function SiloMap({ selectedSiloId, onSiloSelect }: SiloMapProps) 
   const { hasCard } = useCollection();
   const prefersReducedMotion = useReducedMotion();
   const portAssignments = useMemo(() => buildPortAssignments(silos), []);
+  const portKeys = useMemo(
+    () => new Set(Object.values(portAssignments).map(({ position }) => toKey(position))),
+    [portAssignments]
+  );
   const defaultPort = portAssignments[silos[0]?.id]?.position ?? { x: 0, y: 0 };
   const [shipPosition, setShipPosition] = useState<GridPosition>(defaultPort);
   const [shipPath, setShipPath] = useState<GridPosition[]>([]);
@@ -212,9 +270,9 @@ export default function SiloMap({ selectedSiloId, onSiloSelect }: SiloMapProps) 
     if (!target) return;
     const start = shipPositionRef.current;
     if (start.x === target.x && start.y === target.y) return;
-    const path = findSeaPath(start, target);
+    const path = findSeaPath(start, target, { avoidKeys: portKeys });
     setShipPath(path);
-  }, [selectedSiloId, portAssignments]);
+  }, [selectedSiloId, portAssignments, portKeys]);
 
   useEffect(() => {
     if (shipPath.length <= 1) {

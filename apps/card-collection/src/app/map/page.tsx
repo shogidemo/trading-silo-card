@@ -101,7 +101,7 @@ export default function MapPage() {
             <div className="w-7 h-7 rounded-full bg-sky-500/80 border-2 border-white flex items-center justify-center">
               <span className="text-white text-sm">🚢</span>
             </div>
-            <span className="text-concrete-600">航路（縦横移動のみ）</span>
+            <span className="text-concrete-600">航路（斜め移動あり）</span>
           </div>
         </div>
       </motion.div>
