@@ -36,6 +36,8 @@ export default function QuizQuestion({
   isQuizAnswered,
   facilityProgress,
 }: QuizQuestionProps) {
+  const isE2E = process.env.NEXT_PUBLIC_E2E === "1";
+
   return (
     <motion.div
       key="quiz"
@@ -131,6 +133,8 @@ export default function QuizQuestion({
                   key={index}
                   onClick={() => onAnswer(index)}
                   disabled={selectedAnswer !== null}
+                  data-testid={`quiz-option-${index}`}
+                  data-correct={isE2E ? option.isCorrect : undefined}
                   className={baseClass}
                   whileHover={selectedAnswer === null ? { scale: 1.01 } : {}}
                   whileTap={selectedAnswer === null ? { scale: 0.99 } : {}}

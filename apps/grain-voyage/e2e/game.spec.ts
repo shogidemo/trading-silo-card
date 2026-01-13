@@ -43,9 +43,15 @@ test.describe("Grain Voyage Game", () => {
       await page.waitForTimeout(500);
 
       // Step 3: フリーモードを選択
-      await page.getByRole("button", { name: /フリーモード/i }).click();
+      const modeHeading = page.getByRole("heading", { name: /ゲームモードを選択/i });
+      await expect(modeHeading).toBeVisible({ timeout: 5000 });
+
+      const freeModeButton = page.getByRole("button", { name: /フリーモード/i });
+      await expect(freeModeButton).toBeEnabled({ timeout: 5000 });
+      await freeModeButton.click();
 
       // ゲーム画面に遷移
+      await expect(page.getByText("ターン:")).toBeVisible({ timeout: 10000 });
       await expect(page).toHaveURL(/\/play/, { timeout: 10000 });
     });
   });
@@ -55,8 +61,10 @@ test.describe("Grain Voyage Game", () => {
       // 直接 /play ページにアクセス
       await page.goto("/play?company=momiji");
 
-      // 十分に待つ
-      await page.waitForLoadState("networkidle", { timeout: 30000 });
+      // ヘッダーが表示されるまで待つ
+      await expect(
+        page.getByRole("heading", { name: /穀物航路/i })
+      ).toBeVisible({ timeout: 10000 });
 
       // スクリーンショットを保存（デバッグ用）
       await page.screenshot({ path: "test-results/play-direct.png", fullPage: true });
@@ -82,7 +90,9 @@ test.describe("Grain Voyage Game", () => {
   test.describe("Map Page", () => {
     test("should load map page", async ({ page }) => {
       await page.goto("/map");
-      await page.waitForLoadState("networkidle", { timeout: 30000 });
+      await expect(
+        page.getByRole("heading", { name: /航路マップ/i })
+      ).toBeVisible({ timeout: 10000 });
 
       // スクリーンショットを保存（デバッグ用）
       await page.screenshot({ path: "test-results/map-direct.png", fullPage: true });

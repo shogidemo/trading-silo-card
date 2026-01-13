@@ -2,182 +2,78 @@ import { test, expect } from "@playwright/test";
 import {
   STORAGE_KEY,
   clearLocalStorage,
+  clearLocalStorageBeforeLoad,
   getCollectionState,
   setCollectionState,
   goToQuiz,
   selectCategory,
+  answerQuizCorrectly,
   waitForAnimations,
 } from "./helpers/test-utils";
 
 test.describe("カード収集フロー", () => {
   test.beforeEach(async ({ page }) => {
     // テスト前にlocalStorageをクリア
+    await clearLocalStorageBeforeLoad(page);
     await page.goto("/");
-    await clearLocalStorage(page);
-    await page.reload();
   });
 
   test("クイズ正解時にカードを獲得できる", async ({ page }) => {
     await goToQuiz(page);
     await selectCategory(page, "grain");
 
-    // クイズに回答
-    const options = page.locator("main button").filter({
-      has: page.locator("span.font-display"),
-    });
-    await expect(options.first()).toBeVisible({ timeout: 5000 });
-    await options.first().click();
+    await answerQuizCorrectly(page);
 
-    // 結果を待つ
-    await page.waitForTimeout(1500);
-
-    // 正解の場合、カード獲得確認
-    const isCorrect = await page.locator("text=正解！").isVisible();
-    if (isCorrect) {
-      // 状態を確認
-      const state = await getCollectionState(page);
-      expect(state?.collectedCardIds.length).toBeGreaterThan(0);
-    }
+    const state = await getCollectionState(page);
+    expect(state?.collectedCardIds.length).toBeGreaterThan(0);
   });
 
   test("CardRevealモーダルが表示される", async ({ page }) => {
     await goToQuiz(page);
     await selectCategory(page, "grain");
 
-    // クイズに回答して正解するまで試行
-    let foundNewCard = false;
-    let attempts = 0;
+    await answerQuizCorrectly(page);
+    await expect(page.locator("text=NEW CARD")).toBeVisible({ timeout: 5000 });
 
-    while (!foundNewCard && attempts < 10) {
-      // カテゴリ選択画面に戻っている場合は再選択
-      const categoryHeading = page.locator("h2").filter({ hasText: "カテゴリを選択" });
-      if (await categoryHeading.isVisible({ timeout: 500 }).catch(() => false)) {
-        await selectCategory(page, "grain");
-      }
+    // カードを見るボタンをクリック
+    await page.locator("button").filter({ hasText: "カードを見る" }).click();
 
-      const options = page.locator("main button").filter({
-        has: page.locator("span.font-display"),
-      });
-      await expect(options.first()).toBeVisible({ timeout: 5000 });
-      await options.first().click();
-
-      await page.waitForTimeout(1500);
-
-      // NEW CARDが表示されるか確認
-      if (await page.locator("text=NEW CARD").isVisible()) {
-        foundNewCard = true;
-        // カードを見るボタンをクリック
-        await page.locator("button").filter({ hasText: "カードを見る" }).click();
-
-        // CardRevealモーダルが表示される
-        await expect(page.locator("text=タップして閉じる")).toBeVisible({
-          timeout: 3000,
-        });
-        break;
-      }
-
-      // 次のクイズへ
-      const nextButton = page.locator("button").filter({ hasText: /次のクイズへ/ });
-      if (await nextButton.isVisible()) {
-        await nextButton.click();
-        await page.waitForTimeout(500);
-      }
-      attempts++;
-    }
-
-    // 新しいカードが見つかった場合のみアサート
-    if (foundNewCard) {
-      await expect(page.locator("text=タップして閉じる")).toBeVisible();
-    }
+    // CardRevealモーダルが表示される
+    await expect(page.locator("text=タップして閉じる")).toBeVisible({
+      timeout: 3000,
+    });
   });
 
   test("CardRevealをクリックで閉じられる", async ({ page }) => {
     await goToQuiz(page);
     await selectCategory(page, "grain");
 
-    // 新しいカードを獲得するまで試行
-    let foundNewCard = false;
-    let attempts = 0;
+    await answerQuizCorrectly(page);
+    await expect(page.locator("text=NEW CARD")).toBeVisible({ timeout: 5000 });
+    await page.locator("button").filter({ hasText: "カードを見る" }).click();
+    await expect(page.locator("text=タップして閉じる")).toBeVisible({
+      timeout: 3000,
+    });
 
-    while (!foundNewCard && attempts < 10) {
-      // カテゴリ選択画面に戻っている場合は再選択
-      const categoryHeading = page.locator("h2").filter({ hasText: "カテゴリを選択" });
-      if (await categoryHeading.isVisible({ timeout: 500 }).catch(() => false)) {
-        await selectCategory(page, "grain");
-      }
-
-      const options = page.locator("main button").filter({
-        has: page.locator("span.font-display"),
-      });
-      await expect(options.first()).toBeVisible({ timeout: 5000 });
-      await options.first().click();
-
-      await page.waitForTimeout(1500);
-
-      if (await page.locator("text=NEW CARD").isVisible()) {
-        foundNewCard = true;
-        await page.locator("button").filter({ hasText: "カードを見る" }).click();
-        await expect(page.locator("text=タップして閉じる")).toBeVisible({
-          timeout: 3000,
-        });
-
-        // クリックで閉じる
-        await page.locator("text=タップして閉じる").click();
-        await expect(page.locator("text=タップして閉じる")).not.toBeVisible();
-        break;
-      }
-
-      const nextButton = page.locator("button").filter({ hasText: /次のクイズへ/ });
-      if (await nextButton.isVisible()) {
-        await nextButton.click();
-        await page.waitForTimeout(500);
-      }
-      attempts++;
-    }
+    // クリックで閉じる
+    await page.locator("text=タップして閉じる").click();
+    await expect(page.locator("text=タップして閉じる")).not.toBeVisible();
   });
 
   test("CardRevealをESCキーで閉じられる", async ({ page }) => {
     await goToQuiz(page);
     await selectCategory(page, "grain");
 
-    let foundNewCard = false;
-    let attempts = 0;
+    await answerQuizCorrectly(page);
+    await expect(page.locator("text=NEW CARD")).toBeVisible({ timeout: 5000 });
+    await page.locator("button").filter({ hasText: "カードを見る" }).click();
+    await expect(page.locator("text=タップして閉じる")).toBeVisible({
+      timeout: 3000,
+    });
 
-    while (!foundNewCard && attempts < 10) {
-      // カテゴリ選択画面に戻っている場合は再選択
-      const categoryHeading = page.locator("h2").filter({ hasText: "カテゴリを選択" });
-      if (await categoryHeading.isVisible({ timeout: 500 }).catch(() => false)) {
-        await selectCategory(page, "grain");
-      }
-
-      const options = page.locator("main button").filter({
-        has: page.locator("span.font-display"),
-      });
-      await expect(options.first()).toBeVisible({ timeout: 5000 });
-      await options.first().click();
-
-      await page.waitForTimeout(1500);
-
-      if (await page.locator("text=NEW CARD").isVisible()) {
-        foundNewCard = true;
-        await page.locator("button").filter({ hasText: "カードを見る" }).click();
-        await expect(page.locator("text=タップして閉じる")).toBeVisible({
-          timeout: 3000,
-        });
-
-        // ESCキーで閉じる
-        await page.keyboard.press("Escape");
-        await expect(page.locator("text=タップして閉じる")).not.toBeVisible();
-        break;
-      }
-
-      const nextButton = page.locator("button").filter({ hasText: /次のクイズへ/ });
-      if (await nextButton.isVisible()) {
-        await nextButton.click();
-        await page.waitForTimeout(500);
-      }
-      attempts++;
-    }
+    // ESCキーで閉じる
+    await page.keyboard.press("Escape");
+    await expect(page.locator("text=タップして閉じる")).not.toBeVisible();
   });
 
   test("獲得したカードがコレクションに表示される", async ({ page }) => {
@@ -241,27 +137,12 @@ test.describe("カード収集フロー", () => {
     const categories = ["silo", "grain", "trader"] as const;
 
     for (const category of categories) {
-      await page.goto("/");
-      await clearLocalStorage(page);
-      await page.reload();
-
+      await clearLocalStorageBeforeLoad(page);
       await goToQuiz(page);
       await selectCategory(page, category);
 
-      // クイズに回答
-      const options = page.locator("main button").filter({
-        has: page.locator("span.font-display"),
-      });
-      await expect(options.first()).toBeVisible({ timeout: 5000 });
-      await options.first().click();
-
-      // 結果を待つ
-      await page.waitForTimeout(1500);
-
-      // 正解/不正解どちらかが表示される
-      await expect(
-        page.locator("text=正解！").or(page.locator("text=不正解..."))
-      ).toBeVisible({ timeout: 3000 });
+      await answerQuizCorrectly(page);
+      await expect(page.locator("text=NEW CARD")).toBeVisible({ timeout: 5000 });
     }
   });
 });

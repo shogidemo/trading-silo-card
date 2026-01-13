@@ -43,6 +43,12 @@ export async function clearLocalStorage(page: Page): Promise<void> {
   });
 }
 
+export async function clearLocalStorageBeforeLoad(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    localStorage.clear();
+  });
+}
+
 export async function getCollectionState(
   page: Page
 ): Promise<CollectionState | null> {
@@ -136,24 +142,20 @@ export async function answerQuiz(
   await expect(options.first()).toBeVisible({ timeout: 5000 });
 
   if (correct) {
-    // 正解の選択肢を探す（harvest背景を持つもの - 回答後に判別できないため、最初から全ての選択肢を試す）
-    // 正解を特定するために、data属性やクラスを使うのが理想だが、
-    // 現在の実装では回答前に正解を特定できないため、ランダムに選んで正解を期待する
-    // テスト用には、正解選択肢に特定のマーカーがあることを期待
-    const count = await options.count();
-    for (let i = 0; i < count; i++) {
-      const optionText = await options.nth(i).textContent();
-      // 正解選択肢を見つけるためのロジックが必要
-      // 現時点では最初の選択肢をクリックし、結果を確認する
+    const correctOption = page.locator('button[data-correct="true"]');
+    if (await correctOption.first().isVisible().catch(() => false)) {
+      await correctOption.first().click();
+    } else {
+      await options.first().click();
     }
-    await options.first().click();
   } else {
-    // 不正解を選ぶ（最初の選択肢を選んで不正解になることを期待）
     await options.first().click();
   }
 
   // 結果を待つ
-  await page.waitForTimeout(1500);
+  await expect(
+    page.locator("text=正解！").or(page.locator("text=不正解..."))
+  ).toBeVisible({ timeout: 5000 });
 
   // 結果画面を確認
   const isCorrect = await page.locator("text=正解！").isVisible();
@@ -172,18 +174,15 @@ export async function answerQuizCorrectly(
 
   await expect(options.first()).toBeVisible({ timeout: 5000 });
 
-  // すべての選択肢をチェックして正解を探す
-  const count = await options.count();
-  for (let i = 0; i < count; i++) {
-    // 各選択肢をクリックして正解かどうか確認
-    // ただし、一度クリックすると確定するため、別のアプローチが必要
-
-    // 現在の実装では、クイズデータから正解を特定することはできないため、
-    // 最初の選択肢を選んで、正解/不正解を受け入れる
+  const correctOption = page.locator('button[data-correct="true"]');
+  if (await correctOption.first().isVisible().catch(() => false)) {
+    await correctOption.first().click();
+  } else {
+    await options.first().click();
   }
-
-  await options.first().click();
-  await page.waitForTimeout(1500);
+  await expect(
+    page.locator("text=正解！").or(page.locator("text=不正解..."))
+  ).toBeVisible({ timeout: 5000 });
 
   const isCorrect = await page.locator("text=正解！").isVisible();
   const isNewCard = await page.locator("text=NEW CARD").isVisible();
@@ -198,7 +197,9 @@ export async function answerQuizIncorrectly(page: Page): Promise<void> {
 
   await expect(options.first()).toBeVisible({ timeout: 5000 });
   await options.first().click();
-  await page.waitForTimeout(1500);
+  await expect(
+    page.locator("text=正解！").or(page.locator("text=不正解..."))
+  ).toBeVisible({ timeout: 5000 });
 
   // 不正解になったかどうかは結果に依存
 }
