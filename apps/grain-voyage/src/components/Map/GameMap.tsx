@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { ports, routes, routeCells, getCellsForRoute } from "@/data";
 import {
-  LAND_SHAPES,
   MAP_GRID_SIZE,
   MAP_HEIGHT,
   MAP_LAT_RANGE,
@@ -183,21 +182,16 @@ export default function GameMap({
         <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#seaGradient)" />
         <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#mapGrid)" />
 
-        <g opacity="0.9">
-          {LAND_SHAPES.map((shape) => (
-            <rect
-              key={shape.id}
-              x={shape.x}
-              y={shape.y}
-              width={shape.width}
-              height={shape.height}
-              rx={shape.rx}
-              fill="#e5f5d0"
-              stroke="#9ac98f"
-              strokeWidth="4"
-            />
-          ))}
-        </g>
+        {/* 日本地図背景 */}
+        <image
+          href="/japan-map.svg"
+          x="50"
+          y="0"
+          width="900"
+          height="1350"
+          opacity="0.85"
+          preserveAspectRatio="xMidYMid meet"
+        />
 
         <g>
           {routes.map((route) => {
