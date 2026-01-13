@@ -52,6 +52,7 @@ function QuizPageContent() {
     addAnsweredQuiz,
     isQuizAnswered,
     getAnsweredQuizIds,
+    state,
   } = useCollection();
 
   // 復習モード用state
@@ -265,11 +266,15 @@ function QuizPageContent() {
     }
   };
 
-  const handleNext = () => {
+  const resetQuestionState = () => {
     setSelectedAnswer(null);
     setIsCorrect(false);
     setEarnedCard(null);
     setAnnouncement("");
+  };
+
+  const handleNext = () => {
+    resetQuestionState();
 
     if (isChallengeMode) {
       const nextIndex = currentQuestionIndex + 1;
@@ -301,6 +306,30 @@ function QuizPageContent() {
       setSelectedCategory(null);
       setQuizState("select");
     }
+  };
+
+  const handleNextSameCategory = () => {
+    if (!selectedCategory || isChallengeMode || isReviewMode) {
+      handleNext();
+      return;
+    }
+
+    resetQuestionState();
+
+    const nextQuiz = getRandomQuiz(selectedCategory);
+    if (nextQuiz) {
+      setCurrentQuiz(withShuffledOptions(nextQuiz));
+      setQuizState("quiz");
+      return;
+    }
+
+    setCurrentQuiz(null);
+    setSelectedCategory(null);
+    setQuizState("select");
+  };
+
+  const handleCloseReveal = () => {
+    setQuizState("result");
   };
 
   const handleSkipAnswered = () => {
@@ -397,6 +426,7 @@ function QuizPageContent() {
             onChallengeStart={handleChallengeStart}
             onReviewStart={handleReviewStart}
             getCategoryProgress={getCategoryProgress}
+            categoryStats={state.categoryStats}
             wrongAnswerCount={getWrongAnswerQuizIds().length}
           />
         )}
@@ -436,12 +466,13 @@ function QuizPageContent() {
             facilityProgress={getFacilityProgress(currentQuiz.cardId)}
             onShowCard={handleShowCard}
             onNext={handleNext}
+            onNextSameCategory={handleNextSameCategory}
           />
         )}
 
         {/* カード表示 */}
         {quizState === "reveal" && earnedCard && (
-          <CardReveal key="reveal" card={earnedCard} onClose={handleNext} />
+          <CardReveal key="reveal" card={earnedCard} onClose={handleCloseReveal} />
         )}
 
         {/* チャレンジ/復習サマリー */}

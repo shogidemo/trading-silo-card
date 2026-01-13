@@ -150,6 +150,7 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
+        referrerPolicy="no-referrer"
         className="underline decoration-white/60 underline-offset-2"
       >
         出典: {label}

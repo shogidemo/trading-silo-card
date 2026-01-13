@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CATEGORY_INFO } from "@/constants";
-import { CardCategory } from "@/types";
+import { CardCategory, CategoryStats } from "@/types";
 import { containerVariants, itemVariants, getCategoryColors } from "@/lib";
 
 interface CategorySelectProps {
@@ -14,6 +14,7 @@ interface CategorySelectProps {
     total: number;
     percentage: number;
   };
+  categoryStats: Record<CardCategory, CategoryStats>;
   wrongAnswerCount: number;
 }
 
@@ -22,6 +23,7 @@ export default function CategorySelect({
   onChallengeStart,
   onReviewStart,
   getCategoryProgress,
+  categoryStats,
   wrongAnswerCount,
 }: CategorySelectProps) {
   return (
@@ -44,6 +46,11 @@ export default function CategorySelect({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {CATEGORY_INFO.map((category) => {
           const progress = getCategoryProgress(category.id);
+          const stats = categoryStats[category.id];
+          const accuracyLabel =
+            stats.attempts > 0
+              ? `${Math.round((stats.correct / stats.attempts) * 100)}%`
+              : "未挑戦";
           const colors = getCategoryColors(category.id);
           return (
             <motion.div
@@ -81,6 +88,18 @@ export default function CategorySelect({
                     </div>
                     <span className="font-mono text-sm text-concrete-600">
                       {progress.collected}/{progress.total}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-3 text-xs text-concrete-500">
+                    <span>
+                      正答率{" "}
+                      <span className="font-mono text-concrete-700">
+                        {accuracyLabel}
+                      </span>
+                    </span>
+                    <span className="font-mono">
+                      挑戦 {stats.attempts}回
                     </span>
                   </div>
                 </div>

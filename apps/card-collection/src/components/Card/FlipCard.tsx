@@ -53,6 +53,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
+        referrerPolicy="no-referrer"
         className="underline decoration-white/60 underline-offset-2"
       >
         出典: {label}

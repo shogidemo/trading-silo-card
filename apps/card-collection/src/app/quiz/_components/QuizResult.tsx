@@ -15,6 +15,7 @@ interface QuizResultProps {
   facilityProgress: { answered: number; total: number };
   onShowCard: () => void;
   onNext: () => void;
+  onNextSameCategory: () => void;
 }
 
 export default function QuizResult({
@@ -29,6 +30,7 @@ export default function QuizResult({
   facilityProgress,
   onShowCard,
   onNext,
+  onNextSameCategory,
 }: QuizResultProps) {
   const getNextButtonText = () => {
     if (isChallengeMode || isReviewMode) {
@@ -39,7 +41,7 @@ export default function QuizResult({
         ? "次の問題へ"
         : "結果を見る";
     }
-    return "次のクイズへ";
+    return "カテゴリ選択に戻る";
   };
 
   return (
@@ -116,6 +118,7 @@ export default function QuizResult({
                       href={source.url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      referrerPolicy="no-referrer"
                       className="text-concrete-600 hover:text-concrete-800 underline underline-offset-4 break-words"
                     >
                       {source.title}
@@ -142,6 +145,16 @@ export default function QuizResult({
                 <span>🎴</span>
                 カードを見る
               </span>
+            </motion.button>
+          )}
+          {!isChallengeMode && !isReviewMode && (
+            <motion.button
+              onClick={onNextSameCategory}
+              className="py-4 px-8 rounded-xl bg-gradient-to-r from-harvest-400 to-harvest-500 hover:from-harvest-500 hover:to-harvest-600 text-concrete-900 font-display text-lg shadow-lg transition-all"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              同じカテゴリでもう1問
             </motion.button>
           )}
           <motion.button
