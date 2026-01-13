@@ -89,7 +89,33 @@ function QuizPageContent() {
     );
   };
 
-  // URLクエリパラメータからカテゴリ/カードを読み取り、自動でクイズを開始
+  const handleCategorySelect = (category: CardCategory) => {
+    setSelectedCategory(category);
+    const quiz = getRandomQuiz(category);
+    if (quiz) {
+      setCurrentQuiz(withShuffledOptions(quiz));
+      setQuizState("quiz");
+    }
+  };
+
+  const handleReviewStart = () => {
+    const wrongIds = getWrongAnswerQuizIds();
+    const wrongQuizzes = quizzes.filter((q) => wrongIds.includes(q.id));
+
+    if (wrongQuizzes.length === 0) return;
+
+    // 最初の問題のカテゴリを設定
+    const shuffledQuizzes = wrongQuizzes.map(withShuffledOptions);
+    setSelectedCategory(shuffledQuizzes[0].category);
+    setIsReviewMode(true);
+    setReviewQuizzes(shuffledQuizzes);
+    setCurrentQuestionIndex(0);
+    setChallengeResults([]);
+    setCurrentQuiz(shuffledQuizzes[0]);
+    setQuizState("quiz");
+  };
+
+  // URLクエリパラメータからカテゴリ/カード/復習モードを読み取り、自動でクイズを開始
   useEffect(() => {
     if (initialCategoryProcessed) return;
 
@@ -136,19 +162,29 @@ function QuizPageContent() {
         setSelectedCategory(category);
         setCurrentQuiz(withShuffledOptions(quiz));
         setQuizState("quiz");
+        setInitialCategoryProcessed(true);
+        return;
       }
     }
-    setInitialCategoryProcessed(true);
-  }, [searchParams, initialCategoryProcessed, hasCard, isQuizAnswered]);
 
-  const handleCategorySelect = (category: CardCategory) => {
-    setSelectedCategory(category);
-    const quiz = getRandomQuiz(category);
-    if (quiz) {
-      setCurrentQuiz(withShuffledOptions(quiz));
-      setQuizState("quiz");
+    const modeParam = searchParams.get("mode");
+    if (modeParam === "review") {
+      const wrongIds = getWrongAnswerQuizIds();
+      if (wrongIds.length > 0) {
+        handleReviewStart();
+        setInitialCategoryProcessed(true);
+        return;
+      }
     }
-  };
+
+    setInitialCategoryProcessed(true);
+  }, [
+    searchParams,
+    initialCategoryProcessed,
+    hasCard,
+    isQuizAnswered,
+    getWrongAnswerQuizIds,
+  ]);
 
   const handleChallengeStart = (category: CardCategory) => {
     setSelectedCategory(category);
@@ -175,23 +211,6 @@ function QuizPageContent() {
       setCurrentQuiz(shuffledQuizzes[0]);
       setQuizState("quiz");
     }
-  };
-
-  const handleReviewStart = () => {
-    const wrongIds = getWrongAnswerQuizIds();
-    const wrongQuizzes = quizzes.filter((q) => wrongIds.includes(q.id));
-
-    if (wrongQuizzes.length === 0) return;
-
-    // 最初の問題のカテゴリを設定
-    const shuffledQuizzes = wrongQuizzes.map(withShuffledOptions);
-    setSelectedCategory(shuffledQuizzes[0].category);
-    setIsReviewMode(true);
-    setReviewQuizzes(shuffledQuizzes);
-    setCurrentQuestionIndex(0);
-    setChallengeResults([]);
-    setCurrentQuiz(shuffledQuizzes[0]);
-    setQuizState("quiz");
   };
 
   const handleAnswer = (answerIndex: number) => {

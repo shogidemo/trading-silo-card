@@ -14,14 +14,61 @@ export default function CollectionPage() {
   const [selectedCategory, setSelectedCategory] = useState<
     CardCategory | "all"
   >("all");
-  const { hasCard, getProgress, getCategoryProgress } = useCollection();
+  const [collectionFilter, setCollectionFilter] = useState<
+    "all" | "collected" | "uncollected"
+  >("all");
+  const [filterText, setFilterText] = useState("");
+  const { state, hasCard, getProgress, getCategoryProgress } = useCollection();
+  const handleResetFilters = () => {
+    setFilterText("");
+    setCollectionFilter("all");
+  };
 
   const filteredCards = useMemo(() => {
-    if (selectedCategory === "all") return allCards;
-    return allCards.filter((card) => card.category === selectedCategory);
-  }, [selectedCategory]);
+    let cards =
+      selectedCategory === "all"
+        ? allCards
+        : allCards.filter((card) => card.category === selectedCategory);
+
+    if (collectionFilter !== "all") {
+      const isCollected = (cardId: string) =>
+        state.collectedCardIds.includes(cardId);
+      cards = cards.filter((card) =>
+        collectionFilter === "collected"
+          ? isCollected(card.id)
+          : !isCollected(card.id)
+      );
+    }
+
+    const keyword = filterText.trim().toLowerCase();
+    if (keyword.length > 0) {
+      cards = cards.filter(
+        (card) =>
+          card.name.toLowerCase().includes(keyword) ||
+          card.description.toLowerCase().includes(keyword)
+      );
+    }
+
+    return cards;
+  }, [selectedCategory, collectionFilter, filterText, state.collectedCardIds]);
 
   const progress = getProgress();
+  const totalCardsInCategory =
+    selectedCategory === "all"
+      ? progress.total
+      : allCards.filter((card) => card.category === selectedCategory).length;
+  const categoryProgress =
+    selectedCategory === "all" ? null : getCategoryProgress(selectedCategory);
+  const collectedInCategory =
+    selectedCategory === "all"
+      ? progress.collected
+      : categoryProgress?.collected ?? 0;
+  const uncollectedInCategory = Math.max(
+    0,
+    totalCardsInCategory - collectedInCategory
+  );
+  const hasActiveFilters =
+    collectionFilter !== "all" || filterText.trim().length > 0;
 
   return (
     <motion.div
@@ -145,6 +192,71 @@ export default function CollectionPage() {
         })}
       </motion.div>
 
+      {/* 検索・ステータスフィルター */}
+      <motion.div variants={itemVariants} className="mb-8 space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <input
+              type="search"
+              value={filterText}
+              onChange={(event) => setFilterText(event.target.value)}
+              placeholder="カード名・説明で検索"
+              aria-label="カード名・説明で検索"
+              className="w-full rounded-2xl border-2 border-concrete-200 bg-white px-4 py-3 text-sm text-concrete-700 placeholder:text-concrete-400 focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-200"
+            />
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-concrete-400">
+              🔍
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: "all", label: "すべて", count: totalCardsInCategory },
+              { id: "collected", label: "獲得済み", count: collectedInCategory },
+              {
+                id: "uncollected",
+                label: "未獲得",
+                count: uncollectedInCategory,
+              },
+            ].map((filter) => {
+              const isActive = collectionFilter === filter.id;
+              return (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() =>
+                    setCollectionFilter(
+                      filter.id as "all" | "collected" | "uncollected"
+                    )
+                  }
+                  className={`rounded-2xl border-2 px-4 py-2 text-xs font-display transition-all ${
+                    isActive
+                      ? "border-gold-400 bg-gold-50 text-gold-700 shadow-sm"
+                      : "border-concrete-200 bg-white text-concrete-600 hover:border-gold-300"
+                  }`}
+                >
+                  {filter.label}
+                  <span className="ml-2 rounded-full bg-concrete-100 px-2 py-0.5 text-[10px] text-concrete-500">
+                    {filter.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="text-xs text-concrete-500">
+          表示中: {filteredCards.length}/{totalCardsInCategory}枚
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="ml-3 text-gold-600 underline underline-offset-4 hover:text-gold-700"
+            >
+              フィルターをリセット
+            </button>
+          )}
+        </div>
+      </motion.div>
+
       {/* カード一覧 */}
       <motion.div
         variants={containerVariants}
@@ -191,7 +303,9 @@ export default function CollectionPage() {
         >
           <span className="text-6xl block mb-4 opacity-30">📦</span>
           <p className="text-concrete-500 font-display">
-            このカテゴリにはカードがありません
+            {hasActiveFilters
+              ? "条件に一致するカードがありません"
+              : "このカテゴリにはカードがありません"}
           </p>
         </motion.div>
       )}

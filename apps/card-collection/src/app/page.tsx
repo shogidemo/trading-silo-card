@@ -7,8 +7,14 @@ import { CATEGORY_INFO } from "@/constants";
 import { containerVariants, itemVariants } from "@/lib";
 
 export default function Home() {
-  const { getProgress, getCategoryProgress, state } = useCollection();
+  const { getProgress, getCategoryProgress, getWrongAnswerQuizIds, state } =
+    useCollection();
   const progress = getProgress();
+  const wrongAnswerCount = getWrongAnswerQuizIds().length;
+  const hasReview = wrongAnswerCount > 0;
+  const actionGridClass = hasReview
+    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+    : "grid grid-cols-1 sm:grid-cols-3 gap-5";
 
   return (
     <motion.div
@@ -199,10 +205,7 @@ export default function Home() {
       </motion.section>
 
       {/* アクションボタン */}
-      <motion.section
-        variants={itemVariants}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-5"
-      >
+      <motion.section variants={itemVariants} className={actionGridClass}>
         <Link
           href="/quiz"
           className="group relative overflow-hidden rounded-2xl p-8 text-center transition-all btn-bounce"
@@ -229,6 +232,39 @@ export default function Home() {
             </span>
           </div>
         </Link>
+
+        {hasReview && (
+          <Link
+            href="/quiz?mode=review"
+            aria-label={`復習モードを開始（残り${wrongAnswerCount}問）`}
+            className="group relative overflow-hidden rounded-2xl p-8 text-center transition-all btn-bounce"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-orange-500" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-rose-400 to-orange-600" />
+
+            <div className="relative z-10">
+              <svg
+                className="w-10 h-10 mx-auto mb-3 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M12 6l3 6-3 6-3-6 3-6zm0 0V3m0 3h6m-6 0H6"
+                />
+              </svg>
+              <span className="font-display text-xl text-white">
+                復習モード
+              </span>
+              <p className="mt-2 text-sm text-white/80 font-display">
+                残り{wrongAnswerCount}問
+              </p>
+            </div>
+          </Link>
+        )}
 
         <Link
           href="/collection"
