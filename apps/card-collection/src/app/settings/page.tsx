@@ -10,9 +10,16 @@ import { CollectionState } from "@/types";
 import { useModalAccessibility } from "@/hooks";
 
 export default function SettingsPage() {
-  const { state, resetCollection, getProgress, getCategoryAccuracy } =
+  const {
+    state,
+    resetCollection,
+    clearWrongAnswers,
+    getProgress,
+    getCategoryAccuracy,
+  } =
     useCollection();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showClearReviewConfirm, setShowClearReviewConfirm] = useState(false);
   const [importStatus, setImportStatus] = useState<
     "idle" | "success" | "error"
   >("idle");
@@ -24,11 +31,20 @@ export default function SettingsPage() {
     () => setShowResetConfirm(false),
     [setShowResetConfirm]
   );
+  const handleCloseClearReviewConfirm = useCallback(
+    () => setShowClearReviewConfirm(false),
+    [setShowClearReviewConfirm]
+  );
   const { modalRef, handleKeyDown } = useModalAccessibility(
     showResetConfirm,
     handleCloseResetConfirm
   );
+  const {
+    modalRef: clearReviewModalRef,
+    handleKeyDown: handleClearReviewKeyDown,
+  } = useModalAccessibility(showClearReviewConfirm, handleCloseClearReviewConfirm);
   const resetTitleId = "reset-confirm-title";
+  const clearReviewTitleId = "clear-review-confirm-title";
 
   const handleExport = () => {
     const dataStr = JSON.stringify(state, null, 2);
@@ -102,6 +118,11 @@ export default function SettingsPage() {
   const handleReset = () => {
     resetCollection();
     setShowResetConfirm(false);
+  };
+
+  const handleClearReview = () => {
+    clearWrongAnswers();
+    setShowClearReviewConfirm(false);
   };
 
   return (
@@ -302,6 +323,9 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
+              role={importStatus === "error" ? "alert" : "status"}
+              aria-live={importStatus === "error" ? "assertive" : "polite"}
+              aria-atomic="true"
               className={`p-4 rounded-xl ${
                 importStatus === "success"
                   ? "bg-harvest-50 text-harvest-800 border border-harvest-200"
@@ -344,6 +368,44 @@ export default function SettingsPage() {
               d="M9 5l7 7-7 7"
             />
           </svg>
+        </button>
+
+        {/* 復習リストをクリア */}
+        <button
+          onClick={() => setShowClearReviewConfirm(true)}
+          className="w-full flex items-center justify-between p-5 bg-white rounded-2xl border-2 border-rose-200 hover:border-rose-400 hover:bg-rose-50 transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              🧹
+            </div>
+            <div className="text-left">
+              <p className="font-display text-lg text-rose-700">
+                復習リストをクリア
+              </p>
+              <p className="text-sm text-rose-500">
+                誤答リストを空にして最初から復習する
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 text-rose-400">
+            <span className="text-xs font-mono">
+              {state.wrongAnswerQuizIds.length}問
+            </span>
+            <svg
+              className="w-5 h-5 group-hover:text-rose-600 transition-colors"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </div>
         </button>
       </motion.section>
 
@@ -396,6 +458,60 @@ export default function SettingsPage() {
                   className="flex-1 py-3 px-6 rounded-xl bg-rust-500 text-white font-display hover:bg-rust-600 transition-all"
                 >
                   リセットする
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showClearReviewConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+            onClick={handleCloseClearReviewConfirm}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl"
+              ref={clearReviewModalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={clearReviewTitleId}
+              onKeyDown={handleClearReviewKeyDown}
+              onClick={(e) => e.stopPropagation()}
+              tabIndex={-1}
+            >
+              <div className="text-center mb-6">
+                <span className="text-6xl block mb-4">🧹</span>
+                <h3
+                  id={clearReviewTitleId}
+                  className="font-display text-2xl text-concrete-900 mb-2"
+                >
+                  復習リストをクリアしますか？
+                </h3>
+                <p className="text-concrete-600">
+                  誤答リストのみを削除します。カードの収集状況や回答数は保持されます。
+                </p>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowClearReviewConfirm(false)}
+                  className="flex-1 py-3 px-6 rounded-xl border-2 border-concrete-300 text-concrete-700 font-display hover:bg-concrete-50 transition-all"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleClearReview}
+                  className="flex-1 py-3 px-6 rounded-xl bg-rose-500 text-white font-display hover:bg-rose-600 transition-all"
+                >
+                  クリアする
                 </button>
               </div>
             </motion.div>

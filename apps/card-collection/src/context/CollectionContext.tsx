@@ -145,6 +145,7 @@ interface CollectionContextType {
   // 復習モード用メソッド
   addWrongAnswer: (quizId: string) => void;
   removeWrongAnswer: (quizId: string) => void;
+  clearWrongAnswers: () => void;
   getWrongAnswerQuizIds: () => string[];
   getCategoryAccuracy: (category: CardCategory) => number;
   addAnsweredQuiz: (quizId: string) => void;
@@ -254,6 +255,13 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const clearWrongAnswers = () => {
+    setState((prev) => ({
+      ...prev,
+      wrongAnswerQuizIds: [],
+    }));
+  };
+
   const getWrongAnswerQuizIds = () => {
     return state.wrongAnswerQuizIds;
   };
@@ -319,6 +327,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
         resetCollection,
         addWrongAnswer,
         removeWrongAnswer,
+        clearWrongAnswers,
         getWrongAnswerQuizIds,
         getCategoryAccuracy,
         addAnsweredQuiz,
