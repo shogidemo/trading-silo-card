@@ -6,7 +6,7 @@ test.describe("Grain Voyage Game", () => {
       await page.goto("/");
 
       // タイトルが表示されている
-      await expect(page.getByRole("heading", { name: /穀物航路/i })).toBeVisible();
+      await expect(page.getByRole("heading", { name: /穀物ディスパッチャー/i })).toBeVisible();
 
       // ゲームスタートボタンが表示されている
       await expect(page.getByRole("button", { name: /ゲームスタート/i })).toBeVisible();
@@ -55,7 +55,7 @@ test.describe("Grain Voyage Game", () => {
       // ゲーム画面に遷移
       await expect(page).toHaveURL(/\/play/, { timeout: 10000 });
       // ゲーム画面のヘッダー（穀物航路）が表示されている
-      await expect(page.getByRole("heading", { name: /穀物航路/i })).toBeVisible({ timeout: 10000 });
+      await expect(page.getByRole("heading", { name: /穀物ディスパッチャー/i })).toBeVisible({ timeout: 10000 });
     });
   });
 
@@ -66,7 +66,7 @@ test.describe("Grain Voyage Game", () => {
 
       // ヘッダーが表示されるまで待つ
       await expect(
-        page.getByRole("heading", { name: /穀物航路/i })
+        page.getByRole("heading", { name: /穀物ディスパッチャー/i })
       ).toBeVisible({ timeout: 10000 });
 
       // スクリーンショットを保存（デバッグ用）
