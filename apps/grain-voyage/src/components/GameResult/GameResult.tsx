@@ -1,140 +1,137 @@
 "use client";
 
-import { useGame, ScoreResult } from "@/context/GameContext";
+import { useMemo } from "react";
+import { useGame } from "@/context/GameContext";
 import Link from "next/link";
-import { ShipIcon, TargetIcon, CoinIcon, FuelIcon, CheckIcon } from "@/components/Icons";
+import { TargetIcon, CoinIcon, CheckIcon, AlertIcon } from "@/components/Icons";
 
-const rankColors: Record<ScoreResult["rank"], string> = {
-  S: "text-gold-dark",
-  A: "text-vermillion",
-  B: "text-retro-navy",
-  C: "text-seagreen",
-  D: "text-retro-navy-lighter",
+const rankDescriptions: Record<string, string> = {
+  S: "達人ディスパッチャー！",
+  A: "優秀なオペレーター！",
+  B: "一人前の担当者！",
+  C: "もう少し改善できそう",
+  D: "再挑戦しよう",
 };
 
-const rankBackgrounds: Record<ScoreResult["rank"], string> = {
-  S: "bg-gold-light",
-  A: "bg-vermillion-light",
-  B: "bg-cream-dark",
-  C: "bg-seagreen-light",
-  D: "bg-cream",
-};
-
-const rankDescriptions: Record<ScoreResult["rank"], string> = {
-  S: "伝説の商人！",
-  A: "優秀な航海士！",
-  B: "一人前の船長！",
-  C: "見習い商人",
-  D: "もう一度挑戦しよう",
-};
-
-const endReasonText: Record<ScoreResult["endReason"], string> = {
-  turn_limit: "ターン上限に達しました",
-  fuel_empty: "燃料が尽きました",
-  manual: "ゲームを終了しました",
-};
+function getRank(score: number) {
+  if (score >= 5000000) return "S";
+  if (score >= 3000000) return "A";
+  if (score >= 1000000) return "B";
+  if (score >= 0) return "C";
+  return "D";
+}
 
 export default function GameResult() {
   const { state, resetGame } = useGame();
-  const { scoreResult, completedMissions, turn } = state;
 
-  if (!scoreResult) return null;
+  const score = useMemo(() => {
+    return (
+      state.totalReward +
+      state.totalBonus -
+      state.totalDemurrageCharge -
+      state.totalDeliveryCost -
+      state.totalPenalty
+    );
+  }, [
+    state.totalReward,
+    state.totalBonus,
+    state.totalDemurrageCharge,
+    state.totalDeliveryCost,
+    state.totalPenalty,
+  ]);
+
+  const rank = getRank(score);
 
   return (
     <div className="fixed inset-0 bg-retro-navy/70 flex items-center justify-center z-50 p-4">
       <div className="game-panel max-w-md w-full overflow-hidden">
-        {/* ヘッダー */}
         <div className="bg-retro-navy text-white p-4 text-center">
           <h2 className="text-game-heading font-bold mb-1 flex items-center justify-center gap-2">
             <TargetIcon size={24} />
-            ゲーム終了
+            全需要完了！
           </h2>
           <p className="text-game-small text-cream-dark">
-            {endReasonText[scoreResult.endReason]}
+            配送オペレーション終了
           </p>
         </div>
 
-        {/* ランク表示 */}
-        <div className={`p-6 text-center border-b-4 border-retro-navy ${rankBackgrounds[scoreResult.rank]}`}>
-          <div className={`text-7xl font-display font-bold ${rankColors[scoreResult.rank]} mb-2`}>
-            {scoreResult.rank}
+        <div className="p-6 text-center border-b-4 border-retro-navy bg-cream-dark">
+          <div className="text-7xl font-display font-bold text-gold-dark mb-2">
+            {rank}
           </div>
           <p className="text-game-body text-retro-navy font-bold">
-            {rankDescriptions[scoreResult.rank]}
+            {rankDescriptions[rank]}
           </p>
         </div>
 
-        {/* スコア詳細 */}
         <div className="p-4 space-y-3">
-          {/* 最終所持金 */}
           <div className="game-panel-gold p-3 flex justify-between items-center">
             <span className="text-game-body font-bold text-retro-navy flex items-center gap-2">
               <CoinIcon size={18} />
-              最終所持金
+              最終スコア
             </span>
             <span className="text-game-heading font-bold text-gold-dark">
-              ¥{scoreResult.finalMoney.toLocaleString()}
+              ¥{score.toLocaleString()}
             </span>
           </div>
 
-          {/* 詳細 */}
           <div className="space-y-2 text-game-small">
             <div className="flex justify-between items-center p-2 bg-cream-dark rounded">
-              <span className="text-retro-navy">プレイターン</span>
-              <span className="font-bold text-retro-navy">
-                {turn - 1} / {state.maxTurns}
-              </span>
-            </div>
-            <div className="flex justify-between items-center p-2 bg-cream-dark rounded">
-              <span className="text-retro-navy">完了ミッション</span>
+              <span className="text-retro-navy">配送報酬</span>
               <span className="font-bold text-seagreen">
-                {scoreResult.missionsCompleted}件
+                +¥{state.totalReward.toLocaleString()}
               </span>
             </div>
             <div className="flex justify-between items-center p-2 bg-cream-dark rounded">
-              <span className="text-retro-navy">ミッション報酬</span>
-              <span className="font-bold text-seagreen">
-                +¥{scoreResult.totalRevenue.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between items-center p-2 bg-cream-dark rounded">
-              <span className="text-retro-navy">ボーナス獲得</span>
+              <span className="text-retro-navy">期限内ボーナス</span>
               <span className="font-bold text-gold-dark">
-                {scoreResult.bonusCount}回
+                +¥{state.totalBonus.toLocaleString()}
               </span>
             </div>
             <div className="flex justify-between items-center p-2 bg-cream-dark rounded">
-              <span className="text-retro-navy">燃料費</span>
+              <span className="text-retro-navy">滞船料</span>
               <span className="font-bold text-vermillion">
-                -¥{scoreResult.totalFuelCost.toLocaleString()}
+                -¥{state.totalDemurrageCharge.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-cream-dark rounded">
+              <span className="text-retro-navy">配送コスト</span>
+              <span className="font-bold text-vermillion">
+                -¥{state.totalDeliveryCost.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-cream-dark rounded">
+              <span className="text-retro-navy">期限超過ペナルティ</span>
+              <span className="font-bold text-vermillion">
+                -¥{state.totalPenalty.toLocaleString()}
               </span>
             </div>
           </div>
 
-          {/* 完了ミッションリスト */}
-          {completedMissions.length > 0 && (
+          {state.completedDemands.length > 0 && (
             <div className="mt-3 pt-3 border-t-2 border-retro-navy">
               <h4 className="text-game-small font-bold text-retro-navy mb-2 flex items-center gap-1">
                 <CheckIcon size={14} />
-                完了したミッション
+                完了した需要
               </h4>
               <div className="space-y-1 max-h-28 overflow-y-auto">
-                {completedMissions.map((cm, i) => {
-                  const missionReward =
-                    cm.mission.reward +
-                    (cm.bonusEarned ? cm.mission.bonusReward || 0 : 0);
+                {state.completedDemands.map((entry, index) => {
+                  const totalReward = entry.demand.reward + entry.earlyBonus - entry.penalty;
                   return (
                     <div
-                      key={i}
+                      key={`${entry.demand.id}-${index}`}
                       className="text-game-small p-2 bg-cream rounded flex justify-between items-center"
                     >
                       <span className="truncate flex-1 text-retro-navy">
-                        {cm.mission.title}
+                        {entry.demand.destinationName}
                       </span>
                       <span className="text-seagreen font-bold ml-2 whitespace-nowrap">
-                        ¥{missionReward.toLocaleString()}
-                        {cm.bonusEarned && (
+                        ¥{totalReward.toLocaleString()}
+                        {entry.earlyBonus > 0 && (
                           <span className="text-gold-dark ml-1">★</span>
+                        )}
+                        {entry.penalty > 0 && (
+                          <span className="text-vermillion ml-1">!</span>
                         )}
                       </span>
                     </div>
@@ -143,9 +140,15 @@ export default function GameResult() {
               </div>
             </div>
           )}
+
+          {state.totalDemurrageCharge > 0 && (
+            <div className="mt-3 text-game-small text-retro-navy flex items-center gap-2">
+              <AlertIcon size={14} />
+              滞船料が発生しました。次回は荷役と配送を優先しましょう。
+            </div>
+          )}
         </div>
 
-        {/* アクションボタン */}
         <div className="p-4 bg-cream-dark flex gap-3 border-t-4 border-retro-navy">
           <Link
             href="/"
