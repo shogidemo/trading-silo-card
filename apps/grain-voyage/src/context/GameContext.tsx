@@ -7,732 +7,299 @@ import {
   useCallback,
   ReactNode,
 } from "react";
+import { demands, ports, ships } from "@/data";
 import {
-  ports,
-  routeCells,
-  getReachableCells,
-  getStartingCellId,
-  RouteCell,
-  generateMissions,
-  Mission,
-} from "@/data";
+  Demand,
+  Delivery,
+  DeliveryMethod,
+  Ship,
+  SiloState,
+} from "@/types";
+import { getDeliverySpec } from "@/game/delivery";
+import { applyTurnEnd, applyTurnStart, TurnState } from "@/game/turnProcessor";
 
-// ========================================
-// 型定義
-// ========================================
+export type GamePhase = "idle" | "planning" | "game_end";
 
-export interface Cargo {
-  grainId: string;
-  grainName: string;
-  amount: number; // トン数
-}
-
-interface PlayerState {
-  companyId: string;
-  currentCellId: string; // マス制：現在のセルID
-  fuel: number;
-  maxFuel: number;
-  money: number;
-  cargo: Cargo[];
-  maxCapacity: number; // 最大積載量（トン）
-}
-
-// ミッション進行状態
-interface ActiveMission extends Mission {
-  acceptedAtTurn: number;
-  cargoLoaded: boolean; // 積荷を積んだかどうか
-}
-
-// スコア結果
-export interface ScoreResult {
-  missionsCompleted: number;
-  totalRevenue: number; // 総収益
-  totalFuelCost: number; // 総燃料費
-  bonusCount: number; // ボーナス獲得数
-  finalMoney: number; // 最終所持金
-  rank: "S" | "A" | "B" | "C" | "D";
-  endReason: "turn_limit" | "fuel_empty" | "manual";
-}
-
-interface GameState {
-  phase: "idle" | "rolling" | "selecting_destination" | "moving" | "arrived" | "port_action" | "game_end";
-  turn: number;
+export interface GameState extends TurnState {
+  phase: GamePhase;
   maxTurns: number;
-  player: PlayerState;
-  lastDiceValue: number | null;
-  remainingMoves: number;
-  moveHistory: string[]; // 訪問したセルのID履歴
-  // ミッション
-  availableMissions: Mission[];
-  activeMission: ActiveMission | null;
-  completedMissions: { mission: Mission; turnCompleted: number; bonusEarned: boolean }[];
-  // 統計情報（スコア計算用）
-  totalFuelCost: number;
-  totalMissionReward: number;
-  // ゲーム終了
-  scoreResult: ScoreResult | null;
 }
 
 type GameAction =
-  | { type: "START_GAME"; companyId: string; startPortId: string }
-  | { type: "ROLL_DICE"; value: number }
-  | { type: "SELECT_CELL"; cellId: string }
-  | { type: "COMPLETE_MOVE" }
-  | { type: "ENTER_PORT_ACTION" }
-  | { type: "REFUEL"; amount: number }
-  | { type: "LOAD_CARGO"; grainId: string; grainName: string; amount: number; cost: number }
-  | { type: "UNLOAD_CARGO"; grainId: string; amount: number; revenue: number }
-  | { type: "ACCEPT_MISSION"; missionId: string }
-  | { type: "COMPLETE_MISSION" }
-  | { type: "REFRESH_MISSIONS" }
+  | { type: "START_GAME" }
+  | { type: "UNLOAD_FROM_SHIP"; amount: number }
+  | { type: "CREATE_DELIVERY"; demandId: string; originPortId: string; method: DeliveryMethod }
   | { type: "END_TURN" }
-  | { type: "END_GAME"; reason: "turn_limit" | "fuel_empty" | "manual" }
   | { type: "RESET_GAME" };
 
-// ========================================
-// 初期状態
-// ========================================
+const MAX_TURNS = 20;
 
-// 燃料補給コスト（円/燃料）
-const FUEL_COST_PER_UNIT = 50;
-
-// 船の最大積載量（トン）
-const SHIP_MAX_CAPACITY = 100;
-
-const initialState: GameState = {
-  phase: "idle",
-  turn: 0,
-  maxTurns: 30,
-  player: {
-    companyId: "",
-    currentCellId: "",
-    fuel: 60,
-    maxFuel: 60,
-    money: 10000,
-    cargo: [],
-    maxCapacity: SHIP_MAX_CAPACITY,
-  },
-  lastDiceValue: null,
-  remainingMoves: 0,
-  moveHistory: [],
-  availableMissions: [],
-  activeMission: null,
-  completedMissions: [],
-  totalFuelCost: 0,
-  totalMissionReward: 0,
-  scoreResult: null,
-};
-
-// ランク計算
-function calculateRank(finalMoney: number): "S" | "A" | "B" | "C" | "D" {
-  if (finalMoney >= 20000) return "S";
-  if (finalMoney >= 15000) return "A";
-  if (finalMoney >= 12000) return "B";
-  if (finalMoney >= 10000) return "C";
-  return "D";
+function initializeSiloStates(): Record<string, SiloState> {
+  return ports.reduce<Record<string, SiloState>>((acc, port) => {
+    acc[port.id] = {
+      portId: port.id,
+      capacity: port.siloCapacity,
+      stock: {},
+      totalStock: 0,
+    };
+    return acc;
+  }, {});
 }
 
-// ========================================
-// ヘルパー関数
-// ========================================
+function cloneShips(): Ship[] {
+  return ships.map((ship) => ({ ...ship }));
+}
 
-// セルから港IDを取得
-function getPortIdFromCell(cellId: string): string | null {
-  const cell = routeCells.find((c) => c.id === cellId);
-  if (cell?.type === "port" && cell.portId) {
-    return cell.portId;
+function cloneDemands(): Demand[] {
+  return demands.map((demand) => ({ ...demand }));
+}
+
+function createBaseState(turn: number): GameState {
+  return {
+    phase: "idle",
+    turn,
+    maxTurns: MAX_TURNS,
+    currentShip: null,
+    pendingShips: cloneShips(),
+    completedShips: [],
+    siloStates: initializeSiloStates(),
+    visibleDemands: [],
+    pendingDemands: cloneDemands(),
+    completedDemands: [],
+    activeDeliveries: [],
+    completedDeliveries: [],
+    totalDemurrageCharge: 0,
+    totalDeliveryCost: 0,
+    totalReward: 0,
+    totalBonus: 0,
+    totalPenalty: 0,
+    unloadingUsed: 0,
+  };
+}
+
+const initialState: GameState = createBaseState(0);
+
+function updateSiloStock(
+  silo: SiloState,
+  grainId: string,
+  delta: number
+): SiloState {
+  const current = silo.stock[grainId] ?? 0;
+  const nextValue = current + delta;
+  const nextStock = { ...silo.stock };
+  if (nextValue <= 0) {
+    delete nextStock[grainId];
+  } else {
+    nextStock[grainId] = nextValue;
   }
-  return null;
-}
 
-// 2つのセル間の距離（移動に必要なマス数）を計算
-function getDistanceBetweenCells(fromCellId: string, toCellId: string): number {
-  // 到達可能セルを取得して距離を計算
-  // 最大100マスまで探索
-  for (let moves = 1; moves <= 100; moves++) {
-    const reachable = getReachableCells(fromCellId, moves);
-    if (reachable.some((c) => c.id === toCellId)) {
-      return moves;
-    }
-  }
-  return -1; // 到達不可
+  return {
+    ...silo,
+    stock: nextStock,
+    totalStock: Math.max(0, silo.totalStock + delta),
+  };
 }
-
-// ========================================
-// Reducer
-// ========================================
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START_GAME": {
-      const startCellId = getStartingCellId(action.startPortId);
-      if (!startCellId) return state;
+      const baseState = createBaseState(1);
+      const startedState = applyTurnStart(baseState);
+      return {
+        ...startedState,
+        phase: "planning",
+      };
+    }
 
-      // 初期ミッションを生成
-      const initialMissions = generateMissions(3);
+    case "UNLOAD_FROM_SHIP": {
+      if (!state.currentShip) return state;
+      const port = ports.find((p) => p.id === state.currentShip!.portId);
+      if (!port) return state;
+
+      const silo = state.siloStates[port.id];
+      if (!silo) return state;
+
+      const availableUnloading = Math.max(0, port.unloadingCapacity - state.unloadingUsed);
+      const availableSiloSpace = Math.max(0, silo.capacity - silo.totalStock);
+      const possibleAmount = Math.min(
+        action.amount,
+        availableUnloading,
+        availableSiloSpace,
+        state.currentShip.remainingCargo
+      );
+
+      if (possibleAmount <= 0) return state;
+
+      const updatedShip: Ship = {
+        ...state.currentShip,
+        remainingCargo: state.currentShip.remainingCargo - possibleAmount,
+      };
+
+      const updatedSilo = updateSiloStock(silo, state.currentShip.grainId, possibleAmount);
 
       return {
-        ...initialState,
-        phase: "idle",
-        turn: 1,
-        player: {
-          ...initialState.player,
-          companyId: action.companyId,
-          currentCellId: startCellId,
+        ...state,
+        currentShip: updatedShip,
+        siloStates: {
+          ...state.siloStates,
+          [port.id]: updatedSilo,
         },
-        moveHistory: [startCellId],
-        availableMissions: initialMissions,
+        unloadingUsed: state.unloadingUsed + possibleAmount,
       };
     }
 
-    case "ROLL_DICE":
-      return {
-        ...state,
-        phase: "selecting_destination",
-        lastDiceValue: action.value,
-        remainingMoves: action.value,
+    case "CREATE_DELIVERY": {
+      const demand = state.visibleDemands.find((d) => d.id === action.demandId);
+      if (!demand || demand.fulfilled) return state;
+
+      const silo = state.siloStates[action.originPortId];
+      if (!silo) return state;
+
+      const availableStock = silo.stock[demand.grainId] ?? 0;
+      if (availableStock <= 0) return state;
+
+      const spec = getDeliverySpec(action.method);
+      const remainingDemand = Math.max(0, demand.amount - demand.fulfilledAmount);
+      const amount = Math.min(spec.amount, availableStock, remainingDemand);
+      if (amount <= 0) return state;
+
+      const delivery: Delivery = {
+        id: `delivery-${state.turn}-${state.activeDeliveries.length + 1}`,
+        demandId: demand.id,
+        originPortId: action.originPortId,
+        destinationId: demand.destinationId,
+        grainId: demand.grainId,
+        grainName: demand.grainName,
+        method: action.method,
+        amount,
+        remainingTurns: spec.turns,
+        cost: spec.cost,
       };
 
-    case "SELECT_CELL": {
-      const distance = getDistanceBetweenCells(
-        state.player.currentCellId,
-        action.cellId
-      );
-      if (distance < 0 || distance > state.remainingMoves) return state;
-
-      const newRemainingMoves = state.remainingMoves - distance;
-
-      // 燃料消費（1マスあたり3燃料）
-      const fuelCost = distance * 3;
-      const newFuel = Math.max(0, state.player.fuel - fuelCost);
-
-      // 港に到着したかどうか
-      const arrivedAtPort = getPortIdFromCell(action.cellId) !== null;
+      const updatedSilo = updateSiloStock(silo, demand.grainId, -amount);
 
       return {
         ...state,
-        phase: newRemainingMoves > 0 && !arrivedAtPort ? "selecting_destination" : "arrived",
-        player: {
-          ...state.player,
-          currentCellId: action.cellId,
-          fuel: newFuel,
+        activeDeliveries: [...state.activeDeliveries, delivery],
+        totalDeliveryCost: state.totalDeliveryCost + spec.cost,
+        siloStates: {
+          ...state.siloStates,
+          [action.originPortId]: updatedSilo,
         },
-        remainingMoves: arrivedAtPort ? 0 : newRemainingMoves,
-        moveHistory: [...state.moveHistory, action.cellId],
-      };
-    }
-
-    case "COMPLETE_MOVE":
-      return {
-        ...state,
-        phase: "arrived",
-        remainingMoves: 0,
-      };
-
-    case "ENTER_PORT_ACTION": {
-      // 港にいない場合は無視
-      const portId = getPortIdFromCell(state.player.currentCellId);
-      if (!portId) return state;
-
-      return {
-        ...state,
-        phase: "port_action",
-      };
-    }
-
-    case "REFUEL": {
-      // 港にいない場合は無視
-      const currentPortId = getPortIdFromCell(state.player.currentCellId);
-      if (!currentPortId) return state;
-
-      // 補給量の計算（最大燃料を超えない）
-      const maxRefuel = state.player.maxFuel - state.player.fuel;
-      const actualRefuel = Math.min(action.amount, maxRefuel);
-
-      // コスト計算
-      const cost = actualRefuel * FUEL_COST_PER_UNIT;
-
-      // お金が足りない場合は購入できる分だけ
-      const affordableAmount = Math.floor(state.player.money / FUEL_COST_PER_UNIT);
-      const finalRefuel = Math.min(actualRefuel, affordableAmount);
-      const finalCost = finalRefuel * FUEL_COST_PER_UNIT;
-
-      if (finalRefuel <= 0) return state;
-
-      return {
-        ...state,
-        player: {
-          ...state.player,
-          fuel: state.player.fuel + finalRefuel,
-          money: state.player.money - finalCost,
-        },
-        totalFuelCost: state.totalFuelCost + finalCost,
-      };
-    }
-
-    case "LOAD_CARGO": {
-      // 港にいない場合は無視
-      const loadPortId = getPortIdFromCell(state.player.currentCellId);
-      if (!loadPortId) return state;
-
-      // 現在の積載量を計算
-      const currentLoad = state.player.cargo.reduce((sum, c) => sum + c.amount, 0);
-      const availableCapacity = state.player.maxCapacity - currentLoad;
-
-      // 積載可能量を計算
-      const actualLoad = Math.min(action.amount, availableCapacity);
-      if (actualLoad <= 0) return state;
-
-      // お金が足りるか確認
-      if (state.player.money < action.cost) return state;
-
-      // 既存の同じ穀物があるか確認
-      const existingCargoIndex = state.player.cargo.findIndex(
-        (c) => c.grainId === action.grainId
-      );
-
-      let newCargo: Cargo[];
-      if (existingCargoIndex >= 0) {
-        // 既存の積荷に追加
-        newCargo = state.player.cargo.map((c, i) =>
-          i === existingCargoIndex
-            ? { ...c, amount: c.amount + actualLoad }
-            : c
-        );
-      } else {
-        // 新しい積荷を追加
-        newCargo = [
-          ...state.player.cargo,
-          { grainId: action.grainId, grainName: action.grainName, amount: actualLoad },
-        ];
-      }
-
-      return {
-        ...state,
-        player: {
-          ...state.player,
-          cargo: newCargo,
-          money: state.player.money - action.cost,
-        },
-      };
-    }
-
-    case "UNLOAD_CARGO": {
-      // 港にいない場合は無視
-      const unloadPortId = getPortIdFromCell(state.player.currentCellId);
-      if (!unloadPortId) return state;
-
-      // 該当する積荷を探す
-      const cargoIndex = state.player.cargo.findIndex(
-        (c) => c.grainId === action.grainId
-      );
-      if (cargoIndex < 0) return state;
-
-      const cargo = state.player.cargo[cargoIndex];
-      const actualUnload = Math.min(action.amount, cargo.amount);
-      if (actualUnload <= 0) return state;
-
-      // 積荷を更新
-      let newCargo: Cargo[];
-      if (cargo.amount - actualUnload <= 0) {
-        // 全て降ろした場合は削除
-        newCargo = state.player.cargo.filter((_, i) => i !== cargoIndex);
-      } else {
-        // 一部降ろした場合は量を減らす
-        newCargo = state.player.cargo.map((c, i) =>
-          i === cargoIndex ? { ...c, amount: c.amount - actualUnload } : c
-        );
-      }
-
-      return {
-        ...state,
-        player: {
-          ...state.player,
-          cargo: newCargo,
-          money: state.player.money + action.revenue,
-        },
-      };
-    }
-
-    case "ACCEPT_MISSION": {
-      // 既にアクティブなミッションがある場合は無視
-      if (state.activeMission) return state;
-
-      // 指定されたミッションを探す
-      const mission = state.availableMissions.find(
-        (m) => m.id === action.missionId
-      );
-      if (!mission) return state;
-
-      // ミッションをアクティブに
-      const activeMission: ActiveMission = {
-        ...mission,
-        acceptedAtTurn: state.turn,
-        cargoLoaded: false,
-      };
-
-      // 利用可能なミッションから削除
-      const remainingMissions = state.availableMissions.filter(
-        (m) => m.id !== action.missionId
-      );
-
-      return {
-        ...state,
-        activeMission,
-        availableMissions: remainingMissions,
-      };
-    }
-
-    case "COMPLETE_MISSION": {
-      // アクティブなミッションがない場合は無視
-      if (!state.activeMission) return state;
-
-      const mission = state.activeMission;
-      const currentPortId = getPortIdFromCell(state.player.currentCellId);
-
-      // 目的地にいない場合は無視
-      if (currentPortId !== mission.toPortId) return state;
-
-      // 必要な積荷があるか確認
-      const hasCargo = state.player.cargo.some(
-        (c) => c.grainId === mission.grainId && c.amount >= mission.amount
-      );
-      if (!hasCargo) return state;
-
-      // ボーナス判定
-      const turnsElapsed = state.turn - mission.acceptedAtTurn;
-      const bonusEarned =
-        mission.bonusTurns !== undefined && turnsElapsed <= mission.bonusTurns;
-      const totalReward =
-        mission.reward + (bonusEarned ? mission.bonusReward || 0 : 0);
-
-      // 積荷から必要量を減らす
-      const cargoIndex = state.player.cargo.findIndex(
-        (c) => c.grainId === mission.grainId
-      );
-      let newCargo = [...state.player.cargo];
-      if (cargoIndex >= 0) {
-        const cargo = newCargo[cargoIndex];
-        if (cargo.amount - mission.amount <= 0) {
-          newCargo = newCargo.filter((_, i) => i !== cargoIndex);
-        } else {
-          newCargo[cargoIndex] = {
-            ...cargo,
-            amount: cargo.amount - mission.amount,
-          };
-        }
-      }
-
-      return {
-        ...state,
-        player: {
-          ...state.player,
-          cargo: newCargo,
-          money: state.player.money + totalReward,
-        },
-        activeMission: null,
-        completedMissions: [
-          ...state.completedMissions,
-          { mission, turnCompleted: state.turn, bonusEarned },
-        ],
-        totalMissionReward: state.totalMissionReward + totalReward,
-      };
-    }
-
-    case "REFRESH_MISSIONS": {
-      // 新しいミッションを生成（アクティブなミッションがない場合のみ）
-      if (state.activeMission) return state;
-      const newMissions = generateMissions(3);
-      return {
-        ...state,
-        availableMissions: newMissions,
       };
     }
 
     case "END_TURN": {
-      const newTurn = state.turn + 1;
-      // ターン上限に達した場合はゲーム終了
-      if (newTurn > state.maxTurns) {
-        const bonusCount = state.completedMissions.filter((m) => m.bonusEarned).length;
-        const scoreResult: ScoreResult = {
-          missionsCompleted: state.completedMissions.length,
-          totalRevenue: state.totalMissionReward,
-          totalFuelCost: state.totalFuelCost,
-          bonusCount,
-          finalMoney: state.player.money,
-          rank: calculateRank(state.player.money),
-          endReason: "turn_limit",
-        };
+      const endResult = applyTurnEnd(state);
+      if (endResult.gameEnded) {
         return {
-          ...state,
+          ...endResult.state,
           phase: "game_end",
-          turn: newTurn,
-          scoreResult,
         };
       }
-      return {
-        ...state,
-        phase: "idle",
-        turn: newTurn,
-        lastDiceValue: null,
-        remainingMoves: 0,
-      };
-    }
 
-    case "END_GAME": {
-      const bonusCount = state.completedMissions.filter((m) => m.bonusEarned).length;
-      const scoreResult: ScoreResult = {
-        missionsCompleted: state.completedMissions.length,
-        totalRevenue: state.totalMissionReward,
-        totalFuelCost: state.totalFuelCost,
-        bonusCount,
-        finalMoney: state.player.money,
-        rank: calculateRank(state.player.money),
-        endReason: action.reason,
+      const nextTurnState = {
+        ...endResult.state,
+        turn: state.turn + 1,
       };
+
+      const startedState = applyTurnStart(nextTurnState);
+
       return {
-        ...state,
-        phase: "game_end",
-        scoreResult,
+        ...startedState,
+        phase: "planning",
       };
     }
 
     case "RESET_GAME":
-      return initialState;
+      return createBaseState(0);
 
     default:
       return state;
   }
 }
 
-// ========================================
-// Context
-// ========================================
-
 interface GameContextValue {
   state: GameState;
-  // アクション
-  startGame: (companyId: string, startPortId: string) => void;
-  rollDice: (value: number) => void;
-  selectCell: (cellId: string) => void;
-  completeMove: () => void;
-  enterPortAction: () => void;
-  refuel: (amount: number) => void;
-  loadCargo: (grainId: string, grainName: string, amount: number, cost: number) => void;
-  unloadCargo: (grainId: string, amount: number, revenue: number) => void;
-  // ミッション
-  acceptMission: (missionId: string) => void;
-  completeMission: () => void;
-  refreshMissions: () => void;
-  canCompleteMission: () => boolean;
-  // ターン・ゲーム終了
+  startGame: () => void;
+  unloadFromShip: (amount: number) => void;
+  createDelivery: (demandId: string, originPortId: string, method: DeliveryMethod) => void;
   endTurn: () => void;
-  endGame: (reason: "fuel_empty" | "manual") => void;
   resetGame: () => void;
-  // ヘルパー
   isGameOver: () => boolean;
-  canRollDice: () => boolean;
-  // ヘルパー
-  getReachableCellIds: () => string[];
-  canMoveTo: (cellId: string) => boolean;
-  getCurrentCell: () => RouteCell | undefined;
-  getCurrentPort: () => (typeof ports)[0] | undefined;
-  isAtPort: () => boolean;
-  getCurrentCargoAmount: () => number;
-  getAvailableCapacity: () => number;
-  // 定数
-  FUEL_COST_PER_UNIT: number;
+  getCurrentPort: () => (typeof ports)[0] | null;
+  getSiloState: (portId: string) => SiloState | undefined;
+  getAvailableUnloading: () => number;
+  getAvailableSiloSpace: () => number;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
 
-// ========================================
-// Provider
-// ========================================
-
 export function GameProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  const startGame = useCallback((companyId: string, startPortId: string) => {
-    dispatch({ type: "START_GAME", companyId, startPortId });
+  const startGame = useCallback(() => {
+    dispatch({ type: "START_GAME" });
   }, []);
 
-  const rollDice = useCallback((value: number) => {
-    dispatch({ type: "ROLL_DICE", value });
+  const unloadFromShip = useCallback((amount: number) => {
+    dispatch({ type: "UNLOAD_FROM_SHIP", amount });
   }, []);
 
-  const selectCell = useCallback((cellId: string) => {
-    dispatch({ type: "SELECT_CELL", cellId });
+  const createDelivery = useCallback((demandId: string, originPortId: string, method: DeliveryMethod) => {
+    dispatch({ type: "CREATE_DELIVERY", demandId, originPortId, method });
   }, []);
-
-  const completeMove = useCallback(() => {
-    dispatch({ type: "COMPLETE_MOVE" });
-  }, []);
-
-  const enterPortAction = useCallback(() => {
-    dispatch({ type: "ENTER_PORT_ACTION" });
-  }, []);
-
-  const refuel = useCallback((amount: number) => {
-    dispatch({ type: "REFUEL", amount });
-  }, []);
-
-  const loadCargo = useCallback(
-    (grainId: string, grainName: string, amount: number, cost: number) => {
-      dispatch({ type: "LOAD_CARGO", grainId, grainName, amount, cost });
-    },
-    []
-  );
-
-  const unloadCargo = useCallback(
-    (grainId: string, amount: number, revenue: number) => {
-      dispatch({ type: "UNLOAD_CARGO", grainId, amount, revenue });
-    },
-    []
-  );
-
-  // ミッション関連
-  const acceptMission = useCallback((missionId: string) => {
-    dispatch({ type: "ACCEPT_MISSION", missionId });
-  }, []);
-
-  const completeMission = useCallback(() => {
-    dispatch({ type: "COMPLETE_MISSION" });
-  }, []);
-
-  const refreshMissions = useCallback(() => {
-    dispatch({ type: "REFRESH_MISSIONS" });
-  }, []);
-
-  // ミッションを完了できるかチェック
-  const canCompleteMission = useCallback(() => {
-    if (!state.activeMission) return false;
-
-    // 目的地にいるかチェック
-    const currentPortId = getPortIdFromCell(state.player.currentCellId);
-    if (currentPortId !== state.activeMission.toPortId) return false;
-
-    // 必要な積荷があるかチェック
-    const hasCargo = state.player.cargo.some(
-      (c) =>
-        c.grainId === state.activeMission!.grainId &&
-        c.amount >= state.activeMission!.amount
-    );
-    return hasCargo;
-  }, [state.activeMission, state.player.currentCellId, state.player.cargo]);
-
-  // ゲーム終了判定
-  const isGameOver = useCallback(() => {
-    return state.phase === "game_end";
-  }, [state.phase]);
-
-  // サイコロを振れるかチェック
-  const canRollDice = useCallback(() => {
-    // 燃料がない場合はゲーム終了
-    if (state.player.fuel <= 0) return false;
-    // idleフェーズでのみ振れる
-    return state.phase === "idle";
-  }, [state.phase, state.player.fuel]);
 
   const endTurn = useCallback(() => {
     dispatch({ type: "END_TURN" });
-  }, []);
-
-  const endGame = useCallback((reason: "fuel_empty" | "manual") => {
-    dispatch({ type: "END_GAME", reason });
   }, []);
 
   const resetGame = useCallback(() => {
     dispatch({ type: "RESET_GAME" });
   }, []);
 
-  // 現在位置から到達可能なセルIDのリストを取得
-  const getReachableCellIds = useCallback(() => {
-    if (!state.player.currentCellId || state.remainingMoves <= 0) {
-      return [];
-    }
+  const isGameOver = useCallback(() => state.phase === "game_end", [state.phase]);
 
-    const reachable = getReachableCells(
-      state.player.currentCellId,
-      state.remainingMoves
-    );
-    return reachable.map((c) => c.id);
-  }, [state.player.currentCellId, state.remainingMoves]);
+  const getCurrentPort = useCallback(() => {
+    if (!state.currentShip) return null;
+    return ports.find((p) => p.id === state.currentShip!.portId) ?? null;
+  }, [state.currentShip]);
 
-  // 指定したセルに移動可能かチェック
-  const canMoveTo = useCallback(
-    (cellId: string) => {
-      const reachableIds = getReachableCellIds();
-      return reachableIds.includes(cellId);
-    },
-    [getReachableCellIds]
+  const getSiloState = useCallback(
+    (portId: string) => state.siloStates[portId],
+    [state.siloStates]
   );
 
-  // 現在のセルを取得
-  const getCurrentCell = useCallback(() => {
-    return routeCells.find((c) => c.id === state.player.currentCellId);
-  }, [state.player.currentCellId]);
+  const getAvailableUnloading = useCallback(() => {
+    if (!state.currentShip) return 0;
+    const port = ports.find((p) => p.id === state.currentShip!.portId);
+    if (!port) return 0;
+    return Math.max(0, port.unloadingCapacity - state.unloadingUsed);
+  }, [state.currentShip, state.unloadingUsed]);
 
-  // 現在の港を取得（港マスにいる場合のみ）
-  const getCurrentPort = useCallback(() => {
-    const cell = getCurrentCell();
-    if (cell?.type === "port" && cell.portId) {
-      return ports.find((p) => p.id === cell.portId);
-    }
-    return undefined;
-  }, [getCurrentCell]);
-
-  // 港にいるかどうか
-  const isAtPort = useCallback(() => {
-    const cell = getCurrentCell();
-    return cell?.type === "port";
-  }, [getCurrentCell]);
-
-  // 現在の積載量を取得
-  const getCurrentCargoAmount = useCallback(() => {
-    return state.player.cargo.reduce((sum, c) => sum + c.amount, 0);
-  }, [state.player.cargo]);
-
-  // 残り積載可能量を取得
-  const getAvailableCapacity = useCallback(() => {
-    return state.player.maxCapacity - getCurrentCargoAmount();
-  }, [state.player.maxCapacity, getCurrentCargoAmount]);
+  const getAvailableSiloSpace = useCallback(() => {
+    if (!state.currentShip) return 0;
+    const silo = state.siloStates[state.currentShip.portId];
+    if (!silo) return 0;
+    return Math.max(0, silo.capacity - silo.totalStock);
+  }, [state.currentShip, state.siloStates]);
 
   const value: GameContextValue = {
     state,
     startGame,
-    rollDice,
-    selectCell,
-    completeMove,
-    enterPortAction,
-    refuel,
-    loadCargo,
-    unloadCargo,
-    acceptMission,
-    completeMission,
-    refreshMissions,
-    canCompleteMission,
+    unloadFromShip,
+    createDelivery,
     endTurn,
-    endGame,
     resetGame,
     isGameOver,
-    canRollDice,
-    getReachableCellIds,
-    canMoveTo,
-    getCurrentCell,
     getCurrentPort,
-    isAtPort,
-    getCurrentCargoAmount,
-    getAvailableCapacity,
-    FUEL_COST_PER_UNIT,
+    getSiloState,
+    getAvailableUnloading,
+    getAvailableSiloSpace,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }
-
-// ========================================
-// Hook
-// ========================================
 
 export function useGame() {
   const context = useContext(GameContext);
