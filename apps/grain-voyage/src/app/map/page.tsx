@@ -51,9 +51,15 @@ export default function MapPage() {
               </h2>
               <div className="space-y-3">
                 <div>
-                  <span className="text-xs text-navy-500">受入能力</span>
+                  <span className="text-xs text-navy-500">荷役能力</span>
                   <p className="font-medium">
-                    {selectedPort.capacity.toLocaleString()}トン/ターン
+                    {selectedPort.unloadingCapacity.toLocaleString()}トン/ターン
+                  </p>
+                </div>
+                <div>
+                  <span className="text-xs text-navy-500">サイロ容量</span>
+                  <p className="font-medium">
+                    {selectedPort.siloCapacity.toLocaleString()}トン
                   </p>
                 </div>
                 <div>

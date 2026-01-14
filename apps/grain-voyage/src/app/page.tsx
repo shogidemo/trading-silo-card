@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ShipIcon, AnchorIcon, CargoIcon, TargetIcon } from "@/components/Icons";
+import { ShipIcon, CargoIcon, TargetIcon } from "@/components/Icons";
 
 // 架空商社データ（企画書より）
 const companies = [
@@ -42,7 +42,7 @@ const gameModes = [
   {
     id: "free",
     name: "フリーモード",
-    description: "自由に航路を選んで配送。サイコロを振って日本を巡ろう",
+    description: "港の荷役と配送計画を最適化して滞船料を抑えよう",
     Icon: ShipIcon,
     available: true,
   },
@@ -81,13 +81,13 @@ export default function Home() {
           <div className="game-panel-gold p-8 mb-6">
             <ShipIcon size={64} className="mx-auto text-retro-navy mb-4" />
             <h1 className="font-display text-game-title md:text-4xl text-retro-navy mb-2">
-              穀物航路
+              穀物ディスパッチャー
             </h1>
             <p className="text-game-body text-retro-navy mb-1">
-              〜サイロへ届けろ！穀物配送〜
+              〜荷役と配送計画で滞船料を抑えろ！〜
             </p>
             <p className="text-game-small text-retro-navy-lighter">
-              Grain Voyage - Bulk Ship Delivery Simulation
+              Grain Dispatcher - Port & Silo Logistics
             </p>
           </div>
 
@@ -100,7 +100,7 @@ export default function Home() {
 
           <div className="mt-8 game-panel p-4">
             <p className="text-game-small text-retro-navy mb-3">
-              商社の配船担当として、バルク船で穀物を配送しよう
+              商社のディスパッチャーとして、港の荷役と配送を指揮しよう
             </p>
             <Link
               href="/map"
