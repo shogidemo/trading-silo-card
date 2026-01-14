@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 
 interface DiceProps {
   onRoll?: (value: number) => void;
+  onRollingChange?: (isRolling: boolean) => void;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
 }
@@ -50,7 +51,7 @@ const sizeConfig = {
   lg: { box: 96, dot: 14 },
 };
 
-export default function Dice({ onRoll, disabled = false, size = "md" }: DiceProps) {
+export default function Dice({ onRoll, onRollingChange, disabled = false, size = "md" }: DiceProps) {
   const [value, setValue] = useState<number>(1);
   const [isRolling, setIsRolling] = useState(false);
 
@@ -60,6 +61,7 @@ export default function Dice({ onRoll, disabled = false, size = "md" }: DiceProp
     if (disabled || isRolling) return;
 
     setIsRolling(true);
+    onRollingChange?.(true);
 
     const rollDuration = 600;
     const intervalTime = 60;
@@ -74,10 +76,11 @@ export default function Dice({ onRoll, disabled = false, size = "md" }: DiceProp
         const finalValue = Math.floor(Math.random() * 6) + 1;
         setValue(finalValue);
         setIsRolling(false);
+        onRollingChange?.(false);
         onRoll?.(finalValue);
       }
     }, intervalTime);
-  }, [disabled, isRolling, onRoll]);
+  }, [disabled, isRolling, onRoll, onRollingChange]);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -119,15 +122,6 @@ export default function Dice({ onRoll, disabled = false, size = "md" }: DiceProp
       >
         {isRolling ? "振ってます..." : "サイコロを振る"}
       </button>
-
-      {/* Result display */}
-      {!isRolling && (
-        <div className="game-panel-highlight px-4 py-2 text-center">
-          <span className="text-game-small text-retro-navy">出目:</span>
-          <span className="ml-2 text-game-title text-retro-navy">{value}</span>
-          <span className="ml-1 text-game-small text-retro-navy">マス</span>
-        </div>
-      )}
     </div>
   );
 }

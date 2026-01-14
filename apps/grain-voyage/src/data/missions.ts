@@ -22,6 +22,7 @@ export interface Mission {
 }
 
 // ミッションテンプレート（ゲーム開始時にランダム選択）
+// 報酬は穀物購入費用 + 利益が出るように設定
 export const missionTemplates: Omit<Mission, "id">[] = [
   // === 北海道発 → 本州・九州着 ===
   {
@@ -34,9 +35,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "釧路港",
     toPortId: "port-kashima",
     toPortName: "鹿島港",
-    reward: 3000,
+    reward: 9000,
     bonusTurns: 8,
-    bonusReward: 1000,
+    bonusReward: 3000,
   },
   {
     title: "苫小牧の大豆を神戸へ",
@@ -48,9 +49,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "苫小牧港",
     toPortId: "port-kobe",
     toPortName: "神戸港",
-    reward: 3500,
+    reward: 10500,
     bonusTurns: 10,
-    bonusReward: 1200,
+    bonusReward: 3600,
   },
   {
     title: "釧路から志布志へ長距離配送",
@@ -62,9 +63,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "釧路港",
     toPortId: "port-shibushi",
     toPortName: "志布志港",
-    reward: 5000,
+    reward: 15000,
     bonusTurns: 15,
-    bonusReward: 2000,
+    bonusReward: 6000,
   },
 
   // === 関東・中部発 ===
@@ -78,9 +79,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "鹿島港",
     toPortId: "port-hakata",
     toPortName: "博多港",
-    reward: 2800,
+    reward: 8500,
     bonusTurns: 9,
-    bonusReward: 900,
+    bonusReward: 2700,
   },
   {
     title: "鹿島から水島へ大豆輸送",
@@ -92,9 +93,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "鹿島港",
     toPortId: "port-mizushima",
     toPortName: "水島港",
-    reward: 2500,
+    reward: 7500,
     bonusTurns: 7,
-    bonusReward: 800,
+    bonusReward: 2400,
   },
 
   // === 短距離ミッション ===
@@ -108,9 +109,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "八戸港",
     toPortId: "port-kamaishi",
     toPortName: "釜石港",
-    reward: 1200,
+    reward: 3600,
     bonusTurns: 4,
-    bonusReward: 500,
+    bonusReward: 1500,
   },
   {
     title: "衣浦から神戸へ小麦輸送",
@@ -122,9 +123,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "衣浦港",
     toPortId: "port-kobe",
     toPortName: "神戸港",
-    reward: 1800,
+    reward: 5500,
     bonusTurns: 5,
-    bonusReward: 600,
+    bonusReward: 1800,
   },
 
   // === 九州内ミッション ===
@@ -138,9 +139,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "博多港",
     toPortId: "port-shibushi",
     toPortName: "志布志港",
-    reward: 1500,
+    reward: 4500,
     bonusTurns: 6,
-    bonusReward: 500,
+    bonusReward: 1500,
   },
   {
     title: "志布志から八代へ大豆配送",
@@ -152,9 +153,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "志布志港",
     toPortId: "port-yatsushiro",
     toPortName: "八代港",
-    reward: 1400,
+    reward: 4200,
     bonusTurns: 5,
-    bonusReward: 450,
+    bonusReward: 1350,
   },
 
   // === 日本海ルート ===
@@ -168,9 +169,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "新潟港",
     toPortId: "port-hakata",
     toPortName: "博多港",
-    reward: 3200,
+    reward: 9600,
     bonusTurns: 10,
-    bonusReward: 1000,
+    bonusReward: 3000,
   },
   {
     title: "苫小牧から新潟へ",
@@ -182,9 +183,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "苫小牧港",
     toPortId: "port-niigata",
     toPortName: "新潟港",
-    reward: 2200,
+    reward: 6600,
     bonusTurns: 7,
-    bonusReward: 700,
+    bonusReward: 2100,
   },
 
   // === 大量輸送ミッション ===
@@ -198,9 +199,9 @@ export const missionTemplates: Omit<Mission, "id">[] = [
     fromPortName: "鹿島港",
     toPortId: "port-shibushi",
     toPortName: "志布志港",
-    reward: 4500,
+    reward: 13500,
     bonusTurns: 12,
-    bonusReward: 1500,
+    bonusReward: 4500,
   },
 ];
 

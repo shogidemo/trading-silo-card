@@ -49,6 +49,7 @@ function GamePlayContent() {
 
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
+  const [isDiceRolling, setIsDiceRolling] = useState(false);
   const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
   const handleResizeStart = useCallback((e: React.MouseEvent) => {
@@ -312,11 +313,12 @@ function GamePlayContent() {
           <div className={`flex-1 flex flex-col items-center p-4 overflow-y-auto min-h-0 ${state.phase === "port_action" ? "justify-start" : "justify-center"}`}>
             {state.phase === "idle" && canRollDice() && (
               <>
-                <Dice onRoll={handleDiceRoll} size="lg" />
+                <Dice onRoll={handleDiceRoll} onRollingChange={setIsDiceRolling} size="lg" />
                 {currentPort && (
                   <button
                     onClick={enterPortAction}
-                    className="btn-game btn-game-secondary mt-4 text-game-body"
+                    disabled={isDiceRolling}
+                    className={`btn-game btn-game-secondary mt-4 text-game-body ${isDiceRolling ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     港で行動する
                   </button>
@@ -406,8 +408,12 @@ function GamePlayContent() {
             )}
 
             {state.phase === "port_action" && currentPort && (
-              <div className="w-full">
-                <PortActionPanel onDepart={endTurn} />
+              <div className="text-center">
+                <div className="game-panel-gold p-6">
+                  <AnchorIcon size={48} className="mx-auto text-retro-navy mb-2" />
+                  <p className="text-game-heading text-retro-navy font-bold">港で作業中</p>
+                  <p className="text-game-body text-retro-navy">{currentPort.name}</p>
+                </div>
               </div>
             )}
 
@@ -423,6 +429,11 @@ function GamePlayContent() {
           </div>
         </aside>
       </div>
+
+      {/* Port action modal */}
+      {state.phase === "port_action" && currentPort && (
+        <PortActionPanel onDepart={endTurn} />
+      )}
 
       {/* Game result modal */}
       {isGameOver() && <GameResult />}
