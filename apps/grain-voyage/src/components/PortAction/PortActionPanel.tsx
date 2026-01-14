@@ -2,8 +2,7 @@
 
 import { useGame } from "@/context/GameContext";
 import CargoPanel from "./CargoPanel";
-import { MissionPanel } from "@/components/Mission";
-import { AnchorIcon, FuelIcon, CargoIcon, CoinIcon, ShipIcon, TargetIcon } from "@/components/Icons";
+import { AnchorIcon, FuelIcon, CargoIcon, CoinIcon, ShipIcon } from "@/components/Icons";
 
 interface PortActionPanelProps {
   onDepart: () => void;
@@ -121,25 +120,6 @@ export default function PortActionPanel({ onDepart }: PortActionPanelProps) {
                 )}
               </div>
 
-              {/* Mission section */}
-              <div className="game-panel p-3">
-                <h3 className="text-game-body font-bold text-retro-navy mb-2 flex items-center gap-2">
-                  <TargetIcon size={18} />
-                  ミッション
-                  {state.activeMission ? (
-                    <span className="badge-game badge-game-seagreen text-game-small py-0.5 ml-auto">
-                      受注中
-                    </span>
-                  ) : (
-                    <span className="badge-game text-game-small py-0.5 ml-auto" style={{ background: "#fff", borderColor: "#1a237e", color: "#1a237e" }}>
-                      選択可能
-                    </span>
-                  )}
-                </h3>
-                <div className="max-h-48 overflow-y-auto">
-                  <MissionPanel />
-                </div>
-              </div>
             </div>
 
             {/* Right column: Cargo */}

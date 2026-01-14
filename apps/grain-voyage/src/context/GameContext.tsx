@@ -94,7 +94,7 @@ type GameAction =
 // ========================================
 
 // 燃料補給コスト（円/燃料）
-const FUEL_COST_PER_UNIT = 10;
+const FUEL_COST_PER_UNIT = 50;
 
 // 船の最大積載量（トン）
 const SHIP_MAX_CAPACITY = 100;
@@ -106,8 +106,8 @@ const initialState: GameState = {
   player: {
     companyId: "",
     currentCellId: "",
-    fuel: 100,
-    maxFuel: 100,
+    fuel: 60,
+    maxFuel: 60,
     money: 10000,
     cargo: [],
     maxCapacity: SHIP_MAX_CAPACITY,
@@ -202,8 +202,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
       const newRemainingMoves = state.remainingMoves - distance;
 
-      // 燃料消費（1マスあたり2燃料）
-      const fuelCost = distance * 2;
+      // 燃料消費（1マスあたり3燃料）
+      const fuelCost = distance * 3;
       const newFuel = Math.max(0, state.player.fuel - fuelCost);
 
       // 港に到着したかどうか
