@@ -10,7 +10,7 @@
     "./types": "./src/types/index.ts"
   },
   "scripts": {
-    "lint": "eslint src/",
+    "lint": "eslint --ext .ts src/",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

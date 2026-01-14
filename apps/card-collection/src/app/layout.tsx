@@ -17,6 +17,7 @@ const mPlusRounded = M_PLUS_Rounded_1c({
   weight: ["400", "500", "700"],
   variable: "--font-body",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 const jetbrains = JetBrains_Mono({

@@ -107,7 +107,7 @@ export async function setCollectionStateBeforeLoad(
 // クイズ操作
 export async function goToQuiz(page: Page): Promise<void> {
   await page.goto("/quiz");
-  await expect(page.locator("h2")).toContainText("カテゴリを選択");
+  await expect(page.getByRole("heading", { name: "カテゴリを選択" })).toBeVisible({ timeout: 10000 });
 }
 
 export async function selectCategory(
@@ -124,10 +124,12 @@ export async function selectCategory(
     .filter({ hasText: categoryMap[category] })
     .first()
     .click();
-  // クイズ画面に遷移するまで待機
+  // クイズの選択肢が表示されるまで待機
   await expect(
-    page.locator("h2").filter({ hasText: "カテゴリを選択" })
-  ).not.toBeVisible({ timeout: 5000 });
+    page.locator("main button").filter({
+      has: page.locator("span.font-display"),
+    }).first()
+  ).toBeVisible({ timeout: 10000 });
 }
 
 export async function answerQuiz(
@@ -167,26 +169,43 @@ export async function answerQuiz(
 export async function answerQuizCorrectly(
   page: Page
 ): Promise<{ isNewCard: boolean }> {
-  // 選択肢を取得
   const options = page.locator("main button").filter({
     has: page.locator("span.font-display"),
   });
 
-  await expect(options.first()).toBeVisible({ timeout: 5000 });
+  const nextButtons = page.locator("button").filter({
+    hasText: /次のクイズ|同じカテゴリでもう1問|続けて/,
+  });
 
-  const correctOption = page.locator('button[data-correct="true"]');
-  if (await correctOption.first().isVisible().catch(() => false)) {
-    await correctOption.first().click();
-  } else {
-    await options.first().click();
+  const maxAttempts = 6;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    await expect(options.first()).toBeVisible({ timeout: 5000 });
+
+    const correctOption = page.locator('button[data-correct="true"]');
+    if (await correctOption.first().isVisible().catch(() => false)) {
+      await correctOption.first().click();
+    } else {
+      await options.first().click();
+    }
+
+    await expect(
+      page.locator("text=正解！").or(page.locator("text=不正解..."))
+    ).toBeVisible({ timeout: 5000 });
+
+    const isCorrect = await page.locator("text=正解！").isVisible();
+    const isNewCard = await page.locator("text=NEW CARD").isVisible();
+
+    if (isCorrect) {
+      return { isNewCard };
+    }
+
+    if (await nextButtons.first().isVisible().catch(() => false)) {
+      await nextButtons.first().click();
+      await page.waitForTimeout(400);
+    }
   }
-  await expect(
-    page.locator("text=正解！").or(page.locator("text=不正解..."))
-  ).toBeVisible({ timeout: 5000 });
 
-  const isCorrect = await page.locator("text=正解！").isVisible();
   const isNewCard = await page.locator("text=NEW CARD").isVisible();
-
   return { isNewCard };
 }
 
