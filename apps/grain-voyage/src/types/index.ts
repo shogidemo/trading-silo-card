@@ -32,6 +32,8 @@ export interface Port {
   coordinates: { lat: number; lng: number };
   mapPosition?: { x: number; y: number };
   capacity: number;        // 受入能力（トン/ターン）
+  unloadingCapacity: number; // 荷役能力（トン/ターン）
+  siloCapacity: number;    // サイロ総容量（トン）
   acceptableGrains: string[];  // 受入可能穀物名
   currentDemand: Record<string, number>;  // 穀物名ごとの需要係数
   siloIds: string[];       // この港に含まれるサイロのID
@@ -204,4 +206,67 @@ export interface Scenario {
   targetScore: number;
   initialState: Partial<GameState>;
   unlockCondition?: string;  // 前提シナリオID
+}
+
+// ========================================
+// ディスパッチャーゲーム関連
+// ========================================
+
+export interface Ship {
+  id: string;
+  grainId: string;
+  grainName: string;
+  totalCargo: number;
+  remainingCargo: number;
+  portId: string;
+  freeTime: number;
+  berthingTurn: number;
+}
+
+export type AppearCondition =
+  | { type: "start" }
+  | { type: "turn"; turn: number }
+  | { type: "ship_arrival"; shipId: string };
+
+export interface Demand {
+  id: string;
+  destinationId: string;
+  destinationName: string;
+  grainId: string;
+  grainName: string;
+  amount: number;
+  deadline: number;
+  appearCondition: AppearCondition;
+  reward: number;
+  fulfilled: boolean;
+  fulfilledAmount: number;
+}
+
+export type DeliveryMethod = "truck" | "coastal_ship";
+
+export interface Delivery {
+  id: string;
+  demandId: string;
+  originPortId: string;
+  destinationId: string;
+  grainId: string;
+  grainName: string;
+  method: DeliveryMethod;
+  amount: number;
+  remainingTurns: number;
+  cost: number;
+}
+
+export interface SiloState {
+  portId: string;
+  capacity: number;
+  stock: Record<string, number>;
+  totalStock: number;
+}
+
+export interface CompletedDemand {
+  demand: Demand;
+  completedAtTurn: number;
+  earlyBonus: number;
+  penalty: number;
 }
