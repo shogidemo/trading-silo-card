@@ -20,25 +20,6 @@ export interface PortStock {
   grains: GrainStock[];
 }
 
-// 穀物の基準価格（円/トン）
-// 売値は買値の約90%（同じ港で売買すると損をする）
-const BASE_PRICES = {
-  "grain-wheat": { buy: 80, sell: 72 },
-  "grain-soybean": { buy: 90, sell: 81 },
-  "grain-corn": { buy: 60, sell: 54 },
-  "grain-barley": { buy: 70, sell: 63 },
-  "grain-canola": { buy: 100, sell: 90 },
-};
-
-// 穀物名のマッピング
-const GRAIN_NAMES: Record<string, string> = {
-  "grain-wheat": "小麦",
-  "grain-soybean": "大豆",
-  "grain-corn": "トウモロコシ",
-  "grain-barley": "大麦",
-  "grain-canola": "菜種",
-};
-
 // 港ごとの在庫データ
 // 北海道・東北は原料産地なので買値が安い
 // 関東・関西は消費地なので売値が高い（ただし同じ港で売買すると損）
