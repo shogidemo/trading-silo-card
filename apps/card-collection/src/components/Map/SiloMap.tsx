@@ -15,12 +15,11 @@ export interface SiloMapProps {
   focusVersion: number;
   regions: SiloRegion[];
   selectedRegionId: string | null;
-  onRegionSelect: (id: string) => void;
 }
 
 const JAPAN_BOUNDS: L.LatLngBoundsExpression = [[30.7, 129.2], [43.8, 145.5]];
 
-function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVersion, regions, selectedRegionId, onRegionSelect }: SiloMapProps) {
+function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVersion, regions, selectedRegionId }: SiloMapProps) {
   const map = useMap();
   const reducedMotion = useReducedMotion();
   const [, setViewVersion] = useState(0);
@@ -35,7 +34,8 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
 
   useEffect(() => {
     const selected = silos.find((silo) => silo.id === selectedSiloId);
-    if (selected) map.setView(getSiloPosition(selected), getSiloZoom(selected), { animate: !reducedMotion });
+    const position = selected && getSiloPosition(selected);
+    if (position && selected) map.setView(position, getSiloZoom(selected), { animate: !reducedMotion });
   }, [map, selectedSiloId, silos, reducedMotion, focusVersion]);
 
   useEffect(() => {
@@ -49,24 +49,28 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
     return () => observer.disconnect();
   }, [map]);
 
-  const groups = groupNearbySilos(silos, (silo) => {
-    const point = map.latLngToLayerPoint(getSiloPosition(silo));
+  const located = silos.filter((silo) => getSiloPosition(silo));
+  const groups = groupNearbySilos(located.filter((silo) => silo.id !== selectedSiloId), (silo) => {
+    const point = map.latLngToLayerPoint(getSiloPosition(silo)!);
     return [point.x, point.y];
   }, map.getZoom() >= 16 ? 0 : 52);
+  const selectedFacility = located.find((silo) => silo.id === selectedSiloId);
+  if (selectedFacility) groups.push([selectedFacility]);
 
   return <>{groups.map((group) => {
     const silo = group[0];
     const isCluster = group.length > 1;
-    const approximate = !isCluster && getSiloZoom(silo) < 16;
+    const positions = group.map((item) => getSiloPosition(item)!);
+    const position: [number, number] = [positions.reduce((sum, point) => sum + point[0], 0) / positions.length, positions.reduce((sum, point) => sum + point[1], 0) / positions.length];
     const selected = group.some((item) => item.id === selectedSiloId);
-    const label = isCluster ? `近くの獲得済みサイロ${group.length}施設を拡大` : `${silo.name}を選択${approximate ? "、概略位置" : ""}`;
+    const label = isCluster ? `近くの獲得済みサイロ${group.length}施設を拡大` : `${silo.name}を選択`;
     const icon = L.divIcon({
       className: "silo-map-icon",
-      html: `<span class="silo-map-pin ${isCluster ? "silo-map-cluster" : ""} ${approximate ? "silo-map-approximate" : ""} ${selected ? "is-selected" : ""}" aria-hidden="true">${isCluster ? group.length : approximate ? "≈" : "✓"}</span>`,
+      html: `<span class="silo-map-pin ${isCluster ? "silo-map-cluster" : ""} ${selected ? "is-selected" : ""}" aria-hidden="true">${isCluster ? `${group.length}施設<br><small>拡大</small>` : "✓"}</span>`,
       iconSize: [44, 44], iconAnchor: [22, 22],
     });
     return <Marker key={group.map((item) => item.id).join("-")}
-      position={getSiloPosition(silo)} icon={icon} title={label} keyboard
+      position={position} icon={icon} title={label} keyboard
       zIndexOffset={selected ? 1000 : 0}
       eventHandlers={{
         add: (event) => {
@@ -74,31 +78,21 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
           element?.setAttribute("role", "button");
           element?.setAttribute("aria-label", label);
           element?.setAttribute("data-testid", isCluster ? "silo-cluster" : "silo-marker");
-          element?.setAttribute("data-silo-id", silo.id);
-          element?.setAttribute("data-lat", String(getSiloPosition(silo)[0]));
-          element?.setAttribute("data-lng", String(getSiloPosition(silo)[1]));
+          if (!isCluster) {
+            element?.setAttribute("data-silo-id", silo.id);
+            element?.setAttribute("data-lat", String(position[0]));
+            element?.setAttribute("data-lng", String(position[1]));
+          }
         },
         click: () => {
-          if (isCluster) map.fitBounds(group.map(getSiloPosition), { padding: [52, 52], maxZoom: 16, animate: !reducedMotion });
+          if (isCluster) map.fitBounds(positions, { padding: [52, 52], maxZoom: 16, animate: !reducedMotion });
           else onSiloSelect(silo.id);
         },
       }}>
-      <Tooltip direction="top" offset={[0, -20]}>{isCluster ? `獲得済み ${group.length}施設 · タップで拡大` : `${silo.name}${approximate ? "（概略位置）" : ""}`}</Tooltip>
+      <Tooltip direction="top" offset={[0, -20]}>{isCluster ? `獲得済み ${group.length}施設 · タップで拡大` : silo.name}</Tooltip>
     </Marker>;
   })}
-    {regions.map((region) => <Marker key={region.id} position={region.position}
-      title={`${region.name}の未獲得サイロ、残り${region.remaining}施設`} keyboard
-      icon={L.divIcon({ className: "silo-map-icon", html: '<span class="silo-map-pin silo-map-region" aria-hidden="true">?</span>', iconSize: [44, 44], iconAnchor: [22, 22] })}
-      eventHandlers={{
-        add: (event) => {
-          const element = (event.target as L.Marker).getElement();
-          element?.setAttribute("role", "button");
-          element?.setAttribute("aria-label", `${region.name}の未獲得サイロ、残り${region.remaining}施設`);
-          element?.setAttribute("data-testid", "silo-region");
-          element?.setAttribute("data-region-id", region.id);
-        },
-        click: () => onRegionSelect(region.id),
-      }}><Tooltip direction="top">{region.name} · 未獲得{region.remaining}施設</Tooltip></Marker>)}
+
   </>;
 }
 

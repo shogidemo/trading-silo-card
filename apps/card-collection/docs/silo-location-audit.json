@@ -1,0 +1,695 @@
+[
+  {
+    "id": "silo-kanto",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.kanto-grain.co.jp/",
+    "identitySource": "https://www.kanto-grain.co.jp/",
+    "address": "茨城県神栖市東深芝2-3",
+    "previousPosition": {
+      "lat": 35.920248,
+      "lng": 140.6651729
+    },
+    "coordinates": {
+      "lat": 35.920465,
+      "lng": 140.664847
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/116750/51505.jpg",
+    "tile": {
+      "z": 17,
+      "x": 116750,
+      "y": 51505,
+      "pixelX": 130,
+      "pixelY": 225
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "岸壁沿いのコンクリートサイロ屋根。案内点の南側舗装面から屋根内へ補正。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1824/804.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2024年9月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-tohoku",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://toyotsu-grainhd.co.jp/group_company/tohoku-grain-terminal/",
+    "identitySource": "https://toyotsu-grainhd.co.jp/group_company/tohoku-grain-terminal/",
+    "address": "青森県八戸市大字河原木字海岸24番4",
+    "previousPosition": {
+      "lat": 40.5460802,
+      "lng": 141.5080599
+    },
+    "coordinates": {
+      "lat": 40.546083,
+      "lng": 141.508058
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/117057/49360.jpg",
+    "tile": {
+      "z": 17,
+      "x": 117057,
+      "y": 49360,
+      "pixelX": 131,
+      "pixelY": 137
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1829/771.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2024年4月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-nihon",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.nihon-silo.co.jp/company/information/",
+    "identitySource": "https://www.nihon-silo.co.jp/facility/layout/",
+    "address": "千葉県千葉市美浜区新港3-2",
+    "previousPosition": {
+      "lat": 35.604508,
+      "lng": 140.094533
+    },
+    "coordinates": {
+      "lat": 35.605428,
+      "lng": 140.092871
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/116542/51647.jpg",
+    "tile": {
+      "z": 17,
+      "x": 116542,
+      "y": 51647,
+      "pixelX": 66,
+      "pixelY": 60
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式構内図の鋼板サイロ群と岸壁配置を照合。案内点の平倉庫・岸壁側からビン群へ補正。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1820/806.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2019年6月～10月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-toyo",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://toyotsu-grainhd.co.jp/group_company/toyo-grain-terminal/",
+    "identitySource": "https://toyotsu-grainhd.co.jp/group_company/toyo-grain-terminal/",
+    "address": "愛知県知多市北浜町14-9",
+    "previousPosition": {
+      "lat": 35.0043227,
+      "lng": 136.8486975
+    },
+    "coordinates": {
+      "lat": 35.004392,
+      "lng": 136.849115
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/115361/51915.jpg",
+    "tile": {
+      "z": 17,
+      "x": 115361,
+      "y": 51915,
+      "pixelX": 62,
+      "pixelY": 98
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1802/811.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "簡易空中写真",
+        "撮影年月": "2020年8月～9月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-hakata",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://hakata-port-silo.com/company.html",
+    "identitySource": "https://hakata-port-silo.com/company.html",
+    "address": "福岡県福岡市中央区那の津4丁目10番8号",
+    "previousPosition": {
+      "lat": 33.6054178,
+      "lng": 130.3915003
+    },
+    "coordinates": {
+      "lat": 33.604201,
+      "lng": 130.39263
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/113010/52532.jpg",
+    "tile": {
+      "z": 17,
+      "x": 113010,
+      "y": 52532,
+      "pixelX": 130,
+      "pixelY": 142
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1765/820.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "簡易空中写真",
+        "撮影年月": "2020年10月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-zenno-kashima",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.zsilo.co.jp/company/access/",
+    "identitySource": "https://www.zsilo.co.jp/global-image/units/img/3790-5-20250919165945_b68cd0d71847b9.jpg",
+    "address": "茨城県神栖市東深芝3",
+    "previousPosition": {
+      "lat": 35.9169332,
+      "lng": 140.6679521
+    },
+    "coordinates": {
+      "lat": 35.91785,
+      "lng": 140.667347
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/116751/51507.jpg",
+    "tile": {
+      "z": 17,
+      "x": 116751,
+      "y": 51507,
+      "pixelX": 107,
+      "pixelY": 14
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式支店写真のコンクリートサイロと岸壁・船舶位置を照合。案内点の事務所前緑地から屋根内へ補正。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1824/804.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2024年9月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-zenno-tokai",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.zsilo.co.jp/company/access/",
+    "identitySource": "https://www.zsilo.co.jp/global-image/units/img/3803-5-20250919165935_b68cd0d671229f.jpg",
+    "address": "愛知県知多市北浜町16",
+    "previousPosition": {
+      "lat": 35.0039,
+      "lng": 136.8545
+    },
+    "coordinates": {
+      "lat": 35.003803,
+      "lng": 136.852591
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/115362/51915.jpg",
+    "tile": {
+      "z": 17,
+      "x": 115362,
+      "y": 51915,
+      "pixelX": 130,
+      "pixelY": 165
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式支店写真の岸壁沿いコンクリートサイロを確認。東側にある別形状の丸型ビン群を採用せず。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1802/811.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "簡易空中写真",
+        "撮影年月": "2020年8月～9月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-zenno-kurashiki",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.zsilo.co.jp/company/access/",
+    "identitySource": "https://www.zsilo.co.jp/company/access/",
+    "address": "岡山県倉敷市玉島乙島字新湊8267",
+    "previousPosition": {
+      "lat": 34.4950773,
+      "lng": 133.6826821
+    },
+    "coordinates": {
+      "lat": 34.494346,
+      "lng": 133.682638
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/114208/52141.jpg",
+    "tile": {
+      "z": 17,
+      "x": 114208,
+      "y": 52141,
+      "pixelX": 93,
+      "pixelY": 101
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1784/814.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2024年10月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-zenno-shibushi",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.zsilo.co.jp/company/access/",
+    "identitySource": "https://www.zsilo.co.jp/company/access/",
+    "address": "鹿児島県志布志市志布志町志布志3312",
+    "previousPosition": {
+      "lat": 31.458798,
+      "lng": 131.093865
+    },
+    "coordinates": {
+      "lat": 31.458796,
+      "lng": 131.093867
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/113265/53459.jpg",
+    "tile": {
+      "z": 17,
+      "x": 113265,
+      "y": 53459,
+      "pixelX": 210,
+      "pixelY": 36
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1769/835.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "簡易空中写真",
+        "撮影年月": "2020年10月～11月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-zenno-kushiro",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.zsilo.co.jp/company/access/",
+    "identitySource": "https://www.zsilo.co.jp/company/access/",
+    "address": "北海道釧路市西港2丁目102番4",
+    "previousPosition": {
+      "lat": 42.9977603,
+      "lng": 144.3337532
+    },
+    "coordinates": {
+      "lat": 42.996989,
+      "lng": 144.333369
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/118086/48163.jpg",
+    "tile": {
+      "z": 17,
+      "x": 118086,
+      "y": 48163,
+      "pixelX": 45,
+      "pixelY": 208
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1845/752.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2015年6月～7月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-zenno-niigata",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.zsilo.co.jp/company/access/",
+    "identitySource": "https://www.zsilo.co.jp/company/access/",
+    "address": "新潟県北蒲原郡聖籠町東港3-6962-1",
+    "previousPosition": {
+      "lat": 37.97538369999999,
+      "lng": 139.238119
+    },
+    "coordinates": {
+      "lat": 37.97613,
+      "lng": 139.239156
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/116231/50569.jpg",
+    "tile": {
+      "z": 17,
+      "x": 116231,
+      "y": 50569,
+      "pixelX": 110,
+      "pixelY": 65
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1816/790.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2022年7月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-pgc-west",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.pgcc.jp/branch/nishinihon/",
+    "identitySource": "https://www.pgcc.jp/branch/nishinihon/",
+    "address": "岡山県倉敷市水島海岸通3-2",
+    "previousPosition": {
+      "lat": 34.5131925,
+      "lng": 133.7365101
+    },
+    "coordinates": {
+      "lat": 34.513196,
+      "lng": 133.736508
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/114227/52133.jpg",
+    "tile": {
+      "z": 17,
+      "x": 114227,
+      "y": 52133,
+      "pixelX": 250,
+      "pixelY": 17
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1784/814.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2024年10月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-pgc-yatsushiro",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.pgcc.jp/branch/yatsushiro/",
+    "identitySource": "https://www.pgcc.jp/branch/yatsushiro/",
+    "address": "熊本県八代市新港町3-12",
+    "previousPosition": {
+      "lat": 32.5344548,
+      "lng": 130.5428932
+    },
+    "coordinates": {
+      "lat": 32.53397,
+      "lng": 130.543853
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/113065/52997.jpg",
+    "tile": {
+      "z": 17,
+      "x": 113065,
+      "y": 52997,
+      "pixelX": 145,
+      "pixelY": 140
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1766/828.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2009年4月～9月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-pgc-south",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.pgcc.jp/branch/minaminihon/",
+    "identitySource": "https://www.pgcc.jp/branch/minaminihon/",
+    "address": "鹿児島県鹿児島市南栄4-20",
+    "previousPosition": {
+      "lat": 31.5081203,
+      "lng": 130.5303198
+    },
+    "coordinates": {
+      "lat": 31.507618,
+      "lng": 130.530281
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/113060/53438.jpg",
+    "tile": {
+      "z": 17,
+      "x": 113060,
+      "y": 53438,
+      "pixelX": 160,
+      "pixelY": 76
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1766/834.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "簡易空中写真",
+        "撮影年月": "2015年4月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-kamaishi",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://kgcc.co.jp/access/",
+    "identitySource": "https://kgcc.co.jp/common/img/slider01.jpg",
+    "address": "岩手県釜石市港町2丁目1-1",
+    "previousPosition": {
+      "lat": 39.2724883,
+      "lng": 141.8857086
+    },
+    "coordinates": {
+      "lat": 39.271833,
+      "lng": 141.884168
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/117194/49965.jpg",
+    "tile": {
+      "z": 17,
+      "x": 117194,
+      "y": 49965,
+      "pixelX": 115,
+      "pixelY": 100
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式写真のコンクリートサイロと隣接する木質バイオマス施設・岸壁搬送経路を照合。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1831/780.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "簡易空中写真",
+        "撮影年月": "2022年4月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-tokachi",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://tokachi-grain-center.com/overview/",
+    "identitySource": "https://tokachi-grain-center.com/overview/",
+    "address": "北海道広尾郡広尾町会所前6丁目5番1",
+    "previousPosition": {
+      "lat": 42.302944444,
+      "lng": 143.330583333
+    },
+    "coordinates": {
+      "lat": 42.303222,
+      "lng": 143.330598
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/117721/48507.jpg",
+    "tile": {
+      "z": 17,
+      "x": 117721,
+      "y": 48507,
+      "pixelX": 20,
+      "pixelY": 63
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式案内地点と岸壁搬送コンベア・隣接施設を照合。岸壁沿いコンクリートサイロの屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1839/757.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2019年9月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-tomakomai",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.tomafu.co.jp/about/?4=",
+    "identitySource": "https://www.tomafu.co.jp/business/",
+    "address": "北海道苫小牧市勇払145番213",
+    "previousPosition": {
+      "lat": 42.641,
+      "lng": 141.6947
+    },
+    "coordinates": {
+      "lat": 42.642262,
+      "lng": 141.669774
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/117116/48339.jpg",
+    "tile": {
+      "z": 17,
+      "x": 117116,
+      "y": 48339,
+      "pixelX": 100,
+      "pixelY": 228
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式西港区配置図とTOMAKOMAI FUTO表記の公式空撮を照合。既存点は東の別工場周辺。西側の岸壁沿い赤屋根サイロへ修正。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1829/755.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2018年6月～8月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-hanshin",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.hanshin-silo.co.jp/others/contact.html",
+    "identitySource": "https://www.hanshin-silo.co.jp/others/contact.html",
+    "address": "兵庫県神戸市東灘区魚崎浜町14-7",
+    "previousPosition": {
+      "lat": 34.7034597,
+      "lng": 135.2805853
+    },
+    "coordinates": {
+      "lat": 34.703853,
+      "lng": 135.280527
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/114790/52048.jpg",
+    "tile": {
+      "z": 17,
+      "x": 114790,
+      "y": 52048,
+      "pixelX": 35,
+      "pixelY": 186
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1793/813.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2021年10月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-seto",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://setofuto.co.jp/company.html",
+    "identitySource": "https://setofuto.co.jp/facility.html",
+    "address": "岡山県倉敷市児島塩生2767番地の24",
+    "previousPosition": {
+      "lat": 34.4658936,
+      "lng": 133.7705189
+    },
+    "coordinates": {
+      "lat": 34.468699,
+      "lng": 133.767804
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/114239/52152.jpg",
+    "tile": {
+      "z": 17,
+      "x": 114239,
+      "y": 52152,
+      "pixelX": 95,
+      "pixelY": 185
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式構内配置図の連続サイロ列と専用桟橋・後背工場・道路配置を照合。事務所案内点からサイロ列へ補正。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1784/814.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2024年10月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-higashinada",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://toyotsu-grainhd.co.jp/group_company/higashinada-tomen-silo/",
+    "identitySource": "https://toyotsu-grainhd.co.jp/group_company/higashinada-tomen-silo/",
+    "address": "兵庫県神戸市東灘区住吉浜町19-2",
+    "previousPosition": {
+      "lat": 34.7015419,
+      "lng": 135.2629053
+    },
+    "coordinates": {
+      "lat": 34.701665,
+      "lng": 135.261676
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/114783/52049.jpg",
+    "tile": {
+      "z": 17,
+      "x": 114783,
+      "y": 52049,
+      "pixelX": 70,
+      "pixelY": 178
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1793/813.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2021年10月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  },
+  {
+    "id": "silo-nakanihon",
+    "checkedOn": "2026-10-12",
+    "officialSource": "https://www.japan-cornstarch.com/information/groupcompany/tabid/120/Default.aspx",
+    "identitySource": "https://www.japan-cornstarch.com/Portals/0/images/company/groupimage3.jpg",
+    "address": "愛知県碧南市玉津浦町1番",
+    "previousPosition": {
+      "lat": 34.8659,
+      "lng": 136.9643
+    },
+    "coordinates": {
+      "lat": 34.866338,
+      "lng": 136.964772
+    },
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/115403/51976.jpg",
+    "tile": {
+      "z": 17,
+      "x": 115403,
+      "y": 51976,
+      "pixelX": 90,
+      "pixelY": 178
+    },
+    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
+    "note": "公式グループ会社写真のコンクリートサイロと公式玉津浦町1番の工場・岸壁を照合。石油タンク群を選ばず、岸壁沿いの長いサイロ屋根内へ補正。",
+    "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1803/812.geojson",
+    "photoMetadata": [
+      {
+        "データソース": "電子国土基本図（オルソ画像）",
+        "撮影年月": "2010年8月～9月"
+      }
+    ],
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+  }
+]

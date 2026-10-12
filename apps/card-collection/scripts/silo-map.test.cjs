@@ -10,6 +10,8 @@ test("21施設に監査結果レコードがあり、施設IDと数値範囲が�
   assert.deepEqual(Object.keys(siloLocations).sort(), silos.map(s => s.id).sort());
   for (const silo of silos) {
     const [lat, lng] = getSiloPosition(silo);
+    assert.equal(siloLocations[silo.id].status, "site-point");
+    assert.match(siloLocations[silo.id].aerialUrl, /^https:\/\/cyberjapandata.gsi.go.jp\/xyz\/seamlessphoto\/17\//);
     assert.ok(lat > 30 && lat < 46 && lng > 129 && lng < 146);
     if (siloLocations[silo.id].coordinates) assert.match(siloLocations[silo.id].sourceUrl, /^https:/);
   }
@@ -26,7 +28,7 @@ test("未獲得を地域に集約し、名称・施設ID・実座標を返さな
   }
 });
 
-test("収集後は該当地域の残数だけが減り、全獲得で地域ピンがなくなる", () => {
+test("収集後は該当地域の残数だけが減り、全獲得で地域一覧がなくなる", () => {
   const before = getUncollectedRegions(silos, []);
   const after = getUncollectedRegions(silos, ["silo-kanto"]);
   assert.equal(before.find(r => r.id === "kanto").remaining - after.find(r => r.id === "kanto").remaining, 1);
@@ -43,13 +45,22 @@ test("密集したピンを小縮尺で集約し、拡大後は各施設を選�
   assert.equal(JSON.stringify(silos), snapshot);
 });
 
-test("共有座標は丸めず、地点が未確認の施設は既存座標を維持する", () => {
-  const silo = silos.find(s => s.id === "silo-nakanihon");
-  assert.deepEqual(getSiloPosition(silo), [silo.coordinates.lat, silo.coordinates.lng]);
+test("未確認施設は共有の概略座標へフォールバックしない", () => {
+  const unknown = { ...silos[0], id: "unverified-synthetic" };
+  assert.equal(getSiloPosition(unknown), null);
+  assert.equal(getSiloZoom(unknown), 6);
 });
 
+test("画面で重なっても離れた港や県の施設を集約しない", () => {
+  const facilities = silos.filter(s => ["silo-kanto", "silo-zenno-kashima", "silo-toyo"].includes(s.id));
+  const groups = groupNearbySilos(facilities, () => [0, 0], 52);
+  assert.deepEqual(groups.map(group => group.length), [2, 1]);
+  const kurashiki = silos.filter(s => s.location === "岡山県倉敷市");
+  assert.equal(groupNearbySilos(kurashiki, () => [0, 0], 52).length, 3);
+});
 
-test("概略施設は精密地点と同じ倍率へ拡大しない", () => {
-  assert.equal(getSiloZoom(silos.find(s => s.id === "silo-kanto")), 16);
-  assert.equal(getSiloZoom(silos.find(s => s.id === "silo-nakanihon")), 11);
+test("鹿島と苫小牧は航空写真のサイロ本体地点に補正され、詳細倍率で表示する", () => {
+  assert.deepEqual(getSiloPosition(silos.find(s => s.id === "silo-zenno-kashima")), [35.91785, 140.667347]);
+  assert.deepEqual(getSiloPosition(silos.find(s => s.id === "silo-tomakomai")), [42.642262, 141.669774]);
+  for (const silo of silos) assert.equal(getSiloZoom(silo), 16);
 });

@@ -4,7 +4,7 @@ import { silos } from "@trading-silo/shared";
 
 const TILE = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64");
 const savedState = {
-  collectedCardIds: ["silo-kanto", "silo-zenno-kashima", "grain-wheat"],
+  collectedCardIds: ["silo-kanto", "silo-zenno-kashima", "silo-toyo", "grain-wheat"],
   totalQuizAttempts: 9, correctAnswers: 6,
   wrongAnswerQuizIds: ["quiz-tohoku-1"], answeredQuizIds: ["quiz-kanto-1", "quiz-tohoku-1"],
   categoryStats: { silo: { attempts: 6, correct: 3 }, grain: { attempts: 3, correct: 3 }, trader: { attempts: 0, correct: 0 } },
@@ -24,10 +24,14 @@ test("カードから所在地・詳細・コレクションへ往復でき、�
   await expect(page).toHaveURL(/\/map\?silo=silo-kanto/);
   await expect(page.getByTestId("silo-selected-detail")).toContainText("関東グレーンターミナル");
   const pin = page.getByTestId("silo-marker").filter({ has: page.locator(".silo-map-pin") }).and(page.locator('[data-silo-id="silo-kanto"]'));
-  await expect(pin).toHaveAttribute("data-lat", "35.920248");
-  await expect(pin).toHaveAttribute("data-lng", "140.6651729");
+  await expect(pin).toHaveAttribute("data-lat", "35.920465");
+  await expect(pin).toHaveAttribute("data-lng", "140.664847");
   await page.getByRole("button", { name: "カードの詳細を見る" }).click();
   await expect(page.getByRole("dialog")).toContainText("関東グレーンターミナル");
+  await expect(page.getByRole("dialog").locator("h2")).toBeVisible();
+  await expect(page.getByTestId("card-detail-header")).toHaveCSS("background-color", "rgb(42, 37, 32)");
+  await expect(page.getByRole("dialog").locator("h2")).toHaveCSS("color", "rgb(250, 249, 247)");
+  await expect(page.getByTestId("card-detail-header").getByText("サイロカード", { exact: true })).toHaveCSS("color", "rgb(250, 249, 247)");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect.poll(() => getCollectionState(page)).toEqual(savedState);
@@ -42,12 +46,13 @@ test("カードから所在地・詳細・コレクションへ往復でき、�
 test("未獲得は地域表示だけになり、直接URLでも施設名と実座標を出さない", async ({ page }) => {
   await page.goto("/map?silo=silo-tohoku");
   await expect(page.getByRole("heading", { name: "サイロマップ", exact: true })).toBeVisible();
-  await expect(page.getByTestId("silo-region").first()).toBeVisible();
+  await expect(page.getByTestId("silo-region")).toHaveCount(0);
+  await expect(page.getByTestId("silo-sidebar")).toContainText("未獲得の地域");
   await expect(page.getByTestId("silo-selected-detail")).toContainText("未獲得、または見つかりません");
   await expect(page.getByText("東北グレーンターミナル", { exact: true })).toHaveCount(0);
   await expect(page.locator('[data-silo-id="silo-tohoku"]')).toHaveCount(0);
-  await page.getByTestId("silo-sidebar").getByRole("button", { name: "東北 残り2施設" }).click();
-  await expect(page.getByTestId("silo-selected-detail")).toContainText("ピンは地域の目安です");
+  await page.getByTestId("silo-sidebar").getByRole("button", { name: "地域 東北 残り2施設" }).click();
+  await expect(page.getByTestId("silo-selected-detail")).toContainText("地域の範囲を示しています");
   await page.getByRole("button", { name: "獲得済み", exact: true }).click();
   await expect(page.getByTestId("silo-region")).toHaveCount(0);
   await expect(page.getByTestId("silo-sidebar")).not.toContainText("未獲得の地域");
@@ -57,13 +62,14 @@ test("密集ピンを拡大し、一覧と個別ピンの選択が連動する",
   await page.goto("/map");
   await page.getByRole("button", { name: "獲得済み", exact: true }).click();
   await page.getByTestId("silo-cluster").first().click();
-  await expect(page.getByTestId("silo-marker")).toHaveCount(2);
+  await expect(page.getByTestId("silo-marker")).toHaveCount(3);
   await page.getByTestId("silo-sidebar").getByRole("button", { name: "全農サイロ鹿島支店を選択" }).click();
   await expect(page.getByTestId("silo-selected-detail")).toContainText("全農サイロ鹿島支店");
   await expect(page.getByTestId("silo-sidebar").getByRole("button", { name: "全農サイロ鹿島支店を選択" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "全国を表示" }).click();
   await expect(page).toHaveURL(/\/map$/);
   await expect(page.getByTestId("silo-cluster")).toHaveCount(1);
+  await expect(page.locator('[data-testid="silo-marker"][data-silo-id="silo-toyo"]')).toBeVisible();
 });
 
 test("獲得すると地域の残数が減り、施設を個別に選べる", async ({ page }) => {

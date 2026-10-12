@@ -139,7 +139,7 @@ export default function CardDetail({ card, onClose }: CardDetailProps) {
         <div className="absolute inset-0 holographic opacity-10 pointer-events-none rounded-2xl" />
 
         {/* ヘッダー */}
-        <div className={`relative bg-gradient-to-br ${cardStyles.gradient} p-6 text-white`}>
+        <div className="relative bg-concrete-900 p-6 text-concrete-50" data-testid="card-detail-header">
           {/* 装飾的なストライプ */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{
@@ -169,7 +169,7 @@ export default function CardDetail({ card, onClose }: CardDetailProps) {
               initial={prefersReducedMotion ? { opacity: 0 } : { x: -20, opacity: 0 }}
               animate={prefersReducedMotion ? { opacity: 1 } : { x: 0, opacity: 1 }}
               transition={prefersReducedMotion ? { duration: 0.1 } : { delay: 0.15 }}
-              className="font-display text-3xl mb-1"
+              className="font-display text-3xl mb-1 text-concrete-50"
             >
               {card.name}
             </motion.h2>
@@ -177,7 +177,7 @@ export default function CardDetail({ card, onClose }: CardDetailProps) {
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-sm opacity-80 font-display tracking-wider"
+              className="text-sm opacity-80 font-display tracking-wider text-concrete-50"
             >
               {categoryInfo?.name}カード
             </motion.p>

@@ -61,7 +61,7 @@ function MapExplorer() {
     <div className="silo-explorer-grid">
       <div className="silo-explorer-main min-w-0">
         <div className="silo-explorer-map" role="region" aria-label="獲得済みサイロの所在地を示す地図">
-          <SiloMapClient silos={collected} selectedSiloId={selected?.id ?? null} onSiloSelect={selectSilo} resetVersion={resetVersion} focusVersion={focusVersion} regions={regions} selectedRegionId={selectedRegionId} onRegionSelect={selectRegion} />
+          <SiloMapClient silos={collected} selectedSiloId={selected?.id ?? null} onSiloSelect={selectSilo} resetVersion={resetVersion} focusVersion={focusVersion} regions={regions} selectedRegionId={selectedRegionId} />
         </div>
         <section className="silo-selected-detail" aria-labelledby="selected-silo-title" data-testid="silo-selected-detail">
           {selected ? <>
@@ -72,12 +72,13 @@ function MapExplorer() {
                 <Link className="silo-map-action" href={`/collection#card-${selected.id}`}>コレクションで見る</Link>
               </div>
             </div>
-            <p className="text-xs text-concrete-500 leading-relaxed mt-3">{location?.status === "official-point" ? "公式案内図の施設地点を表示しています。" : location?.status === "address-only" ? "所在地は公式案内で確認済みです。ピンは概略位置です。" : "概略位置を表示しています。施設の正確な地点は未確認です。"}
+            <p className="text-xs text-concrete-500 leading-relaxed mt-3">{location?.status === "site-point" ? "公式施設案内と航空写真を照合したサイロ本体の地点です。" : "サイロ本体の地点を確認中のため、地図にピンは表示していません。"}
               {location?.sourceUrl && <> <a href={location.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">公式の所在地案内</a></>}
+              {location?.aerialUrl && <> · <a href={location.aerialUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">所在地の航空写真（国土地理院）</a></>}
             </p>
           </> : selectedRegion ? <>
             <h3 id="selected-silo-title" className="text-lg font-display">{selectedRegion.name}の未獲得サイロ</h3>
-            <p className="text-sm text-concrete-600 mt-2">あと{selectedRegion.remaining}施設。ピンは地域の目安です。カードを獲得すると施設の所在地を表示します。</p>
+            <p className="text-sm text-concrete-600 mt-2">あと{selectedRegion.remaining}施設。この表示は地域の範囲を示しています。カードを獲得すると施設の所在地を表示します。</p>
             <Link className="silo-map-action silo-map-action-primary inline-flex mt-3" href="/quiz?category=silo">サイロのクイズに挑戦</Link>
           </> : <><h3 id="selected-silo-title" className="text-base font-display">施設を選んでみよう</h3><p className="text-sm text-concrete-600 mt-2">ピンや一覧から選ぶと、所在地とカードの詳細を確認できます。</p>
             {requestedId && <p role="status" className="text-sm text-concrete-500 mt-2">この施設は未獲得、または見つかりません。</p>}
@@ -87,8 +88,9 @@ function MapExplorer() {
       </div>
       <SiloListSidebar silos={collected} selectedId={selected?.id ?? null} onSelect={selectSilo} regions={regions} selectedRegionId={selectedRegionId} onRegionSelect={selectRegion} />
     </div>
-    <p className="text-xs text-concrete-500 mt-3 leading-relaxed">✓ 公式地点を確認済み　≈ 獲得済み・概略位置　数字: 近くの獲得施設　?: 未獲得の地域（施設の位置ではありません）</p>
+    <p className="text-xs text-concrete-500 mt-3 leading-relaxed">✓ サイロ本体の所在地　「施設 / 拡大」: 同じ港周辺の施設をまとめた表示　未獲得の施設は地域一覧で確認できます。</p>
     <p className="text-xs text-concrete-500 mt-2 leading-relaxed">地図の背景にはOpenStreetMapを利用しています。背景を読み込めない場合も一覧とカードの詳細は利用できます。</p>
+    <p className="text-xs text-concrete-500 mt-2 leading-relaxed">所在地は公式施設案内と<a href="https://maps.gsi.go.jp/development/ichiran.html#seamlessphoto" target="_blank" rel="noopener noreferrer" className="underline">地理院タイル（全国最新写真）</a>をもとに作成しています。</p>
     {selected && detailOpen && <CardDetail card={selected} onClose={() => setDetailOpen(false)} />}
   </div>;
 }
