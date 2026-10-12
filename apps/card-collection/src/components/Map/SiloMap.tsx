@@ -1,506 +1,122 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { silos } from "@/data";
-import { useCollection } from "@/context/CollectionContext";
-import { useReducedMotion } from "@/hooks";
+import { useEffect, useState } from "react";
+import { MapContainer, Marker, ScaleControl, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
+import L from "leaflet";
 import { SiloCard } from "@/types";
-import SiloPopup from "./SiloPopup";
+import { useReducedMotion } from "@/hooks";
+import { getSiloPosition, getSiloZoom, groupNearbySilos, SiloRegion } from "@/lib/siloMap";
 
-interface SiloMapProps {
-  selectedSiloId?: string | null;
-  onSiloSelect?: (id: string) => void;
+export interface SiloMapProps {
+  silos: SiloCard[];
+  selectedSiloId: string | null;
+  onSiloSelect: (id: string) => void;
+  resetVersion: number;
+  focusVersion: number;
+  regions: SiloRegion[];
+  selectedRegionId: string | null;
+  onRegionSelect: (id: string) => void;
 }
 
-type GridPosition = { x: number; y: number };
+const JAPAN_BOUNDS: L.LatLngBoundsExpression = [[30.7, 129.2], [43.8, 145.5]];
 
-const MAP_LAYOUT = [
-  "........................",
-  "..................###...",
-  ".................#####..",
-  ".................####...",
-  "...............###......",
-  "..............####......",
-  ".............#####......",
-  "............######......",
-  "...........#######......",
-  "..........#######.......",
-  ".........######.........",
-  "........#####...........",
-  ".......#####............",
-  "......#####..##.........",
-  ".....####..##...........",
-  "....####................",
-  "...###..................",
-  "........................",
-];
-
-const MAP_ROWS = MAP_LAYOUT.length;
-const MAP_COLS = MAP_LAYOUT[0].length;
-
-const MAP_BOUNDS = {
-  minLat: 30,
-  maxLat: 45,
-  minLng: 128,
-  maxLng: 146,
-};
-
-const DIRECTIONS: Array<[number, number]> = [
-  [1, 0],
-  [-1, 0],
-  [0, 1],
-  [0, -1],
-];
-
-const DIAGONAL_DIRECTIONS: Array<[number, number]> = [
-  [1, 1],
-  [1, -1],
-  [-1, 1],
-  [-1, -1],
-];
-
-const ALL_DIRECTIONS: Array<[number, number]> = [
-  ...DIRECTIONS,
-  ...DIAGONAL_DIRECTIONS,
-];
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
-
-const toKey = (pos: GridPosition) => `${pos.x},${pos.y}`;
-
-const inBounds = (x: number, y: number) =>
-  y >= 0 && y < MAP_ROWS && x >= 0 && x < MAP_COLS;
-
-const isLand = (x: number, y: number) =>
-  MAP_LAYOUT[y]?.[x] === "#";
-
-const isSea = (x: number, y: number) => MAP_LAYOUT[y]?.[x] === ".";
-
-const isCoastalSea = (x: number, y: number) =>
-  isSea(x, y) &&
-  DIRECTIONS.some(([dx, dy]) => inBounds(x + dx, y + dy) && isLand(x + dx, y + dy));
-
-const latLngToGrid = (lat: number, lng: number): GridPosition => {
-  const x = Math.round(
-    ((lng - MAP_BOUNDS.minLng) / (MAP_BOUNDS.maxLng - MAP_BOUNDS.minLng)) *
-      (MAP_COLS - 1)
-  );
-  const y = Math.round(
-    ((MAP_BOUNDS.maxLat - lat) / (MAP_BOUNDS.maxLat - MAP_BOUNDS.minLat)) *
-      (MAP_ROWS - 1)
-  );
-  return {
-    x: clamp(x, 0, MAP_COLS - 1),
-    y: clamp(y, 0, MAP_ROWS - 1),
-  };
-};
-
-const findNearestCoastalSea = (start: GridPosition): GridPosition => {
-  const queue: GridPosition[] = [start];
-  const visited = new Set<string>([toKey(start)]);
-
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    if (isCoastalSea(current.x, current.y)) {
-      return current;
-    }
-
-    for (const [dx, dy] of DIRECTIONS) {
-      const next = { x: current.x + dx, y: current.y + dy };
-      if (!inBounds(next.x, next.y)) continue;
-      const key = toKey(next);
-      if (visited.has(key)) continue;
-      visited.add(key);
-      queue.push(next);
-    }
-  }
-
-  if (isSea(start.x, start.y)) {
-    return start;
-  }
-
-  return { x: 0, y: 0 };
-};
-
-type SeaPathOptions = {
-  avoidKeys?: Set<string>;
-  coastalPenalty?: number;
-  portPenalty?: number;
-};
-
-const findSeaPath = (
-  start: GridPosition,
-  goal: GridPosition,
-  options?: SeaPathOptions
-): GridPosition[] => {
-  if (start.x === goal.x && start.y === goal.y) {
-    return [start];
-  }
-  const avoidKeys = options?.avoidKeys;
-  const coastalPenalty = options?.coastalPenalty ?? 0.4;
-  const portPenalty = options?.portPenalty ?? 2;
-  const startKey = toKey(start);
-  const goalKey = toKey(goal);
-
-  const distances = new Map<string, number>([[startKey, 0]]);
-  const cameFrom = new Map<string, GridPosition>();
-  const queue: Array<{ pos: GridPosition; cost: number }> = [{ pos: start, cost: 0 }];
-
-  const isDiagonalMove = (dx: number, dy: number) =>
-    Math.abs(dx) === 1 && Math.abs(dy) === 1;
-
-  while (queue.length > 0) {
-    let minIndex = 0;
-    for (let i = 1; i < queue.length; i += 1) {
-      if (queue[i].cost < queue[minIndex].cost) {
-        minIndex = i;
-      }
-    }
-
-    const [{ pos: current, cost: currentCost }] = queue.splice(minIndex, 1);
-    const currentKey = toKey(current);
-    if (currentKey === goalKey) {
-      break;
-    }
-
-    for (const [dx, dy] of ALL_DIRECTIONS) {
-      const next = { x: current.x + dx, y: current.y + dy };
-      if (!inBounds(next.x, next.y) || !isSea(next.x, next.y)) continue;
-
-      if (isDiagonalMove(dx, dy)) {
-        if (!isSea(current.x + dx, current.y) || !isSea(current.x, current.y + dy)) {
-          continue;
-        }
-      }
-
-      const nextKey = toKey(next);
-      const baseCost = isDiagonalMove(dx, dy) ? Math.SQRT2 : 1;
-      const coastalCost = isCoastalSea(next.x, next.y) ? coastalPenalty : 0;
-      const avoidCost =
-        avoidKeys && avoidKeys.has(nextKey) && nextKey !== startKey && nextKey !== goalKey
-          ? portPenalty
-          : 0;
-      const nextCost = currentCost + baseCost + coastalCost + avoidCost;
-
-      if (nextCost < (distances.get(nextKey) ?? Number.POSITIVE_INFINITY)) {
-        distances.set(nextKey, nextCost);
-        cameFrom.set(nextKey, current);
-        queue.push({ pos: next, cost: nextCost });
-      }
-    }
-  }
-
-  if (!cameFrom.has(goalKey)) {
-    return [start];
-  }
-
-  const path: GridPosition[] = [];
-  let current: GridPosition | undefined = goal;
-  while (current) {
-    path.push(current);
-    const prev = cameFrom.get(toKey(current));
-    if (!prev) break;
-    current = prev;
-  }
-
-  return path.reverse();
-};
-
-const MARKER_OFFSETS = [
-  { x: -28, y: -28 },
-  { x: 28, y: -28 },
-  { x: -28, y: 28 },
-  { x: 28, y: 28 },
-  { x: 0, y: 0 },
-];
-
-const REGION_LABELS = [
-  { id: "hokkaido", label: "北海道", x: 19, y: 2 },
-  { id: "tohoku", label: "東北", x: 16, y: 6 },
-  { id: "honshu", label: "本州", x: 14, y: 10 },
-  { id: "shikoku", label: "四国", x: 15, y: 13 },
-  { id: "kyushu", label: "九州", x: 6, y: 15 },
-];
-
-type PortAssignment = { position: GridPosition; slot: number };
-
-const buildPortAssignments = (cards: SiloCard[]): Record<string, PortAssignment> => {
-  const occupancy = new Map<string, number>();
-  return cards.reduce<Record<string, PortAssignment>>((acc, silo) => {
-    const mapped = latLngToGrid(silo.coordinates.lat, silo.coordinates.lng);
-    const port = findNearestCoastalSea(mapped);
-    const key = toKey(port);
-    const slot = occupancy.get(key) ?? 0;
-    occupancy.set(key, slot + 1);
-    acc[silo.id] = { position: port, slot };
-    return acc;
-  }, {});
-};
-
-export default function SiloMap({ selectedSiloId, onSiloSelect }: SiloMapProps) {
-  const router = useRouter();
-  const { hasCard } = useCollection();
-  const prefersReducedMotion = useReducedMotion();
-  const portAssignments = useMemo(() => buildPortAssignments(silos), []);
-  const portKeys = useMemo(
-    () => new Set(Object.values(portAssignments).map(({ position }) => toKey(position))),
-    [portAssignments]
-  );
-  const defaultPort = portAssignments[silos[0]?.id]?.position ?? { x: 0, y: 0 };
-  const [shipPosition, setShipPosition] = useState<GridPosition>(defaultPort);
-  const [shipPath, setShipPath] = useState<GridPosition[]>([]);
-  const [isSailing, setIsSailing] = useState(false);
-  const shipPositionRef = useRef(shipPosition);
+function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVersion, regions, selectedRegionId, onRegionSelect }: SiloMapProps) {
+  const map = useMap();
+  const reducedMotion = useReducedMotion();
+  const [, setViewVersion] = useState(0);
+  useMapEvents({
+    zoomend: () => setViewVersion((value) => value + 1),
+    resize: () => setViewVersion((value) => value + 1),
+  });
 
   useEffect(() => {
-    shipPositionRef.current = shipPosition;
-  }, [shipPosition]);
-
-  const selectedSilo = selectedSiloId
-    ? silos.find((silo) => silo.id === selectedSiloId)
-    : undefined;
+    map.fitBounds(JAPAN_BOUNDS, { padding: [24, 24], animate: false });
+  }, [map, resetVersion]);
 
   useEffect(() => {
-    if (!selectedSiloId) return;
-    const target = portAssignments[selectedSiloId]?.position;
-    if (!target) return;
-    const start = shipPositionRef.current;
-    if (start.x === target.x && start.y === target.y) return;
-    const path = findSeaPath(start, target, { avoidKeys: portKeys });
-    setShipPath(path);
-  }, [selectedSiloId, portAssignments, portKeys]);
+    const selected = silos.find((silo) => silo.id === selectedSiloId);
+    if (selected) map.setView(getSiloPosition(selected), getSiloZoom(selected), { animate: !reducedMotion });
+  }, [map, selectedSiloId, silos, reducedMotion, focusVersion]);
 
   useEffect(() => {
-    if (shipPath.length <= 1) {
-      setIsSailing(false);
-      return;
-    }
+    const region = regions.find((item) => item.id === selectedRegionId);
+    if (region) map.setView(region.position, 6, { animate: !reducedMotion });
+  }, [map, regions, selectedRegionId, reducedMotion, focusVersion]);
 
-    if (prefersReducedMotion) {
-      const last = shipPath[shipPath.length - 1];
-      if (last) {
-        setShipPosition(last);
-      }
-      setIsSailing(false);
-      return;
-    }
+  useEffect(() => {
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(map.getContainer());
+    return () => observer.disconnect();
+  }, [map]);
 
-    let stepIndex = 0;
-    setIsSailing(true);
+  const groups = groupNearbySilos(silos, (silo) => {
+    const point = map.latLngToLayerPoint(getSiloPosition(silo));
+    return [point.x, point.y];
+  }, map.getZoom() >= 16 ? 0 : 52);
 
-    const timer = window.setInterval(() => {
-      stepIndex += 1;
-      const next = shipPath[stepIndex];
-      if (!next) {
-        window.clearInterval(timer);
-        setIsSailing(false);
-        return;
-      }
-      setShipPosition(next);
-      if (stepIndex >= shipPath.length - 1) {
-        window.clearInterval(timer);
-        setIsSailing(false);
-      }
-    }, 260);
+  return <>{groups.map((group) => {
+    const silo = group[0];
+    const isCluster = group.length > 1;
+    const approximate = !isCluster && getSiloZoom(silo) < 16;
+    const selected = group.some((item) => item.id === selectedSiloId);
+    const label = isCluster ? `近くの獲得済みサイロ${group.length}施設を拡大` : `${silo.name}を選択${approximate ? "、概略位置" : ""}`;
+    const icon = L.divIcon({
+      className: "silo-map-icon",
+      html: `<span class="silo-map-pin ${isCluster ? "silo-map-cluster" : ""} ${approximate ? "silo-map-approximate" : ""} ${selected ? "is-selected" : ""}" aria-hidden="true">${isCluster ? group.length : approximate ? "≈" : "✓"}</span>`,
+      iconSize: [44, 44], iconAnchor: [22, 22],
+    });
+    return <Marker key={group.map((item) => item.id).join("-")}
+      position={getSiloPosition(silo)} icon={icon} title={label} keyboard
+      zIndexOffset={selected ? 1000 : 0}
+      eventHandlers={{
+        add: (event) => {
+          const element = (event.target as L.Marker).getElement();
+          element?.setAttribute("role", "button");
+          element?.setAttribute("aria-label", label);
+          element?.setAttribute("data-testid", isCluster ? "silo-cluster" : "silo-marker");
+          element?.setAttribute("data-silo-id", silo.id);
+          element?.setAttribute("data-lat", String(getSiloPosition(silo)[0]));
+          element?.setAttribute("data-lng", String(getSiloPosition(silo)[1]));
+        },
+        click: () => {
+          if (isCluster) map.fitBounds(group.map(getSiloPosition), { padding: [52, 52], maxZoom: 16, animate: !reducedMotion });
+          else onSiloSelect(silo.id);
+        },
+      }}>
+      <Tooltip direction="top" offset={[0, -20]}>{isCluster ? `獲得済み ${group.length}施設 · タップで拡大` : `${silo.name}${approximate ? "（概略位置）" : ""}`}</Tooltip>
+    </Marker>;
+  })}
+    {regions.map((region) => <Marker key={region.id} position={region.position}
+      title={`${region.name}の未獲得サイロ、残り${region.remaining}施設`} keyboard
+      icon={L.divIcon({ className: "silo-map-icon", html: '<span class="silo-map-pin silo-map-region" aria-hidden="true">?</span>', iconSize: [44, 44], iconAnchor: [22, 22] })}
+      eventHandlers={{
+        add: (event) => {
+          const element = (event.target as L.Marker).getElement();
+          element?.setAttribute("role", "button");
+          element?.setAttribute("aria-label", `${region.name}の未獲得サイロ、残り${region.remaining}施設`);
+          element?.setAttribute("data-testid", "silo-region");
+          element?.setAttribute("data-region-id", region.id);
+        },
+        click: () => onRegionSelect(region.id),
+      }}><Tooltip direction="top">{region.name} · 未獲得{region.remaining}施設</Tooltip></Marker>)}
+  </>;
+}
 
-    return () => window.clearInterval(timer);
-  }, [shipPath, prefersReducedMotion]);
-
-  const routeSet = useMemo(
-    () => new Set(shipPath.map((pos) => toKey(pos))),
-    [shipPath]
-  );
-
-  const gridCells = useMemo(() => {
-    const cells: Array<{
-      key: string;
-      x: number;
-      y: number;
-      isLand: boolean;
-      isSea: boolean;
-      isCoastalSea: boolean;
-    }> = [];
-    for (let y = 0; y < MAP_ROWS; y += 1) {
-      for (let x = 0; x < MAP_COLS; x += 1) {
-        const key = `${x},${y}`;
-        const land = isLand(x, y);
-        cells.push({
-          key,
-          x,
-          y,
-          isLand: land,
-          isSea: !land,
-          isCoastalSea: !land && isCoastalSea(x, y),
-        });
-      }
-    }
-    return cells;
-  }, []);
-
-  return (
-    <div
-      className="relative w-full h-full"
-      data-testid="deformed-map"
-      data-map-cols={MAP_COLS}
-      data-map-rows={MAP_ROWS}
-    >
-      <div
-        className="absolute inset-0 map-board grid"
-        style={{
-          gridTemplateColumns: `repeat(${MAP_COLS}, minmax(0, 1fr))`,
-          gridTemplateRows: `repeat(${MAP_ROWS}, minmax(0, 1fr))`,
-        }}
-        role="img"
-        aria-label="桃鉄風のデフォルメ地図。海上のマスだけを通って船が移動します。"
-      >
-        {gridCells.map((cell) => {
-          const isRoute = routeSet.has(cell.key);
-          return (
-            <div
-              key={cell.key}
-              className={[
-                "map-cell",
-                cell.isLand ? "map-cell-land" : "map-cell-sea",
-                cell.isCoastalSea ? "map-cell-coast" : "",
-                isRoute ? "map-cell-route" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-              data-cell-type={cell.isLand ? "land" : "sea"}
-              data-x={cell.x}
-              data-y={cell.y}
-            />
-          );
-        })}
-      </div>
-
-      <div
-        className="absolute inset-0 grid pointer-events-none"
-        style={{
-          gridTemplateColumns: `repeat(${MAP_COLS}, minmax(0, 1fr))`,
-          gridTemplateRows: `repeat(${MAP_ROWS}, minmax(0, 1fr))`,
-        }}
-        aria-hidden="true"
-      >
-        {REGION_LABELS.map((region) => (
-          <div
-            key={region.id}
-            className="map-label"
-            style={{
-              gridColumnStart: region.x + 1,
-              gridRowStart: region.y + 1,
-            }}
-          >
-            {region.label}
-          </div>
-        ))}
-      </div>
-
-      <div
-        className="absolute inset-0 grid pointer-events-none"
-        style={{
-          gridTemplateColumns: `repeat(${MAP_COLS}, minmax(0, 1fr))`,
-          gridTemplateRows: `repeat(${MAP_ROWS}, minmax(0, 1fr))`,
-        }}
-      >
-        {silos.map((silo) => {
-          const assignment = portAssignments[silo.id];
-          if (!assignment) return null;
-          const isCollected = hasCard(silo.id);
-          const isSelected = selectedSiloId === silo.id;
-          const offset = MARKER_OFFSETS[assignment.slot % MARKER_OFFSETS.length];
-
-          return (
-            <button
-              key={silo.id}
-              type="button"
-              onClick={() => {
-                if (isCollected) {
-                  onSiloSelect?.(silo.id);
-                  return;
-                }
-                router.push(`/quiz?cardId=${silo.id}`);
-              }}
-              className="map-marker pointer-events-auto"
-              style={{
-                gridColumnStart: assignment.position.x + 1,
-                gridRowStart: assignment.position.y + 1,
-                transform: `translate(${offset.x}%, ${offset.y}%)`,
-              }}
-              data-testid="silo-marker"
-              data-silo-id={silo.id}
-              data-collected={isCollected ? "true" : "false"}
-              aria-label={
-                isCollected
-                  ? `${silo.name}を選択`
-                  : `${silo.name}のクイズに挑戦する`
-              }
-            >
-              <span
-                className={[
-                  isCollected ? "silo-marker-collected" : "silo-marker-uncollected",
-                  isSelected ? "map-marker-selected" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {isCollected ? (
-                  silo.imageUrl ? (
-                    <Image
-                      src={silo.imageUrl}
-                      alt={silo.name}
-                      fill
-                      sizes="40px"
-                      className="silo-marker-image"
-                    />
-                  ) : (
-                    <span className="map-marker-question">🏭</span>
-                  )
-                ) : (
-                  <span className="map-marker-question">?</span>
-                )}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div
-        className="absolute inset-0 grid pointer-events-none"
-        style={{
-          gridTemplateColumns: `repeat(${MAP_COLS}, minmax(0, 1fr))`,
-          gridTemplateRows: `repeat(${MAP_ROWS}, minmax(0, 1fr))`,
-        }}
-      >
-        <motion.div
-          layout
-          className="map-ship"
-          style={{
-            gridColumnStart: shipPosition.x + 1,
-            gridRowStart: shipPosition.y + 1,
-          }}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
-          data-testid="map-ship"
-          data-grid-x={shipPosition.x}
-          data-grid-y={shipPosition.y}
-          data-sailing={isSailing ? "true" : "false"}
-          aria-hidden="true"
-        >
-          🚢
-        </motion.div>
-      </div>
-
-      {selectedSilo && hasCard(selectedSilo.id) && (
-        <div className="absolute bottom-4 right-4 max-w-xs pointer-events-none">
-          <div className="map-info-card pointer-events-auto">
-            <SiloPopup silo={selectedSilo} />
-          </div>
-        </div>
-      )}
-    </div>
-  );
+export default function SiloMap(props: SiloMapProps) {
+  const [tileFailed, setTileFailed] = useState(false);
+  const [retryVersion, setRetryVersion] = useState(0);
+  return <div className="silo-map-surface h-full relative" data-testid="silo-map">
+    <MapContainer bounds={JAPAN_BOUNDS} boundsOptions={{ padding: [24, 24] }}
+      minZoom={4} maxZoom={18} scrollWheelZoom={false} className="h-full w-full">
+      <TileLayer key={retryVersion} url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        eventHandlers={{ tileerror: () => setTileFailed(true) }} />
+      <ScaleControl position="bottomleft" imperial={false} />
+      <Facilities {...props} />
+    </MapContainer>
+    {tileFailed && <div role="status" className="silo-map-notice">
+      <span>背景地図を読み込めません。施設一覧から所在地と詳細を確認できます。</span>
+      <button type="button" onClick={() => { setTileFailed(false); setRetryVersion((value) => value + 1); }}>再読み込み</button>
+    </div>}
+  </div>;
 }

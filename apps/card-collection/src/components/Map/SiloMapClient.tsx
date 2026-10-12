@@ -1,24 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { SiloMapProps } from "./SiloMap";
 
 const SiloMap = dynamic(() => import("./SiloMap"), {
   ssr: false,
-  loading: () => (
-    <div className="h-full flex items-center justify-center bg-concrete-100">
-      <span className="text-concrete-500">地図を読み込み中...</span>
-    </div>
-  ),
+  loading: () => <div className="h-full flex items-center justify-center bg-sky-50" role="status">地図を読み込み中…</div>,
 });
 
-interface SiloMapClientProps {
-  selectedSiloId?: string | null;
-  onSiloSelect?: (id: string) => void;
-}
-
-export default function SiloMapClient({
-  selectedSiloId,
-  onSiloSelect,
-}: SiloMapClientProps) {
-  return <SiloMap selectedSiloId={selectedSiloId} onSiloSelect={onSiloSelect} />;
+export default function SiloMapClient(props: SiloMapProps) {
+  return <SiloMap {...props} />;
 }

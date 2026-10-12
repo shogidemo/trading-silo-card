@@ -1,8 +1,6 @@
-const path = require("path");
-
-const jiti = require("jiti")(__filename);
-const { quizzes } = jiti("../src/data/quizzes/index.ts");
-const { allCards } = jiti("../src/data/index.ts");
+require("./register-typescript.cjs");
+const { quizzes } = require("../src/data/quizzes/index.ts");
+const { allCards } = require("../src/data/index.ts");
 
 function fail(message) {
   console.error(message);

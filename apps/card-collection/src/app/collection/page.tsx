@@ -271,12 +271,18 @@ export default function CollectionPage() {
           return (
             <motion.div
               key={card.id}
+              id={`card-${card.id}`}
               variants={itemVariants}
               whileHover={isCollected ? { y: -8, scale: 1.03, rotateY: 3 } : {}}
               style={{ transformStyle: "preserve-3d" }}
             >
               {isCollected ? (
-                <FlipCard card={card} isCollected={isCollected} />
+                <>
+                  <FlipCard card={card} isCollected={isCollected} />
+                  {card.category === "silo" && <Link href={`/map?silo=${encodeURIComponent(card.id)}`}
+                    className="mt-2 flex min-h-11 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700"
+                    aria-label={`${card.name}の地図を見る`}>地図で見る</Link>}
+                </>
               ) : (
                 <Link
                   href={`/quiz?cardId=${card.id}`}

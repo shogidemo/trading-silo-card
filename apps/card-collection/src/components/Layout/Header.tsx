@@ -30,9 +30,9 @@ export default function Header() {
       <div className="max-w-5xl mx-auto px-6 py-5 relative">
         <div className="flex items-center justify-between">
           {/* ロゴ（モバイルのみ表示、ハンバーガーメニュー用のスペース確保） */}
-          <Link href="/" className="group flex items-center gap-4 lg:hidden pl-12">
+          <Link href="/" className="group flex min-w-0 items-center gap-2 sm:gap-4 lg:hidden pl-12">
             <motion.div
-              className="relative w-12 h-12 flex items-center justify-center"
+              className="relative w-9 h-9 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center"
               whileHover={{ rotate: 10 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
@@ -55,17 +55,17 @@ export default function Header() {
             </motion.div>
 
             <div>
-              <h1 className="font-display text-2xl tracking-tight text-gold-400 group-hover:text-gold-300 transition-colors">
+              <h1 className="font-display text-lg sm:text-2xl tracking-tight text-gold-400 group-hover:text-gold-300 transition-colors">
                 穀物サイロカード
               </h1>
-              <p className="text-xs text-concrete-400 tracking-wider uppercase font-english">
+              <p className="text-[9px] sm:text-xs text-concrete-400 tracking-wider uppercase font-english">
                 Grain Silo Collection
               </p>
             </div>
           </Link>
 
           {/* プログレス表示 */}
-          <div className="flex items-center gap-6">
+          <div className="flex shrink-0 items-center gap-6">
             <div className="hidden sm:block text-right">
               <p className="text-xs text-concrete-400 uppercase tracking-wider font-english">
                 Collection

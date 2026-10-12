@@ -1,95 +1,40 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { silos } from "@/data";
-import { useCollection } from "@/context/CollectionContext";
+import Link from "next/link";
+import { siloLocations } from "@/data/siloLocations";
+import type { SiloRegion } from "@/lib/siloMap";
+import { SiloCard } from "@/types";
 
 interface SiloListSidebarProps {
-  selectedId?: string | null;
-  onSelect?: (id: string) => void;
+  silos: SiloCard[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  regions: SiloRegion[];
+  selectedRegionId: string | null;
+  onRegionSelect: (id: string) => void;
 }
 
-export default function SiloListSidebar({
-  selectedId,
-  onSelect,
-}: SiloListSidebarProps) {
-  const { hasCard, getCategoryProgress } = useCollection();
-  const router = useRouter();
-  const progress = getCategoryProgress("silo");
-
-  return (
-    <div
-      className="vintage-border rounded-2xl bg-concrete-50 p-4 h-full overflow-hidden flex flex-col"
-      data-testid="silo-sidebar"
-    >
-      <div className="mb-4">
-        <h3 className="font-display text-lg text-concrete-900 mb-1">
-          サイロ一覧
-        </h3>
-        <p className="text-sm text-concrete-500">
-          {progress.collected}/{progress.total} 獲得済み
-        </p>
-      </div>
-
-      <div className="flex-1 overflow-y-auto space-y-2 -mr-2 pr-2">
-        {[...silos].sort((a, b) => b.coordinates.lat - a.coordinates.lat).map((silo) => {
-          const isCollected = hasCard(silo.id);
-          const isSelected = selectedId === silo.id;
-
-          return (
-            <button
-              key={silo.id}
-              type="button"
-              onClick={() => {
-                if (isCollected) {
-                  onSelect?.(silo.id);
-                  return;
-                }
-                router.push(`/quiz?cardId=${silo.id}`);
-              }}
-              className={`w-full text-left p-3 rounded-xl transition-all ${
-                isSelected
-                  ? "bg-slate-600 text-white shadow-md"
-                  : isCollected
-                    ? "bg-white hover:bg-slate-50 border border-concrete-200"
-                    : "bg-concrete-100 hover:bg-concrete-200 border border-concrete-200"
-              }`}
-              aria-label={
-                isCollected
-                  ? `${silo.name}を選択`
-                  : `${silo.name}のクイズに挑戦する`
-              }
-            >
-              {isCollected ? (
-                <>
-                  <span
-                    className={`font-display text-sm ${isSelected ? "text-white" : "text-concrete-900"}`}
-                  >
-                    {silo.name}
-                  </span>
-                  <p
-                    className={`text-xs mt-1 ${isSelected ? "text-white/70" : "text-concrete-500"}`}
-                  >
-                    {silo.location}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2">
-                    <span className="text-concrete-400 text-lg">?</span>
-                    <span className="font-display text-sm text-concrete-400">
-                      ???
-                    </span>
-                  </div>
-                  <p className="text-xs mt-1 text-concrete-400">
-                    クイズに正解して獲得しよう
-                  </p>
-                </>
-              )}
-            </button>
-          );
-        })}
-      </div>
+export default function SiloListSidebar({ silos, selectedId, onSelect, regions, selectedRegionId, onRegionSelect }: SiloListSidebarProps) {
+  return <section className="silo-map-list" aria-labelledby="silo-list-title" data-testid="silo-sidebar">
+    <div className="silo-map-list-heading">
+      <h3 id="silo-list-title">獲得済みの施設</h3><span>{silos.length}施設</span>
     </div>
-  );
+    {silos.length === 0 ? <p className="p-5 text-sm text-concrete-600">獲得済みのサイロがありません。クイズに正解すると、この地図で所在地を確認できます。</p> :
+      <ul className="silo-map-list-scroll">{[...silos].sort((a, b) => b.coordinates.lat - a.coordinates.lat).map((silo) =>
+        <li key={silo.id}><button type="button" onClick={() => onSelect(silo.id)}
+          className={`silo-map-list-item ${selectedId === silo.id ? "is-selected" : ""}`}
+          aria-label={`${silo.name}を選択`} aria-pressed={selectedId === silo.id}>
+          <span className="silo-map-list-check" aria-hidden="true">✓</span>
+          <span className="min-w-0"><span className="block font-bold leading-relaxed">{silo.name}</span><span className="block text-xs mt-1 opacity-75">{silo.location}{siloLocations[silo.id]?.status !== "official-point" && " · 概略位置"}</span></span>
+          <span className="text-xs shrink-0">地図で見る</span>
+        </button></li>)}</ul>}
+    {regions.length > 0 && <div className="silo-region-list">
+      <h3 className="font-display px-4 pt-4 text-base">未獲得の地域</h3>
+      <p className="px-4 mt-1 mb-2 text-xs text-concrete-500">獲得すると施設の所在地がわかります。</p>
+      <ul>{regions.map((region) => <li key={region.id}><button type="button" className={`silo-map-list-item ${selectedRegionId === region.id ? "is-selected" : ""}`} onClick={() => onRegionSelect(region.id)} aria-pressed={selectedRegionId === region.id}>
+        <span aria-hidden="true">?</span><span className="flex-1">{region.name}</span><span className="text-xs">残り{region.remaining}施設</span>
+      </button></li>)}</ul>
+      <Link href="/quiz?category=silo" className="silo-map-action m-4">サイロのクイズに挑戦</Link>
+    </div>}
+  </section>;
 }
