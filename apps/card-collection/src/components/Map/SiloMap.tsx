@@ -5,7 +5,7 @@ import { MapContainer, Marker, ScaleControl, TileLayer, Tooltip, useMap, useMapE
 import L from "leaflet";
 import { SiloCard } from "@/types";
 import { useReducedMotion } from "@/hooks";
-import { getSiloPosition, getSiloZoom, groupNearbySilos, SiloRegion } from "@/lib/siloMap";
+import { getSiloPosition, getSiloZoom, groupNearbySilos } from "@/lib/siloMap";
 
 export interface SiloMapProps {
   silos: SiloCard[];
@@ -13,13 +13,13 @@ export interface SiloMapProps {
   onSiloSelect: (id: string) => void;
   resetVersion: number;
   focusVersion: number;
-  regions: SiloRegion[];
-  selectedRegionId: string | null;
+  collectedIds: string[];
+  showCollectedOnly: boolean;
 }
 
 const JAPAN_BOUNDS: L.LatLngBoundsExpression = [[30.7, 129.2], [43.8, 145.5]];
 
-function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVersion, regions, selectedRegionId }: SiloMapProps) {
+function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVersion, collectedIds, showCollectedOnly }: SiloMapProps) {
   const map = useMap();
   const reducedMotion = useReducedMotion();
   const [, setViewVersion] = useState(0);
@@ -29,19 +29,14 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
   });
 
   useEffect(() => {
-    map.fitBounds(JAPAN_BOUNDS, { padding: [24, 24], animate: false });
-  }, [map, resetVersion]);
-
-  useEffect(() => {
+    map.invalidateSize();
     const selected = silos.find((silo) => silo.id === selectedSiloId);
     const position = selected && getSiloPosition(selected);
+    const positions = silos.map(getSiloPosition).filter((point): point is [number, number] => point !== null);
     if (position && selected) map.setView(position, getSiloZoom(selected), { animate: !reducedMotion });
-  }, [map, selectedSiloId, silos, reducedMotion, focusVersion]);
-
-  useEffect(() => {
-    const region = regions.find((item) => item.id === selectedRegionId);
-    if (region) map.setView(region.position, 6, { animate: !reducedMotion });
-  }, [map, regions, selectedRegionId, reducedMotion, focusVersion]);
+    else if (showCollectedOnly && positions.length > 0) map.fitBounds(positions, { padding: [32, 32], maxZoom: 16, animate: !reducedMotion });
+    else map.fitBounds(JAPAN_BOUNDS, { padding: [24, 24], animate: false });
+  }, [map, selectedSiloId, silos, showCollectedOnly, reducedMotion, resetVersion, focusVersion]);
 
   useEffect(() => {
     const observer = new ResizeObserver(() => map.invalidateSize());
@@ -63,10 +58,12 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
     const positions = group.map((item) => getSiloPosition(item)!);
     const position: [number, number] = [positions.reduce((sum, point) => sum + point[0], 0) / positions.length, positions.reduce((sum, point) => sum + point[1], 0) / positions.length];
     const selected = group.some((item) => item.id === selectedSiloId);
-    const label = isCluster ? `近くの獲得済みサイロ${group.length}施設を拡大` : `${silo.name}を選択`;
+    const collectedCount = group.filter((item) => collectedIds.includes(item.id)).length;
+    const isCollected = collectedIds.includes(silo.id);
+    const label = isCluster ? `近くのサイロ${group.length}施設を拡大、獲得済み${collectedCount}施設` : `${silo.name}を選択、${isCollected ? "獲得済み" : "未獲得"}`;
     const icon = L.divIcon({
       className: "silo-map-icon",
-      html: `<span class="silo-map-pin ${isCluster ? "silo-map-cluster" : ""} ${selected ? "is-selected" : ""}" aria-hidden="true">${isCluster ? `${group.length}施設<br><small>拡大</small>` : "✓"}</span>`,
+      html: `<span class="silo-map-pin ${isCluster ? "silo-map-cluster" : ""} ${collectedCount === 0 ? "is-uncollected" : ""} ${selected ? "is-selected" : ""}" aria-hidden="true">${isCluster ? `${group.length}施設<br><small>✓${collectedCount} · 拡大</small>` : isCollected ? "✓" : "○"}</span>`,
       iconSize: [44, 44], iconAnchor: [22, 22],
     });
     return <Marker key={group.map((item) => item.id).join("-")}
@@ -78,7 +75,10 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
           element?.setAttribute("role", "button");
           element?.setAttribute("aria-label", label);
           element?.setAttribute("data-testid", isCluster ? "silo-cluster" : "silo-marker");
+          element?.setAttribute("data-facility-count", String(group.length));
+          element?.setAttribute("data-collected-count", String(collectedCount));
           if (!isCluster) {
+            element?.setAttribute("data-collected", String(isCollected));
             element?.setAttribute("data-silo-id", silo.id);
             element?.setAttribute("data-lat", String(position[0]));
             element?.setAttribute("data-lng", String(position[1]));
@@ -89,7 +89,7 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
           else onSiloSelect(silo.id);
         },
       }}>
-      <Tooltip direction="top" offset={[0, -20]}>{isCluster ? `獲得済み ${group.length}施設 · タップで拡大` : silo.name}</Tooltip>
+      <Tooltip direction="top" offset={[0, -20]}>{isCluster ? `${group.length}施設 · 獲得済み${collectedCount}施設 · タップで拡大` : `${silo.name}（${isCollected ? "獲得済み" : "未獲得"}）`}</Tooltip>
     </Marker>;
   })}
 

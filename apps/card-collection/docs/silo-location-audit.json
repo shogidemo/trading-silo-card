@@ -135,26 +135,26 @@
     "id": "silo-hakata",
     "checkedOn": "2026-10-12",
     "officialSource": "https://hakata-port-silo.com/company.html",
-    "identitySource": "https://hakata-port-silo.com/company.html",
+    "identitySource": "https://hakata-port-silo.com/images/top/img_02.png",
     "address": "福岡県福岡市中央区那の津4丁目10番8号",
     "previousPosition": {
       "lat": 33.6054178,
       "lng": 130.3915003
     },
     "coordinates": {
-      "lat": 33.604201,
-      "lng": 130.39263
+      "lat": 33.606091,
+      "lng": 130.391734
     },
-    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/113010/52532.jpg",
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/18/226020/105063.jpg",
     "tile": {
-      "z": 17,
-      "x": 113010,
-      "y": 52532,
-      "pixelX": 130,
-      "pixelY": 142
+      "z": 18,
+      "x": 226020,
+      "y": 105063,
+      "pixelX": 93,
+      "pixelY": 117
     },
     "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
-    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "note": "公式構内図の岸壁沿い長いサイロ群と後背の2群・岸壁搬送経路を照合。旧点は南側の別建物で本体と対応せず不採用。北隣の岸壁沿い連続サイロの屋根内へ修正。",
     "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1765/820.geojson",
     "photoMetadata": [
       {
@@ -162,7 +162,20 @@
         "撮影年月": "2020年10月"
       }
     ],
-    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）",
+    "rejectedPosition": {
+      "lat": 33.604201,
+      "lng": 130.39263
+    },
+    "rejectedTile": {
+      "z": 17,
+      "x": 113010,
+      "y": 52532,
+      "pixelX": 130,
+      "pixelY": 142
+    },
+    "status": "site-point",
+    "recheckedOn": "2026-10-12"
   },
   {
     "id": "silo-zenno-kashima",
@@ -333,16 +346,13 @@
     "id": "silo-zenno-niigata",
     "checkedOn": "2026-10-12",
     "officialSource": "https://www.zsilo.co.jp/company/access/",
-    "identitySource": "https://www.zsilo.co.jp/company/access/",
+    "identitySource": "https://www.zsilo.co.jp/global-image/units/img/3796-5-20250116131614_b6788880e45572.jpg",
     "address": "新潟県北蒲原郡聖籠町東港3-6962-1",
     "previousPosition": {
       "lat": 37.97538369999999,
       "lng": 139.238119
     },
-    "coordinates": {
-      "lat": 37.97613,
-      "lng": 139.239156
-    },
+    "coordinates": null,
     "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/116231/50569.jpg",
     "tile": {
       "z": 17,
@@ -351,8 +361,8 @@
       "pixelX": 110,
       "pixelY": 65
     },
-    "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
-    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "method": "公式写真と航空写真のサイロ本体の対応が未確定。旧採用点を撤回し、新地点は未採用。",
+    "note": "旧採用点の広い矩形屋根と公式写真の2棟のサイロ本体の対応を確定できない。屋根内の本体地点としての採用を撤回。新候補は未採用で、地図に施設ピンを出さない。",
     "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1816/790.geojson",
     "photoMetadata": [
       {
@@ -360,7 +370,20 @@
         "撮影年月": "2022年7月"
       }
     ],
-    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）",
+    "rejectedPosition": {
+      "lat": 37.97613,
+      "lng": 139.239156
+    },
+    "rejectedTile": {
+      "z": 17,
+      "x": 116231,
+      "y": 50569,
+      "pixelX": 110,
+      "pixelY": 65
+    },
+    "status": "unverified",
+    "recheckedOn": "2026-10-12"
   },
   {
     "id": "silo-pgc-west",
@@ -399,26 +422,26 @@
     "id": "silo-pgc-yatsushiro",
     "checkedOn": "2026-10-12",
     "officialSource": "https://www.pgcc.jp/branch/yatsushiro/",
-    "identitySource": "https://www.pgcc.jp/branch/yatsushiro/",
+    "identitySource": "https://www.pgcc.jp/c8561/h9274/uploads/2025/04/cop_yatsushiro_aerial.jpg",
     "address": "熊本県八代市新港町3-12",
     "previousPosition": {
       "lat": 32.5344548,
       "lng": 130.5428932
     },
     "coordinates": {
-      "lat": 32.53397,
-      "lng": 130.543853
+      "lat": 32.533875,
+      "lng": 130.544207
     },
-    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/113065/52997.jpg",
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/18/226131/105995.jpg",
     "tile": {
-      "z": 17,
-      "x": 113065,
-      "y": 52997,
-      "pixelX": 145,
-      "pixelY": 140
+      "z": 18,
+      "x": 226131,
+      "y": 105995,
+      "pixelX": 100,
+      "pixelY": 45
     },
     "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
-    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "note": "公式空撮のWELCOME TO YATSUSHIRO表記のサイロ・事務所・岸壁コンベアと航空写真の2棟を照合。旧点は2棟間の暗い帯で不採用。新点は右側の青い屋根内。",
     "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1766/828.geojson",
     "photoMetadata": [
       {
@@ -426,7 +449,20 @@
         "撮影年月": "2009年4月～9月"
       }
     ],
-    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）",
+    "rejectedPosition": {
+      "lat": 32.53397,
+      "lng": 130.543853
+    },
+    "rejectedTile": {
+      "z": 17,
+      "x": 113065,
+      "y": 52997,
+      "pixelX": 145,
+      "pixelY": 140
+    },
+    "status": "site-point",
+    "recheckedOn": "2026-10-12"
   },
   {
     "id": "silo-pgc-south",
@@ -498,26 +534,26 @@
     "id": "silo-tokachi",
     "checkedOn": "2026-10-12",
     "officialSource": "https://tokachi-grain-center.com/overview/",
-    "identitySource": "https://tokachi-grain-center.com/overview/",
+    "identitySource": "https://tokachi-grain-center.com/wp-content/uploads/2022/07/main01.jpg",
     "address": "北海道広尾郡広尾町会所前6丁目5番1",
     "previousPosition": {
       "lat": 42.302944444,
       "lng": 143.330583333
     },
     "coordinates": {
-      "lat": 42.303222,
-      "lng": 143.330598
+      "lat": 42.302889,
+      "lng": 143.330517
     },
-    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/117721/48507.jpg",
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/18/235442/97014.jpg",
     "tile": {
-      "z": 17,
-      "x": 117721,
-      "y": 48507,
-      "pixelX": 20,
-      "pixelY": 63
+      "z": 18,
+      "x": 235442,
+      "y": 97014,
+      "pixelX": 25,
+      "pixelY": 210
     },
     "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
-    "note": "公式案内地点と岸壁搬送コンベア・隣接施設を照合。岸壁沿いコンクリートサイロの屋根内の地点。",
+    "note": "赤い屋根と北側の円筒列の影・岸壁を公式写真で照合。旧z17(20,63)は屋根外の影/舗装面であり不採用。新点はz18画像の赤屋根内。",
     "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1839/757.geojson",
     "photoMetadata": [
       {
@@ -525,7 +561,20 @@
         "撮影年月": "2019年9月"
       }
     ],
-    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）",
+    "rejectedPosition": {
+      "lat": 42.303222,
+      "lng": 143.330598
+    },
+    "rejectedTile": {
+      "z": 17,
+      "x": 117721,
+      "y": 48507,
+      "pixelX": 20,
+      "pixelY": 63
+    },
+    "status": "site-point",
+    "recheckedOn": "2026-10-12"
   },
   {
     "id": "silo-tomakomai",
@@ -564,26 +613,26 @@
     "id": "silo-hanshin",
     "checkedOn": "2026-10-12",
     "officialSource": "https://www.hanshin-silo.co.jp/others/contact.html",
-    "identitySource": "https://www.hanshin-silo.co.jp/others/contact.html",
+    "identitySource": "https://www.hanshin-silo.co.jp/_asset/img/business/facilities_content1_img01.jpg",
     "address": "兵庫県神戸市東灘区魚崎浜町14-7",
     "previousPosition": {
       "lat": 34.7034597,
       "lng": 135.2805853
     },
     "coordinates": {
-      "lat": 34.703853,
-      "lng": 135.280527
+      "lat": 34.703399,
+      "lng": 135.280849
     },
-    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/114790/52048.jpg",
+    "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/18/229580/104097.jpg",
     "tile": {
-      "z": 17,
-      "x": 114790,
-      "y": 52048,
-      "pixelX": 35,
-      "pixelY": 186
+      "z": 18,
+      "x": 229580,
+      "y": 104097,
+      "pixelX": 130,
+      "pixelY": 219
     },
     "method": "公式の施設案内と航空写真を照合し、サイロ本体の屋根内をWeb Mercatorから逆変換。公式発表座標・測量値ではない。",
-    "note": "公式の施設案内点・住所と航空写真の港内設備を照合。事務所・駐車場ではなくサイロ本体の屋根内の地点。",
+    "note": "公式各設備配置図の長い岸壁沿いサイロと後背の製粉工場・短い別棟を照合。旧点は付属設備側。新点は連続サイロの灰色屋根内。",
     "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1793/813.geojson",
     "photoMetadata": [
       {
@@ -591,7 +640,20 @@
         "撮影年月": "2021年10月"
       }
     ],
-    "checkedBy": "Codex（公式案内と地理院画像の目視照合）"
+    "checkedBy": "Codex（公式案内と地理院画像の目視照合）",
+    "rejectedPosition": {
+      "lat": 34.703853,
+      "lng": 135.280527
+    },
+    "rejectedTile": {
+      "z": 17,
+      "x": 114790,
+      "y": 52048,
+      "pixelX": 35,
+      "pixelY": 186
+    },
+    "status": "site-point",
+    "recheckedOn": "2026-10-12"
   },
   {
     "id": "silo-seto",

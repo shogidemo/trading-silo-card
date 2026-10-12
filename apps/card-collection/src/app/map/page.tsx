@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SiloMapClient, SiloListSidebar } from "@/components/Map";
 import { CardDetail } from "@/components/Card";
 import { useCollection } from "@/context/CollectionContext";
 import { silos } from "@/data";
-import { getUncollectedRegions } from "@/lib/siloMap";
+import { getSiloPosition, getVisibleSilos } from "@/lib/siloMap";
 import { siloLocations } from "@/data/siloLocations";
 
 function MapExplorer() {
@@ -17,81 +17,77 @@ function MapExplorer() {
   const [resetVersion, setResetVersion] = useState(0);
   const [filter, setFilter] = useState<"all" | "collected">("all");
   const [focusVersion, setFocusVersion] = useState(0);
-  const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
   const collected = useMemo(() => silos.filter((silo) => state.collectedCardIds.includes(silo.id)), [state.collectedCardIds]);
-  const regions = useMemo(() => filter === "all" ? getUncollectedRegions(silos, state.collectedCardIds) : [], [filter, state.collectedCardIds]);
-  const selectedRegion = regions.find((region) => region.id === selectedRegionId);
+  const displayed = useMemo(() => getVisibleSilos(silos, state.collectedCardIds, filter === "collected"), [filter, state.collectedCardIds]);
+  const locatedCount = displayed.filter((silo) => getSiloPosition(silo)).length;
   const requestedId = searchParams.get("silo");
-  const selected = collected.find((silo) => silo.id === requestedId);
+  const selected = displayed.find((silo) => silo.id === requestedId);
   const location = selected ? siloLocations[selected.id] : undefined;
+  const selectedIsCollected = selected ? state.collectedCardIds.includes(selected.id) : false;
 
   const selectSilo = (id: string) => {
     setDetailOpen(false);
-    setSelectedRegionId(null);
     setFocusVersion((value) => value + 1);
     router.replace(`/map?silo=${encodeURIComponent(id)}`, { scroll: false });
-  };
-  const selectRegion = (id: string) => {
-    setDetailOpen(false);
-    setSelectedRegionId(id);
-    setFocusVersion((value) => value + 1);
-    router.replace("/map", { scroll: false });
+    const bounds = mapRef.current?.getBoundingClientRect();
+    if (window.innerWidth < 1024 && bounds && (bounds.top < 0 || bounds.bottom > window.innerHeight)) mapRef.current?.scrollIntoView({ block: "start" });
   };
   const resetMap = () => {
     setDetailOpen(false);
     router.replace("/map", { scroll: false });
-    setSelectedRegionId(null);
+    setFilter("all");
     setResetVersion((value) => value + 1);
   };
 
   return <div className="silo-explorer max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-7">
     <Link href="/collection" className="inline-flex min-h-11 items-center text-sm text-concrete-600 underline underline-offset-4">カードコレクションに戻る</Link>
     <div className="silo-explorer-heading">
-      <div><h2 className="font-display text-2xl sm:text-3xl text-concrete-900">サイロマップ</h2><p className="text-sm text-concrete-600 mt-2">集めたカードから、港とサイロの所在地を見てみよう。</p></div>
+      <div><h2 className="font-display text-2xl sm:text-3xl text-concrete-900">サイロマップ</h2><p className="text-sm text-concrete-600 mt-2">未獲得の施設も、港とサイロの所在地を確認できます。</p></div>
       <div className="silo-explorer-progress"><span className="font-bold text-xl">{collected.length}<span className="text-sm font-normal"> / {silos.length}</span></span><span className="text-xs">サイロを獲得</span></div>
     </div>
     <div className="silo-map-toolbar">
       <div className="silo-map-filters" role="group" aria-label="地図の表示対象">
         <button type="button" aria-pressed={filter === "all"} onClick={() => setFilter("all")}>すべて</button>
-        <button type="button" aria-pressed={filter === "collected"} onClick={() => { setFilter("collected"); setSelectedRegionId(null); }}>獲得済み</button>
+        <button type="button" aria-pressed={filter === "collected"} onClick={() => { setFilter("collected"); setDetailOpen(false); router.replace("/map", { scroll: false }); setFocusVersion((value) => value + 1); }}>獲得済み</button>
       </div>
       <button type="button" onClick={resetMap} className="silo-map-action">全国を表示</button>
     </div>
     <div className="silo-explorer-grid">
       <div className="silo-explorer-main min-w-0">
-        <div className="silo-explorer-map" role="region" aria-label="獲得済みサイロの所在地を示す地図">
-          <SiloMapClient silos={collected} selectedSiloId={selected?.id ?? null} onSiloSelect={selectSilo} resetVersion={resetVersion} focusVersion={focusVersion} regions={regions} selectedRegionId={selectedRegionId} />
+        {displayed.length === 0 && <p role="status" className="silo-map-empty-message">このブラウザには獲得済みのサイロカードがありません。「すべて」で未獲得施設の場所を確認できます。</p>}
+        {displayed.length > 0 && locatedCount === 0 && <p role="status" className="silo-map-empty-message">施設の地点を確認中のため、ピンは表示していません。施設一覧から所在地案内とカードの詳細を確認できます。</p>}
+        <div ref={mapRef} className="silo-explorer-map" role="region" aria-label="サイロの所在地と収集状況を示す地図">
+          <SiloMapClient silos={displayed} selectedSiloId={selected?.id ?? null} onSiloSelect={selectSilo} resetVersion={resetVersion} focusVersion={focusVersion} collectedIds={state.collectedCardIds} showCollectedOnly={filter === "collected"} />
         </div>
         <section className="silo-selected-detail" aria-labelledby="selected-silo-title" data-testid="silo-selected-detail">
           {selected ? <>
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0"><p className="text-xs text-harvest-600 mb-1">✓ 獲得済み</p><h3 id="selected-silo-title" className="text-lg font-display">{selected.name}</h3><p className="text-sm text-concrete-600 mt-1">{location?.address ?? selected.location}</p></div>
+              <div className="min-w-0"><p className="text-xs text-harvest-600 mb-1">{selectedIsCollected ? "✓ 獲得済み" : "○ 未獲得"}</p><h3 id="selected-silo-title" className="text-lg font-display">{selected.name}</h3><p className="text-sm text-concrete-600 mt-1">{location?.address ?? selected.location}</p></div>
               <div className="flex flex-wrap gap-2">
-                <button className="silo-map-action silo-map-action-primary" type="button" onClick={() => setDetailOpen(true)}>カードの詳細を見る</button>
-                <Link className="silo-map-action" href={`/collection#card-${selected.id}`}>コレクションで見る</Link>
+                {selectedIsCollected ? <>
+                  <button className="silo-map-action silo-map-action-primary" type="button" onClick={() => setDetailOpen(true)}>カードの詳細を見る</button>
+                  <Link className="silo-map-action" href={`/collection#card-${selected.id}`}>コレクションで見る</Link>
+                </> : <Link className="silo-map-action silo-map-action-primary" href="/quiz?category=silo">クイズでカードを集める</Link>}
               </div>
             </div>
             <p className="text-xs text-concrete-500 leading-relaxed mt-3">{location?.status === "site-point" ? "公式施設案内と航空写真を照合したサイロ本体の地点です。" : "サイロ本体の地点を確認中のため、地図にピンは表示していません。"}
               {location?.sourceUrl && <> <a href={location.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">公式の所在地案内</a></>}
               {location?.aerialUrl && <> · <a href={location.aerialUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">所在地の航空写真（国土地理院）</a></>}
             </p>
-          </> : selectedRegion ? <>
-            <h3 id="selected-silo-title" className="text-lg font-display">{selectedRegion.name}の未獲得サイロ</h3>
-            <p className="text-sm text-concrete-600 mt-2">あと{selectedRegion.remaining}施設。この表示は地域の範囲を示しています。カードを獲得すると施設の所在地を表示します。</p>
-            <Link className="silo-map-action silo-map-action-primary inline-flex mt-3" href="/quiz?category=silo">サイロのクイズに挑戦</Link>
           </> : <><h3 id="selected-silo-title" className="text-base font-display">施設を選んでみよう</h3><p className="text-sm text-concrete-600 mt-2">ピンや一覧から選ぶと、所在地とカードの詳細を確認できます。</p>
-            {requestedId && <p role="status" className="text-sm text-concrete-500 mt-2">この施設は未獲得、または見つかりません。</p>}
+            {requestedId && <p role="status" className="text-sm text-concrete-500 mt-2">この施設は現在の表示対象に含まれていないか、見つかりません。</p>}
             {collected.length === 0 && <Link className="silo-map-action silo-map-action-primary inline-flex mt-3" href="/quiz?category=silo">サイロのクイズに挑戦</Link>}
           </>}
         </section>
       </div>
-      <SiloListSidebar silos={collected} selectedId={selected?.id ?? null} onSelect={selectSilo} regions={regions} selectedRegionId={selectedRegionId} onRegionSelect={selectRegion} />
+      <SiloListSidebar silos={displayed} selectedId={selected?.id ?? null} onSelect={selectSilo} collectedIds={state.collectedCardIds} collectedOnly={filter === "collected"} />
     </div>
-    <p className="text-xs text-concrete-500 mt-3 leading-relaxed">✓ サイロ本体の所在地　「施設 / 拡大」: 同じ港周辺の施設をまとめた表示　未獲得の施設は地域一覧で確認できます。</p>
+    <p className="text-xs text-concrete-500 mt-3 leading-relaxed">✓ 獲得済み　○ 未獲得（所在地は確認できます）　「施設 / 拡大」: 同じ港周辺の施設をまとめた表示</p>
     <p className="text-xs text-concrete-500 mt-2 leading-relaxed">地図の背景にはOpenStreetMapを利用しています。背景を読み込めない場合も一覧とカードの詳細は利用できます。</p>
     <p className="text-xs text-concrete-500 mt-2 leading-relaxed">所在地は公式施設案内と<a href="https://maps.gsi.go.jp/development/ichiran.html#seamlessphoto" target="_blank" rel="noopener noreferrer" className="underline">地理院タイル（全国最新写真）</a>をもとに作成しています。</p>
-    {selected && detailOpen && <CardDetail card={selected} onClose={() => setDetailOpen(false)} />}
+    {selected && selectedIsCollected && detailOpen && <CardDetail card={selected} onClose={() => setDetailOpen(false)} />}
   </div>;
 }
 

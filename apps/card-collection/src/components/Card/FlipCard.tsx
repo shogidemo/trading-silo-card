@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Card } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
-import { getCategoryColors, getCardStyles } from "@/lib";
+import { getCardStyles } from "@/lib";
 import { useReducedMotion } from "@/hooks";
 
 interface FlipCardProps {
@@ -16,20 +16,19 @@ interface FlipCardProps {
 export default function FlipCard({ card, isCollected }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const categoryInfo = CATEGORY_INFO.find((c) => c.id === card.category);
-  const categoryColors = getCategoryColors(card.category);
   const cardStyles = getCardStyles(card.category);
   const prefersReducedMotion = useReducedMotion();
 
   const handleFlip = () => {
     if (isCollected) {
-      setIsFlipped(!isFlipped);
+      setIsFlipped((previous) => !previous);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (isCollected && (e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
-      setIsFlipped(!isFlipped);
+      setIsFlipped((previous) => !previous);
     }
   };
 
@@ -43,7 +42,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
   };
 
   const renderImageAttribution = () => {
-    if (!card.imageUrl || !card.imageAttribution) {
+    if (isFlipped || !card.imageUrl || !card.imageAttribution) {
       return null;
     }
 
@@ -63,7 +62,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
     );
 
     return (
-      <div className="absolute bottom-1 right-1 z-20 text-[9px] text-white/90 bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm pointer-events-auto">
+      <div data-testid="card-image-attribution" className="absolute bottom-1 right-1 z-20 text-[9px] text-white/90 bg-black/60 px-1.5 py-0.5 rounded pointer-events-auto" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
         {content}
       </div>
     );
@@ -140,7 +139,8 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
           className={`absolute inset-0 backface-hidden rounded-xl overflow-hidden vintage-border ${
             isCollected ? cardStyles.glow : ""
           }`}
-          style={{ backfaceVisibility: "hidden" }}
+          data-testid="card-front" aria-hidden={isFlipped}
+          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", pointerEvents: isFlipped ? "none" : "auto" }}
         >
           {isCollected ? (
             <div className="relative h-full flex flex-col bg-gradient-to-br from-concrete-100 to-white">
@@ -163,7 +163,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
               <div className="absolute inset-0 holographic opacity-20 pointer-events-none" />
 
               {/* ヘッダー部分 */}
-              <div className={`px-3 py-2 bg-gradient-to-r ${categoryColors.gradient}`}>
+              <div className="px-3 py-2 bg-concrete-900">
                 <span className="text-white text-[10px] font-mono uppercase tracking-wider opacity-80">
                   {categoryInfo?.nameEn}
                 </span>
@@ -217,10 +217,11 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
           className={`absolute inset-0 backface-hidden rounded-xl overflow-hidden vintage-border ${
             isCollected ? cardStyles.glow : ""
           }`}
-          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+          data-testid="card-back" aria-hidden={!isFlipped}
+          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)", pointerEvents: isFlipped ? "auto" : "none" }}
         >
           {isCollected && (
-            <div className={`h-full flex flex-col bg-gradient-to-br ${categoryColors.gradient}`}>
+            <div className="h-full flex flex-col bg-concrete-900">
               {/* ホログラフィック効果（全カードに適用） */}
               <div className="absolute inset-0 holographic opacity-10 pointer-events-none" />
 
