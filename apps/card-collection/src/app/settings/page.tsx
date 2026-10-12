@@ -7,6 +7,7 @@ import { normalizeCollectionState, useCollection } from "@/context/CollectionCon
 import { containerVariants, itemVariants } from "@/lib";
 import { STORAGE_KEY } from "@/constants";
 import { CollectionState } from "@/types";
+import { clearTransientState } from "@/hooks/useTransientState";
 import { useModalAccessibility } from "@/hooks";
 
 export default function SettingsPage() {
@@ -117,6 +118,7 @@ export default function SettingsPage() {
 
   const handleReset = () => {
     resetCollection();
+    clearTransientState();
     setShowResetConfirm(false);
   };
 

@@ -23,7 +23,7 @@ export default function CreditsPage() {
     </section>
     <section className="mb-8"><h3 className="font-display text-lg mb-2">ソフトウェアとフォント</h3>
       <p>React Leaflet 4.2.1 / @react-leaflet/core 2.1.0 はHippocratic License 2.1、Leaflet 1.9.4はBSD 2-Clauseです。Next.js 14.2.35、React / React DOM 18.3.1、Framer Motion 12.26.1はMITです。各ライセンスはそれぞれのソフトウェアに適用されます。</p>
-      <p className="mt-3">Zen Maru Gothic、M PLUS Rounded 1c、JetBrains Mono、Nunitoと保存されているGeistフォントの上流OFL 1.1通知を掲載しています。Next.jsによるサブセット配信を使用します。</p>
+      <p className="mt-3">現行画面はOSの日本語フォントを使用します。以前利用したZen Maru Gothic、M PLUS Rounded 1c、JetBrains Mono、Nunitoと保存されているGeistフォントの上流OFL 1.1通知を保管・掲載しています。</p>
       <a href="/third-party-notices.txt" className="inline-flex min-h-11 items-center underline font-bold mt-2">著作権・ライセンス全文を読む</a>
       <p className="text-sm mt-2">Hippocratic Licenseの利用条件は全文で確認できます。依存ソフトウェアの通知は、このプロジェクト全体のライセンス指定を意味しません。フォントの全配信バイナリを個別に照合したものではありません。</p>
     </section>

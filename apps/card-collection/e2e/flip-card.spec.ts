@@ -76,7 +76,7 @@ test.describe("FlipCard機能", () => {
     await expect(page.locator("text=主要産地").first()).toBeVisible({ timeout: 3000 });
   });
 
-  test("未獲得カードはクイズに遷移する", async ({ page }) => {
+  test("未獲得カードの基本情報から同じカードのクイズへ遷移する", async ({ page }) => {
     // 空の状態（カード未獲得）
     await page.goto("/collection");
 
@@ -84,13 +84,9 @@ test.describe("FlipCard機能", () => {
     await page.locator("button").filter({ hasText: "穀物" }).click();
     await page.waitForTimeout(500);
 
-    // 未獲得カードをクリック（クイズ遷移）
-    const uncollectedCard = page
-      .getByRole("link", { name: /クイズに挑戦する/ })
-      .first();
-    await expect(uncollectedCard).toBeVisible({ timeout: 5000 });
-    await uncollectedCard.click();
-
+    await page.getByRole("button", { name: "小麦の基本情報を見る", exact: true }).click();
+    await expect(page.getByRole("dialog")).toContainText("○ 未獲得");
+    await page.getByRole("dialog").getByRole("link", { name: "クイズでこのカードを集める", exact: true }).click();
     // クイズページに遷移し、問題が表示される
     await expect(page).toHaveURL(/\/quiz\?cardId=/);
     await expect(

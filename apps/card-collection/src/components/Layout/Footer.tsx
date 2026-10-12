@@ -1,38 +1,9 @@
+import Link from "next/link";
+
 export default function Footer() {
-  return (
-    <footer className="bg-concrete-900 text-concrete-400 mt-auto">
-      {/* 上部の装飾ライン */}
-      <div className="h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-harvest-400" />
-
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <div className="text-center">
-          <h3 className="text-sm font-display text-concrete-300 mb-4">
-            免責事項
-          </h3>
-          <p className="text-xs leading-relaxed mb-4">
-            本サイトは穀物業界について学ぶことを目的とした非公式の教育コンテンツです。
-          </p>
-          <ul className="text-xs space-y-1.5 text-concrete-500">
-            <li>
-              掲載している企業名・施設名は各社の商標または登録商標です
-            </li>
-            <li>
-              本サイトは掲載企業・団体とは一切関係がなく、公式情報ではありません
-            </li>
-            <li>
-              カードの図解は基本図形から作成したオリジナルです。実施設の写真・企業ロゴではありません。
-            </li>
-            <li>掲載情報の正確性について保証するものではありません</li>
-            <li><a href="/credits" className="text-concrete-200 underline underline-offset-4">出典・素材・ライセンス</a></li>
-          </ul>
-        </div>
-
-        <div className="mt-6 pt-4 border-t border-concrete-800 text-center">
-          <p className="text-xs text-concrete-600 font-english">
-            Grain Silo Card Collection - Educational Purpose Only
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
+  return <footer className="atlas-footer">
+    <p>穀物業界を学ぶための非公認コンテンツです。掲載企業・団体の協賛や承認を示すものではありません。</p>
+    <p>図解は実施設の外観を再現していません。所在地の確認方法・素材・利用条件は、出典ページで確認できます。</p>
+    <Link href="/credits" className="atlas-text-link">出典・素材・ライセンス</Link>
+  </footer>;
 }

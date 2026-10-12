@@ -145,24 +145,6 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
         >
           {isCollected ? (
             <div className="relative h-full flex flex-col bg-gradient-to-br from-concrete-100 to-white">
-              {/* シマーエフェクト（収集済み、reduced motion無効時のみ、全カードに適用） */}
-              {!prefersReducedMotion && (
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent z-10 pointer-events-none"
-                  animate={{
-                    x: ["-200%", "200%"],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatDelay: 1,
-                    ease: "easeInOut",
-                  }}
-                />
-              )}
-              {/* ホログラフィック効果（全カードに適用） */}
-              <div className="absolute inset-0 holographic opacity-20 pointer-events-none" />
-
               {/* ヘッダー部分 */}
               <div className="px-3 py-2 bg-concrete-900">
                 <span className="text-white text-[10px] font-mono uppercase tracking-wider opacity-80">

@@ -29,9 +29,8 @@ test("カードから所在地・詳細・コレクションへ往復でき、�
   await page.getByRole("button", { name: "カードの詳細を見る" }).click();
   await expect(page.getByRole("dialog")).toContainText("関東グレーンターミナル");
   await expect(page.getByRole("dialog").locator("h2")).toBeVisible();
-  await expect(page.getByTestId("card-detail-header")).toHaveCSS("background-color", "rgb(42, 37, 32)");
-  await expect(page.getByRole("dialog").locator("h2")).toHaveCSS("color", "rgb(250, 249, 247)");
-  await expect(page.getByTestId("card-detail-header").getByText("サイロカード", { exact: true })).toHaveCSS("color", "rgb(250, 249, 247)");
+  await expect(page.getByRole("dialog").locator("h2")).toHaveCSS("color", "rgb(24, 55, 71)");
+  await expect(page.getByRole("dialog").getByText("サイロカード", { exact: true })).toHaveCSS("color", "rgb(17, 125, 121)");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect.poll(() => getCollectionState(page)).toEqual(savedState);
@@ -83,10 +82,10 @@ test("全獲得でも施設一覧は21件を維持する", async ({ page }) => {
 test("背景地図に接続できなくても所在地・詳細・保存が使える", async ({ page }) => {
   await page.route("https://tile.openstreetmap.org/**", route => route.abort());
   await page.goto("/map?silo=silo-kanto");
-  await expect(page.getByText("背景地図を読み込めません。施設一覧から所在地と詳細を確認できます。")).toBeVisible();
+  await expect(page.getByText(/背景画像の読み込みに失敗/)).toBeVisible();
   await page.getByRole("button", { name: "カードの詳細を見る" }).click();
   await expect(page.getByRole("dialog")).toContainText("所在地");
-  await page.getByRole("button", { name: "閉じる", exact: true }).click();
+  await page.getByRole("button", { name: "詳細を閉じる", exact: true }).click();
   await expect.poll(() => getCollectionState(page)).toEqual(savedState);
 });
 

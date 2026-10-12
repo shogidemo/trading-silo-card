@@ -5,6 +5,7 @@ import {
   clearLocalStorageBeforeLoad,
   getCollectionState,
   setCollectionState,
+  setCollectionStateBeforeLoad,
   goToQuiz,
   selectCategory,
   answerQuizCorrectly,
@@ -77,23 +78,14 @@ test.describe("カード収集フロー", () => {
   });
 
   test("獲得したカードがコレクションに表示される", async ({ page }) => {
-    // 事前にカードを獲得した状態を設定
-    await page.goto("/");
-    await setCollectionState(page, {
-      collectedCardIds: ["grain-wheat"],
-    });
-    await page.reload();
-
+    await setCollectionStateBeforeLoad(page, { collectedCardIds: ["grain-wheat"] });
     // コレクションページへ
     await page.goto("/collection");
 
     // 穀物フィルターを選択
     await page.locator("button").filter({ hasText: "穀物" }).click();
 
-    // 獲得済みカードが表示される（?マークではない）
-    const cards = page.locator(".vintage-border");
-    const cardCount = await cards.count();
-    expect(cardCount).toBeGreaterThan(0);
+    await expect(page.locator("#card-grain-wheat").getByText("✓ 獲得済み", { exact: true })).toBeVisible();
   });
 
   test("同じカードを重複獲得しない", async ({ page }) => {
@@ -120,7 +112,7 @@ test.describe("カード収集フロー", () => {
     // アプリケーション側で重複排除されているはず
   });
 
-  test("未獲得カードは「?」で表示される", async ({ page }) => {
+  test("未獲得カードも名称と基本情報が表示される", async ({ page }) => {
     // 空の状態でコレクションページへ
     await page.goto("/");
     await clearLocalStorage(page);
@@ -128,9 +120,8 @@ test.describe("カード収集フロー", () => {
 
     await page.goto("/collection");
 
-    // 未獲得カードに「?」が表示される
-    const questionMarks = page.locator("text=?");
-    await expect(questionMarks.first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("#card-grain-wheat").getByText("○ 未獲得", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "小麦の基本情報を見る", exact: true })).toBeVisible();
   });
 
   test("全カテゴリでカード獲得が動作する", async ({ page }) => {

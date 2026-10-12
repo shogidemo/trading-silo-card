@@ -1,52 +1,51 @@
 import { test, expect } from "@playwright/test";
-import { setCollectionStateBeforeLoad } from "./helpers/test-utils";
+import { setCollectionStateBeforeLoad, answerQuizCorrectly } from "./helpers/test-utils";
 
 test.describe("穀物サイロカード - クイズフロー", () => {
   test("ホームページが正しく表示される", async ({ page }) => {
     await page.goto("/");
 
     // タイトルを確認（main内のh2を対象）
-    await expect(page.locator("main h2").first()).toContainText("穀物の世界を");
+    await expect(page.locator("main h1").first()).toContainText("港をひらいて");
 
     // 統計セクションが表示される
-    await expect(page.locator("main").locator("text=Collected")).toBeVisible();
-    await expect(page.locator("main").locator("text=Total Cards")).toBeVisible();
-    await expect(page.locator("main").locator("text=Accuracy")).toBeVisible();
+    await expect(page.locator(".atlas-count")).toBeVisible();
+    await expect(page.getByText("集めたサイロ 0 / 21", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "鹿島の1問を解く", exact: true })).toBeVisible();
 
     // ナビゲーションボタンが表示される（main内のリンクを対象）
-    await expect(page.locator("main a").filter({ hasText: "クイズで学ぶ" })).toBeVisible();
-    await expect(page.locator("main a").filter({ hasText: "コレクション" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "カテゴリから1問・3問チャレンジ", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "全39枚の図鑑を開く", exact: true })).toBeVisible();
   });
 
   test("クイズページに遷移してカテゴリ選択できる", async ({ page }) => {
     await page.goto("/");
 
     // クイズページに遷移
-    await page.click("text=クイズに挑戦する");
+    await page.getByRole("navigation", { name: "主な画面" }).getByRole("link", { name: "学ぶ", exact: true }).click();
 
     // カテゴリ選択画面が表示される
     await expect(page.locator("h2")).toContainText("カテゴリを選択");
 
     // 3つのカテゴリが表示される（h3要素内のテキストで特定）
     await expect(
-      page.locator("h3").filter({ hasText: "サイロ" })
+      page.getByRole("button", { name: /サイロを知る/ })
     ).toBeVisible();
-    await expect(page.locator("h3").filter({ hasText: "穀物" })).toBeVisible();
-    await expect(page.locator("h3").filter({ hasText: "商社" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /穀物を知る/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /商社を知る/ })).toBeVisible();
   });
 
   test("クイズに回答して結果が表示される", async ({ page }) => {
     await page.goto("/quiz");
 
     // 穀物カテゴリを選択
-    await page.locator("button").filter({ hasText: "穀物" }).first().click();
+    await page.getByRole("button", { name: "穀物を知る", exact: true }).click();
 
     // クイズが表示される
-    await expect(page.locator("text=🌾")).toBeVisible();
+    await expect(page.getByTestId("quiz-option-0")).toBeVisible();
 
     // 最初の選択肢をクリック
-    const options = page.locator("button").filter({ hasText: /^[^🔥🏭🌾🏢📚]/ });
-    const firstOption = options.first();
+    const firstOption = page.getByTestId("quiz-option-0");
     await firstOption.click();
 
     // 結果画面が表示される（正解または不正解）
@@ -105,16 +104,14 @@ test.describe("穀物サイロカード - クイズフロー", () => {
     await page.goto("/collection");
 
     // ヘッダーが表示される
-    await expect(page.locator("h2")).toContainText("コレクション");
+    await expect(page.locator("h2")).toContainText("ここから集めよう");
 
     // フィルターボタンが表示される
     await expect(page.getByTestId("category-filter-all")).toBeVisible();
 
     // カテゴリフィルターが動作する
     await page.getByTestId("category-filter-grain").click();
-    await expect(page.getByTestId("category-filter-grain")).toHaveClass(
-      /bg-gradient/
-    );
+    await expect(page.getByTestId("category-filter-grain")).toHaveAttribute("aria-pressed", "true");
   });
 
   test("設定ページでデータ管理ができる", async ({ page }) => {
@@ -156,7 +153,7 @@ test.describe("穀物サイロカード - クイズフロー", () => {
   test("ナビゲーションが正しく動作する", async ({ page }) => {
     // ホーム → クイズ
     await page.goto("/");
-    await page.click("text=クイズで学ぶ");
+    await page.getByRole("navigation", { name: "主な画面" }).getByRole("link", { name: "学ぶ", exact: true }).click();
     await expect(page).toHaveURL("/quiz");
 
     // クイズ → ホーム
@@ -164,7 +161,7 @@ test.describe("穀物サイロカード - クイズフロー", () => {
     await expect(page).toHaveURL("/");
 
     // ホーム → コレクション
-    await page.click("text=コレクション");
+    await page.getByRole("navigation", { name: "主な画面" }).getByRole("link", { name: "図鑑", exact: true }).click();
     await expect(page).toHaveURL("/collection");
 
     // コレクション → ホーム
@@ -182,61 +179,13 @@ test.describe("カード獲得時のフリップ機能", () => {
     await page.goto("/quiz");
 
     // 穀物カテゴリを選択（クイズの正解率が高いカテゴリ）
-    await page.locator("button").filter({ hasText: "穀物" }).first().click();
+    await page.getByRole("button", { name: "穀物を知る", exact: true }).click();
 
     // クイズが表示されるまで待つ
-    await expect(page.locator("text=この施設")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text=このカード")).toBeVisible({ timeout: 5000 });
 
-    // 正解するまでクイズを繰り返す（最大10回）
-    let cardEarned = false;
-    for (let attempt = 0; attempt < 10 && !cardEarned; attempt++) {
-      const options = page.locator("main button").filter({
-        has: page.locator("span.font-display"),
-      });
-      const optionsVisible = await options
-        .first()
-        .isVisible({ timeout: 2000 })
-        .catch(() => false);
-      if (!optionsVisible) {
-        const nextButton = page.locator("button").filter({
-          hasText: /次のクイズへ|もう一度挑戦/,
-        });
-        if (await nextButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-          await nextButton.click();
-          await page.waitForTimeout(500);
-        }
-        continue;
-      }
-
-      // 選択肢をクリック（最初の選択肢）
-      await options.first().click();
-
-      // 結果を待つ
-      await page.waitForTimeout(1500);
-
-      // 「カードを見る」ボタンが表示されたら（新しいカード獲得）
-      const viewCardButton = page.locator("button").filter({ hasText: "カードを見る" });
-      if (await viewCardButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-        cardEarned = true;
-        await viewCardButton.click();
-        break;
-      }
-
-      // 次のクイズへ進む
-      const nextButton = page.locator("button").filter({
-        hasText: /次のクイズへ|もう一度挑戦/,
-      });
-      if (await nextButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-        await nextButton.click();
-        await page.waitForTimeout(500);
-      }
-    }
-
-    // カード獲得できなかった場合はスキップ
-    if (!cardEarned) {
-      test.skip();
-      return;
-    }
+    await answerQuizCorrectly(page);
+    await page.getByRole("button", { name: /カードを見る$/ }).click();
 
     // CardRevealモーダルが表示される
     await expect(page.locator("text=NEW!")).toBeVisible({ timeout: 3000 });
@@ -273,7 +222,7 @@ test.describe("アクセシビリティ", () => {
     await expect(page.locator("h2")).toContainText("カテゴリを選択");
 
     // 最初のカテゴリボタン（サイロ）をクリックして選択
-    await page.locator("button").filter({ hasText: "サイロ" }).first().click();
+    await page.getByRole("button", { name: "サイロを知る", exact: true }).click();
 
     // クイズ画面に遷移する（カテゴリ選択画面が消える）
     await expect(page.locator("h2").filter({ hasText: "カテゴリを選択" })).not.toBeVisible({
@@ -326,7 +275,7 @@ test.describe("回答済みクイズとスキップ機能", () => {
     await page.reload();
 
     await page.goto("/quiz");
-    await page.locator("button").filter({ hasText: "穀物" }).first().click();
+    await page.getByRole("button", { name: "穀物を知る", exact: true }).click();
 
     // クイズが表示されるまで待機
     await page.waitForTimeout(1000);
@@ -367,7 +316,7 @@ test.describe("回答済みクイズとスキップ機能", () => {
     await page.reload();
 
     await page.goto("/quiz");
-    await page.locator("button").filter({ hasText: "穀物" }).first().click();
+    await page.getByRole("button", { name: "穀物を知る", exact: true }).click();
 
     await page.waitForTimeout(1000);
 
@@ -397,32 +346,13 @@ test.describe("統計データの正確性", () => {
   const STORAGE_KEY = "silo-card-collection";
 
   test("統計データ（正答率）が正確に計算される", async ({ page }) => {
-    // 統計データを設定
-    await page.goto("/");
-    await page.evaluate(
-      ({ key }) => {
-        localStorage.setItem(
-          key,
-          JSON.stringify({
-            collectedCardIds: ["grain-wheat"],
-            totalQuizAttempts: 10,
-            correctAnswers: 7,
-            wrongAnswerQuizIds: [],
-            answeredQuizIds: [],
-            categoryStats: {
-              silo: { attempts: 3, correct: 2 },
-              grain: { attempts: 4, correct: 3 },
-              trader: { attempts: 3, correct: 2 },
-            },
-          })
-        );
-      },
-      { key: STORAGE_KEY }
-    );
-    await page.reload();
-
-    // ホームページの正答率を確認
-    await expect(page.locator("text=70%")).toBeVisible({ timeout: 5000 });
+    await setCollectionStateBeforeLoad(page, {
+      collectedCardIds: ["grain-wheat"], totalQuizAttempts: 10, correctAnswers: 7,
+      categoryStats: { silo: { attempts: 3, correct: 2 }, grain: { attempts: 4, correct: 3 }, trader: { attempts: 3, correct: 2 } },
+    });
+    await page.goto("/settings");
+    // 正答率の記録は設定画面で確認
+    await expect(page.getByText(/70\s*%/)).toBeVisible({ timeout: 5000 });
   });
 
   test("カテゴリ別統計が正確に記録される", async ({ page }) => {

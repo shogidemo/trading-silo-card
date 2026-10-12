@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { CATEGORY_INFO } from "@/constants";
 import { CardCategory, Quiz } from "@/types";
 import { getCategoryColors } from "@/lib";
+import { allCards } from "@/data";
+import { useCollection } from "@/context/CollectionContext";
 
 interface QuizQuestionProps {
   quiz: Quiz;
@@ -37,6 +39,8 @@ export default function QuizQuestion({
   facilityProgress,
 }: QuizQuestionProps) {
   const isE2E = process.env.NEXT_PUBLIC_E2E === "1";
+  const card = allCards.find(item => item.id === quiz.cardId);
+  const { hasCard } = useCollection();
 
   return (
     <motion.div
@@ -79,7 +83,7 @@ export default function QuizQuestion({
               </div>
             )}
             <div className="bg-white/80 text-concrete-700 px-3 py-1 rounded-full text-xs font-mono shadow-sm">
-              この施設 {facilityProgress.answered} / {facilityProgress.total}
+              このカード {facilityProgress.answered} / {facilityProgress.total}
             </div>
             {!isChallengeMode && !isReviewMode && isQuizAnswered && (
               <>
@@ -98,6 +102,7 @@ export default function QuizQuestion({
         </div>
 
         <div className="p-6 sm:p-8">
+          <div className="atlas-question-card"><span>{card?.name}</span><span className={`atlas-badge ${hasCard(quiz.cardId) ? "is-collected" : ""}`}>{hasCard(quiz.cardId) ? "✓ 獲得済み" : "○ 未獲得"}</span></div>
           <h3 className="font-display text-2xl sm:text-3xl text-concrete-900 mb-8 leading-relaxed">
             {quiz.question}
           </h3>

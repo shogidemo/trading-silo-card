@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useTransientState } from "@/hooks/useTransientState";
 import { siloLocations } from "@/data/siloLocations";
 import { SiloCard } from "@/types";
 
@@ -12,12 +14,18 @@ interface SiloListSidebarProps {
 }
 
 export default function SiloListSidebar({ silos, selectedId, onSelect, collectedIds, collectedOnly }: SiloListSidebarProps) {
+  const [query, setQuery] = useTransientState("map:list-query", "");
+  const [search, setSearch] = useTransientState("map:list-search", "");
+  const [composing, setComposing] = useState(false);
+  const filtered = silos.filter(silo => `${silo.name} ${silo.location}`.includes(search.trim()));
   return <section className="silo-map-list" aria-labelledby="silo-list-title" data-testid="silo-sidebar">
     <div className="silo-map-list-heading">
-      <h3 id="silo-list-title">{collectedOnly ? "獲得済みの施設" : "すべての施設"}</h3><span>{silos.length}施設</span>
+      <h3 id="silo-list-title">{collectedOnly ? "獲得済みの施設" : "すべての施設"}</h3><span>{search.trim() ? `${filtered.length} / ${silos.length}` : silos.length}施設</span>
     </div>
+    <label className="atlas-search-label silo-list-search">施設名・地域を検索<input aria-label="施設名・地域を検索" value={query} type="search" placeholder="施設名・地域" onCompositionStart={() => setComposing(true)} onCompositionEnd={event => { setComposing(false); setSearch(event.currentTarget.value); }} onChange={event => { setQuery(event.target.value); if (!composing && !(event.nativeEvent as InputEvent).isComposing) setSearch(event.target.value); }} /></label>
+    {search.trim() && filtered.length === 0 && <div className="p-4"><p className="atlas-muted">該当する施設がありません。</p><button type="button" className="atlas-text-link" onClick={() => { setQuery(""); setSearch(""); }}>検索を解除</button></div>}
     {silos.length === 0 ? <p className="p-5 text-sm text-concrete-600">獲得済みのサイロがありません。クイズに正解すると、この地図で所在地を確認できます。</p> :
-      <ul className="silo-map-list-scroll">{[...silos].sort((a, b) => b.coordinates.lat - a.coordinates.lat).map((silo) =>
+      <ul className="silo-map-list-scroll">{[...filtered].sort((a, b) => b.coordinates.lat - a.coordinates.lat).map((silo) =>
         <li key={silo.id}><button type="button" onClick={() => onSelect(silo.id)}
           className={`silo-map-list-item ${selectedId === silo.id ? "is-selected" : ""}`}
           aria-label={`${silo.name}を選択`} aria-describedby={`silo-state-${silo.id}`} aria-pressed={selectedId === silo.id}>

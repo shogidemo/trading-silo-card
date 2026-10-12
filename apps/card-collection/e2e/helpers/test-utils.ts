@@ -119,11 +119,7 @@ export async function selectCategory(
     grain: "穀物",
     trader: "商社",
   };
-  await page
-    .locator("button")
-    .filter({ hasText: categoryMap[category] })
-    .first()
-    .click();
+  await page.getByRole("button", { name: `${categoryMap[category]}を知る`, exact: true }).click();
   // クイズの選択肢が表示されるまで待機
   await expect(
     page.locator("main button").filter({

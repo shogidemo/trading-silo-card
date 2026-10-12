@@ -12,7 +12,8 @@ import {
   getRandomQuizzes,
   shuffleArray,
 } from "@/lib";
-import { CardReveal } from "@/components/Card";
+import { useTransientState, isHistoryNavigation } from "@/hooks/useTransientState";
+import { CardReveal, CardDetail } from "@/components/Card";
 import {
   CategorySelect,
   QuizQuestion,
@@ -22,23 +23,29 @@ import {
 
 type QuizState = "select" | "quiz" | "result" | "reveal" | "challenge-summary";
 
-function QuizPageContent() {
+function QuizPageContent({ onRestart }: { onRestart: () => void }) {
   const searchParams = useSearchParams();
-  const [quizState, setQuizState] = useState<QuizState>("select");
-  const [initialCategoryProcessed, setInitialCategoryProcessed] = useState(false);
-  const [selectedCategory, setSelectedCategory] =
-    useState<CardCategory | null>(null);
-  const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [isCorrect, setIsCorrect] = useState<boolean>(false);
-  const [earnedCard, setEarnedCard] = useState<Card | null>(null);
-  const [announcement, setAnnouncement] = useState<string>("");
-  const [recentQuizIds, setRecentQuizIds] = useState<string[]>([]);
+  // 親providerが既存localStorageを読み込む初回effectを待ってから入口を判定する。
+  const [collectionReady, setCollectionReady] = useState(false);
+  useEffect(() => setCollectionReady(true), []);
+  const uiKey = `quiz:${searchParams.toString()}:`;
+  const restoreQuiz = !searchParams.toString() || isHistoryNavigation();
+  const [quizState, setQuizState] = useTransientState<QuizState>(uiKey + "quizState", "select", restoreQuiz);
+  const [initialCategoryProcessed, setInitialCategoryProcessed] = useTransientState(uiKey + "initialCategoryProcessed", false, restoreQuiz);
+  const [selectedCategory, setSelectedCategory] = useTransientState<CardCategory | null>(uiKey + "selectedCategory", null, restoreQuiz);
+  const [currentQuiz, setCurrentQuiz] = useTransientState<Quiz | null>(uiKey + "currentQuiz", null, restoreQuiz);
+  const [selectedAnswer, setSelectedAnswer] = useTransientState<number | null>(uiKey + "selectedAnswer", null, restoreQuiz);
+  const [isCorrect, setIsCorrect] = useTransientState<boolean>(uiKey + "isCorrect", false, restoreQuiz);
+  const [earnedCard, setEarnedCard] = useTransientState<Card | null>(uiKey + "earnedCard", null, restoreQuiz);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [entryError, setEntryError] = useTransientState<string | null>(uiKey + "entryError", null, restoreQuiz);
+  const [announcement, setAnnouncement] = useTransientState<string>(uiKey + "announcement", "", restoreQuiz);
+  const [recentQuizIds, setRecentQuizIds] = useTransientState<string[]>(uiKey + "recentQuizIds", [], restoreQuiz);
   // チャレンジモード用state
-  const [isChallengeMode, setIsChallengeMode] = useState<boolean>(false);
-  const [challengeQuestions, setChallengeQuestions] = useState<Quiz[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [challengeResults, setChallengeResults] = useState<boolean[]>([]);
+  const [isChallengeMode, setIsChallengeMode] = useTransientState<boolean>(uiKey + "isChallengeMode", false, restoreQuiz);
+  const [challengeQuestions, setChallengeQuestions] = useTransientState<Quiz[]>(uiKey + "challengeQuestions", [], restoreQuiz);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useTransientState<number>(uiKey + "currentQuestionIndex", 0, restoreQuiz);
+  const [challengeResults, setChallengeResults] = useTransientState<boolean[]>(uiKey + "challengeResults", [], restoreQuiz);
 
   const {
     addCard,
@@ -56,8 +63,8 @@ function QuizPageContent() {
   } = useCollection();
 
   // 復習モード用state
-  const [isReviewMode, setIsReviewMode] = useState<boolean>(false);
-  const [reviewQuizzes, setReviewQuizzes] = useState<Quiz[]>([]);
+  const [isReviewMode, setIsReviewMode] = useTransientState<boolean>(uiKey + "isReviewMode", false, restoreQuiz);
+  const [reviewQuizzes, setReviewQuizzes] = useTransientState<Quiz[]>(uiKey + "reviewQuizzes", [], restoreQuiz);
 
   const withShuffledOptions = useCallback(
     (quiz: Quiz): Quiz => ({
@@ -117,11 +124,11 @@ function QuizPageContent() {
     setChallengeResults([]);
     setCurrentQuiz(shuffledQuizzes[0]);
     setQuizState("quiz");
-  }, [getWrongAnswerQuizIds, withShuffledOptions]);
+  }, [getWrongAnswerQuizIds, withShuffledOptions, setChallengeResults, setCurrentQuestionIndex, setCurrentQuiz, setIsReviewMode, setQuizState, setReviewQuizzes, setSelectedCategory]);
 
   // URLクエリパラメータからカテゴリ/カード/復習モードを読み取り、自動でクイズを開始
   useEffect(() => {
-    if (initialCategoryProcessed) return;
+    if (!collectionReady || initialCategoryProcessed) return;
 
     const cardIdParam = searchParams.get("cardId");
     if (cardIdParam) {
@@ -142,6 +149,9 @@ function QuizPageContent() {
           return;
         }
       }
+      setEntryError("指定されたカードの問題が見つかりません。カテゴリから選んでください。");
+      setInitialCategoryProcessed(true);
+      return;
     }
 
     const categoryParam = searchParams.get("category");
@@ -184,12 +194,18 @@ function QuizPageContent() {
     setInitialCategoryProcessed(true);
   }, [
     searchParams,
+    collectionReady,
     initialCategoryProcessed,
     hasCard,
     isQuizAnswered,
     getWrongAnswerQuizIds,
     handleReviewStart,
     withShuffledOptions,
+    setCurrentQuiz,
+    setEntryError,
+    setInitialCategoryProcessed,
+    setQuizState,
+    setSelectedCategory,
   ]);
 
   const handleChallengeStart = (category: CardCategory) => {
@@ -260,10 +276,14 @@ function QuizPageContent() {
       }
     }
 
-    setTimeout(() => {
-      setQuizState("result");
-    }, 1000);
   };
+
+  // 回答直後に離脱しても、戻った画面で結果表示を再開する。
+  useEffect(() => {
+    if (selectedAnswer === null || quizState !== "quiz") return;
+    const timer = window.setTimeout(() => setQuizState("result"), 1000);
+    return () => window.clearTimeout(timer);
+  }, [selectedAnswer, quizState, setQuizState]);
 
   const handleShowCard = () => {
     if (earnedCard) {
@@ -380,12 +400,7 @@ function QuizPageContent() {
   };
 
   return (
-    <motion.div
-      className="max-w-4xl mx-auto px-6 py-10"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-    >
+    <div className="atlas-quiz-page">
       {/* スクリーンリーダー向けアナウンス */}
       <div
         role="status"
@@ -422,6 +437,7 @@ function QuizPageContent() {
         </Link>
       </motion.div>
 
+      {entryError && <p role="status" className="atlas-location-note">{entryError}</p>}
       <AnimatePresence mode="wait">
         {/* カテゴリ選択 */}
         {quizState === "select" && (
@@ -457,7 +473,7 @@ function QuizPageContent() {
         )}
 
         {/* 結果表示 */}
-        {quizState === "result" && currentQuiz && (
+        {(quizState === "result" || quizState === "reveal") && currentQuiz && (
           <QuizResult
             key="result"
             quiz={currentQuiz}
@@ -472,6 +488,7 @@ function QuizPageContent() {
             onShowCard={handleShowCard}
             onNext={handleNext}
             onNextSameCategory={handleNextSameCategory}
+            onOpenDetails={() => setDetailOpen(true)}
           />
         )}
 
@@ -497,8 +514,15 @@ function QuizPageContent() {
           />
         )}
       </AnimatePresence>
-    </motion.div>
+      {detailOpen && currentQuiz && <CardDetail card={allCards.find(card => card.id === currentQuiz.cardId)!} onClose={() => setDetailOpen(false)} onStartQuiz={searchParams.get("cardId") === currentQuiz.cardId ? onRestart : undefined} />}
+    </div>
   );
+}
+
+function QuizScope() {
+  const params = useSearchParams();
+  const [restart, setRestart] = useState(0);
+  return <QuizPageContent key={`${params.toString()}:${restart}`} onRestart={() => setRestart(value => value + 1)} />;
 }
 
 export default function QuizPage() {
@@ -510,7 +534,7 @@ export default function QuizPage() {
         </div>
       }
     >
-      <QuizPageContent />
+      <QuizScope />
     </Suspense>
   );
 }

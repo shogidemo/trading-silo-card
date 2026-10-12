@@ -15,7 +15,7 @@ test.describe("復習モード", () => {
     await page.goto("/quiz");
 
     // 穀物カテゴリを選択
-    await page.locator("button").filter({ hasText: "穀物" }).first().click();
+    await page.getByRole("button", { name: "穀物を知る", exact: true }).click();
 
     // クイズに回答
     const options = page.locator("main button").filter({
@@ -175,6 +175,6 @@ test.describe("復習モード", () => {
     await expect(reviewButton).toBeVisible({ timeout: 5000 });
 
     // 復習モードボタン内のバッジに問題数が表示される
-    await expect(reviewButton.locator("span").filter({ hasText: "3問" })).toBeVisible({ timeout: 5000 });
+    await expect(reviewButton).toContainText("3問");
   });
 });

@@ -11,7 +11,7 @@ async function verifyFlip(card: Locator) {
   await expect(back).toHaveAttribute("aria-hidden", "false");
   await expect(source).toHaveCount(0);
   await expect(back).toHaveCSS("backface-visibility", "hidden");
-  await expect(back.locator(":scope > div")).toHaveCSS("background-color", "rgb(42, 37, 32)");
+  await expect(back.locator(":scope > div")).toHaveCSS("background-color", "rgb(21, 61, 82)");
   await expect(back.getByText("所在地", { exact: true })).toBeVisible();
   await expect.poll(() => card.locator(".preserve-3d").evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).m11)).toBeCloseTo(-1, 4);
   await card.tap();

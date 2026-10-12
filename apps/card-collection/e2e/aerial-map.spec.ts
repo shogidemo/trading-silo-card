@@ -36,10 +36,10 @@ test("航空写真に接続できなくても施設一覧とGoogleマップへ�
   await page.route("https://cyberjapandata.gsi.go.jp/**", route => route.abort());
   await page.goto("/map?silo=silo-tohoku");
   await page.getByRole("button", { name: "航空写真", exact: true }).click();
-  await expect(page.getByText(/背景地図を読み込めません/)).toBeVisible();
+  await expect(page.getByText(/背景画像の読み込みに失敗/)).toBeVisible();
   await expect(page.getByTestId("silo-sidebar").getByRole("button", { name: /を選択$/ })).toHaveCount(21);
   await expect(page.getByRole("link", { name: "Googleマップで見る", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "地図", exact: true }).click();
-  await expect(page.getByText(/背景地図を読み込めません/)).toHaveCount(0);
+  await expect(page.getByText(/背景画像の読み込みに失敗/)).toHaveCount(0);
   expect((await getCollectionState(page))?.collectedCardIds).toEqual([]);
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { Quiz, Card } from "@/types";
 
 interface QuizResultProps {
@@ -16,6 +17,7 @@ interface QuizResultProps {
   onShowCard: () => void;
   onNext: () => void;
   onNextSameCategory: () => void;
+  onOpenDetails: () => void;
 }
 
 export default function QuizResult({
@@ -31,7 +33,16 @@ export default function QuizResult({
   onShowCard,
   onNext,
   onNextSameCategory,
+  onOpenDetails,
 }: QuizResultProps) {
+  const resultRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      resultRef.current?.scrollIntoView({ block: "start" });
+      resultRef.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
   const getNextButtonText = () => {
     if (isChallengeMode || isReviewMode) {
       const totalQuestions = isReviewMode
@@ -47,10 +58,11 @@ export default function QuizResult({
   return (
     <motion.div
       key="result"
+      ref={resultRef} tabIndex={-1} role="region" aria-label="クイズの結果" data-testid="quiz-result"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="text-center"
+      className="text-center atlas-quiz-result"
     >
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
@@ -90,7 +102,7 @@ export default function QuizResult({
         )}
         {isCorrect && !earnedCard && (
           <p className="text-sm text-concrete-500 mb-4">
-            この施設のカードはすでに獲得済みです
+            このカードはすでに獲得済みです
           </p>
         )}
 
@@ -129,11 +141,12 @@ export default function QuizResult({
             </div>
           )}
           <p className="text-xs text-concrete-500 mt-3">
-            この施設の理解度: {facilityProgress.answered} / {facilityProgress.total}
+            このカードの理解度: {facilityProgress.answered} / {facilityProgress.total}
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button type="button" className="atlas-primary" onClick={onOpenDetails}>カードの詳細を見る</button>
           {earnedCard && (
             <motion.button
               onClick={onShowCard}

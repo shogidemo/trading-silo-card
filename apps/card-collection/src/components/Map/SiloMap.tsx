@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, Marker, ScaleControl, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { SiloCard } from "@/types";
 import { useReducedMotion } from "@/hooks";
 import { getSiloPosition, getSiloZoom, groupNearbySilos } from "@/lib/siloMap";
+import { getTransientValue, setTransientValue, isHistoryNavigation } from "@/hooks/useTransientState";
 
 export interface SiloMapProps {
   silos: SiloCard[];
@@ -16,6 +17,7 @@ export interface SiloMapProps {
   collectedIds: string[];
   showCollectedOnly: boolean;
   basemap: "map" | "photo";
+  onReturnToMap: () => void;
 }
 
 const JAPAN_BOUNDS: L.LatLngBoundsExpression = [[30.7, 129.2], [43.8, 145.5]];
@@ -24,20 +26,35 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
   const map = useMap();
   const reducedMotion = useReducedMotion();
   const [, setViewVersion] = useState(0);
+  const initialized = useRef(false);
+  const viewKey = `map:view:${selectedSiloId ?? "nation"}:${showCollectedOnly}`;
   useMapEvents({
     zoomend: () => setViewVersion((value) => value + 1),
     resize: () => setViewVersion((value) => value + 1),
+    moveend: () => {
+      if (!initialized.current) return;
+      const center = map.getCenter();
+      setTransientValue(viewKey, { lat: center.lat, lng: center.lng, zoom: map.getZoom() });
+      map.getContainer().setAttribute("data-view-lat", String(center.lat));
+      map.getContainer().setAttribute("data-view-lng", String(center.lng));
+      map.getContainer().setAttribute("data-view-zoom", String(map.getZoom()));
+    },
   });
 
   useEffect(() => {
     map.invalidateSize();
+    if (!initialized.current) {
+      initialized.current = true;
+      const previous = getTransientValue<{ lat: number; lng: number; zoom: number }>(viewKey);
+      if (previous && isHistoryNavigation()) { map.setView([previous.lat, previous.lng], previous.zoom, { animate: false }); return; }
+    }
     const selected = silos.find((silo) => silo.id === selectedSiloId);
     const position = selected && getSiloPosition(selected);
     const positions = silos.map(getSiloPosition).filter((point): point is [number, number] => point !== null);
     if (position && selected) map.setView(position, getSiloZoom(selected), { animate: !reducedMotion });
     else if (showCollectedOnly && positions.length > 0) map.fitBounds(positions, { padding: [32, 32], maxZoom: 16, animate: false });
     else map.fitBounds(JAPAN_BOUNDS, { padding: [24, 24], animate: false });
-  }, [map, selectedSiloId, silos, showCollectedOnly, reducedMotion, resetVersion, focusVersion]);
+  }, [map, selectedSiloId, silos, showCollectedOnly, reducedMotion, resetVersion, focusVersion, viewKey]);
 
   useEffect(() => {
     const observer = new ResizeObserver(() => map.invalidateSize());
@@ -103,16 +120,19 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
 function Background({ basemap, retryVersion, onError }: { basemap: "map" | "photo"; retryVersion: number; onError: () => void }) {
   const map = useMap();
   const [zoom, setZoom] = useState(map.getZoom());
+  const [loading, setLoading] = useState({ map: false, photo: false });
+  const active = basemap === "photo" && zoom >= 14 ? "photo" : "map";
   useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
   return <>
     <TileLayer key={`map-${basemap}-${retryVersion}`} url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
       maxZoom={basemap === "photo" ? 13 : 18}
       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      eventHandlers={{ tileerror: onError }} />
+      eventHandlers={{ tileerror: onError, loading: () => setLoading(value => ({ ...value, map: true })), load: () => setLoading(value => ({ ...value, map: false })) }} />
     {basemap === "photo" && <TileLayer key={`photo-${retryVersion}`} url="https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg"
       minZoom={14} maxNativeZoom={18} maxZoom={18}
       attribution='出典: <a href="https://maps.gsi.go.jp/development/ichiran.html#seamlessphoto">国土地理院</a> · GRUS画像（© Axelspace）'
-      eventHandlers={{ tileerror: onError }} />}
+      eventHandlers={{ tileerror: onError, loading: () => setLoading(value => ({ ...value, photo: true })), load: () => setLoading(value => ({ ...value, photo: false })) }} />}
+    {loading[active] && <div role="status" className="silo-map-loading">背景を読み込み中…</div>}
     {basemap === "photo" && zoom < 14 && <div role="status" className="absolute bottom-12 left-3 right-3 z-[500] rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-800 pointer-events-none">施設を選ぶか拡大すると、航空写真を表示します。</div>}
   </>;
 }
@@ -129,7 +149,8 @@ export default function SiloMap(props: SiloMapProps) {
       <Facilities {...props} />
     </MapContainer>
     {tileFailed && <div role="status" className="silo-map-notice">
-      <span>背景地図を読み込めません。施設一覧から所在地と詳細を確認できます。</span>
+      <span>背景画像の読み込みに失敗しました。表示できない部分があります。施設一覧から所在地を確認できます。</span>
+      {props.basemap === "photo" && <button type="button" onClick={props.onReturnToMap}>地図に戻る</button>}
       <button type="button" onClick={() => { setTileFailed(false); setRetryVersion((value) => value + 1); }}>再読み込み</button>
     </div>}
   </div>;
