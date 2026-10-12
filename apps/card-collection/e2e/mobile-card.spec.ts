@@ -49,7 +49,10 @@ test("390幅のNEW取得カードでも表裏の出典と文字が正常に表�
   await expect(card.getByTestId("card-image-attribution")).toHaveCount(0);
   await expect.poll(() => card.locator(".preserve-3d").evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).m11)).toBeCloseTo(-1, 4);
   await page.screenshot({ path: "/Users/shosato/Documents/Codex/2026-10-12/task-2/qa-mobile-new-card-back.png" });
-  await dialog.getByRole("button", { name: "タップして閉じる" }).click();
+  await card.tap();
+  await expect(card.getByTestId("card-image-attribution")).toHaveCount(1);
+  await card.getByTestId("card-image-attribution").locator("a").focus();
+  await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   expect((await getCollectionState(page))?.collectedCardIds.length).toBeGreaterThan(0);
 });

@@ -159,7 +159,7 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
     );
 
     return (
-      <div data-testid="card-image-attribution" className="absolute bottom-1 right-1 z-20 text-[9px] text-white/90 bg-black/60 px-1.5 py-0.5 rounded pointer-events-auto" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+      <div data-testid="card-image-attribution" className="absolute bottom-1 right-1 z-20 text-[9px] text-white/90 bg-black/60 px-1.5 py-0.5 rounded pointer-events-auto" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") event.stopPropagation(); }}>
         {content}
       </div>
     );
