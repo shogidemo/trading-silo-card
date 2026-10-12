@@ -15,6 +15,7 @@ export interface SiloMapProps {
   focusVersion: number;
   collectedIds: string[];
   showCollectedOnly: boolean;
+  basemap: "map" | "photo";
 }
 
 const JAPAN_BOUNDS: L.LatLngBoundsExpression = [[30.7, 129.2], [43.8, 145.5]];
@@ -99,15 +100,31 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
   </>;
 }
 
+function Background({ basemap, retryVersion, onError }: { basemap: "map" | "photo"; retryVersion: number; onError: () => void }) {
+  const map = useMap();
+  const [zoom, setZoom] = useState(map.getZoom());
+  useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
+  return <>
+    <TileLayer key={`map-${basemap}-${retryVersion}`} url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+      maxZoom={basemap === "photo" ? 13 : 18}
+      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      eventHandlers={{ tileerror: onError }} />
+    {basemap === "photo" && <TileLayer key={`photo-${retryVersion}`} url="https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg"
+      minZoom={14} maxNativeZoom={18} maxZoom={18}
+      attribution='出典: <a href="https://maps.gsi.go.jp/development/ichiran.html#seamlessphoto">国土地理院</a> · GRUS画像（© Axelspace）'
+      eventHandlers={{ tileerror: onError }} />}
+    {basemap === "photo" && zoom < 14 && <div role="status" className="absolute bottom-12 left-3 right-3 z-[500] rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-800 pointer-events-none">施設を選ぶか拡大すると、航空写真を表示します。</div>}
+  </>;
+}
+
 export default function SiloMap(props: SiloMapProps) {
   const [tileFailed, setTileFailed] = useState(false);
   const [retryVersion, setRetryVersion] = useState(0);
+  useEffect(() => setTileFailed(false), [props.basemap]);
   return <div className="silo-map-surface h-full relative" data-testid="silo-map">
     <MapContainer bounds={JAPAN_BOUNDS} boundsOptions={{ padding: [24, 24] }}
       minZoom={4} maxZoom={18} scrollWheelZoom={false} className="h-full w-full">
-      <TileLayer key={retryVersion} url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        eventHandlers={{ tileerror: () => setTileFailed(true) }} />
+      <Background basemap={props.basemap} retryVersion={retryVersion} onError={() => setTileFailed(true)} />
       <ScaleControl position="bottomleft" imperial={false} />
       <Facilities {...props} />
     </MapContainer>

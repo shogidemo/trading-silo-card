@@ -19,6 +19,7 @@ export default function CreditsPage() {
     <section className="mb-8"><h3 className="font-display text-lg mb-2">所在地と地図</h3>
       <p>所在地は施設の公式案内と国土地理院の航空写真を照合しています。新潟支店は公式施設案内に対応する事務所・受付側の地点で、サイロ本体の位置は未確定です。測量値・訪問経路・立入り許可を示すものではありません。</p>
       <p className="mt-3">背景地図: <a className="underline" href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>。所在地の照合資料: <a className="underline" href="https://maps.gsi.go.jp/development/ichiran.html#seamlessphoto">国土地理院・地理院タイル（全国最新写真）</a>。</p>
+      <p className="mt-3">航空写真は拡大時（ズーム14〜18）に表示し、広域では通常地図を表示します。国土地理院の写真には複数機関の撮影画像が含まれます。一部地域のGRUS画像の出典は「GRUS画像（© Axelspace）」です。撮影時期は地域によって異なり、リアルタイムの船舶情報ではありません。</p>
     </section>
     <section className="mb-8"><h3 className="font-display text-lg mb-2">ソフトウェアとフォント</h3>
       <p>React Leaflet 4.2.1 / @react-leaflet/core 2.1.0 はHippocratic License 2.1、Leaflet 1.9.4はBSD 2-Clauseです。Next.js 14.2.35、React / React DOM 18.3.1、Framer Motion 12.26.1はMITです。各ライセンスはそれぞれのソフトウェアに適用されます。</p>
