@@ -34,7 +34,7 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
     const position = selected && getSiloPosition(selected);
     const positions = silos.map(getSiloPosition).filter((point): point is [number, number] => point !== null);
     if (position && selected) map.setView(position, getSiloZoom(selected), { animate: !reducedMotion });
-    else if (showCollectedOnly && positions.length > 0) map.fitBounds(positions, { padding: [32, 32], maxZoom: 16, animate: !reducedMotion });
+    else if (showCollectedOnly && positions.length > 0) map.fitBounds(positions, { padding: [32, 32], maxZoom: 16, animate: false });
     else map.fitBounds(JAPAN_BOUNDS, { padding: [24, 24], animate: false });
   }, [map, selectedSiloId, silos, showCollectedOnly, reducedMotion, resetVersion, focusVersion]);
 
@@ -85,7 +85,10 @@ function Facilities({ silos, selectedSiloId, onSiloSelect, resetVersion, focusVe
           }
         },
         click: () => {
-          if (isCluster) map.fitBounds(positions, { padding: [52, 52], maxZoom: 16, animate: !reducedMotion });
+          if (isCluster) {
+            map.stop();
+            map.fitBounds(positions, { padding: [52, 52], maxZoom: 16, animate: false });
+          }
           else onSiloSelect(silo.id);
         },
       }}>

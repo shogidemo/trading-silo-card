@@ -346,23 +346,26 @@
     "id": "silo-zenno-niigata",
     "checkedOn": "2026-10-12",
     "officialSource": "https://www.zsilo.co.jp/company/access/",
-    "identitySource": "https://www.zsilo.co.jp/global-image/units/img/3796-5-20250116131614_b6788880e45572.jpg",
+    "identitySource": "https://www.zsilo.co.jp/company/access/",
     "address": "新潟県北蒲原郡聖籠町東港3-6962-1",
     "previousPosition": {
       "lat": 37.97538369999999,
       "lng": 139.238119
     },
-    "coordinates": null,
+    "coordinates": {
+      "lat": 37.975386,
+      "lng": 139.238126
+    },
     "aerialSource": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/116231/50569.jpg",
     "tile": {
       "z": 17,
       "x": 116231,
       "y": 50569,
-      "pixelX": 110,
-      "pixelY": 65
+      "pixelX": 14,
+      "pixelY": 153
     },
-    "method": "公式写真と航空写真のサイロ本体の対応が未確定。旧採用点を撤回し、新地点は未採用。",
-    "note": "旧採用点の広い矩形屋根と公式写真の2棟のサイロ本体の対応を確定できない。屋根内の本体地点としての採用を撤回。新候補は未採用で、地図に施設ピンを出さない。",
+    "method": "公式案内の施設名・所在地に結び付いた案内地点を確認し、地理院写真の当該敷地の事務所側地点を逆変換。地図中心と区別。サイロ屋根や測量値とは主張しない。",
+    "note": "幅広い矩形屋根をサイロ本体とした旧採用は撤回を維持。新点は公式の全農サイロ(株)新潟支店・東港3丁目6962-1の案内地点と一致する敷地内の事務所/受付側。施設を明確に指すという最新基準で採用。",
     "photoMetadataSource": "https://maps.gsi.go.jp/xyz/seamlessphoto_spec/11/1816/790.geojson",
     "photoMetadata": [
       {
@@ -382,8 +385,9 @@
       "pixelX": 110,
       "pixelY": 65
     },
-    "status": "unverified",
-    "recheckedOn": "2026-10-12"
+    "status": "site-point",
+    "recheckedOn": "2026-10-12",
+    "positionKind": "official-facility"
   },
   {
     "id": "silo-pgc-west",

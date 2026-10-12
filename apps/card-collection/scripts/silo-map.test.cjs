@@ -48,7 +48,8 @@ test("未確認施設は共有の概略座標へフォールバックしない",
   const unknown = { ...silos[0], id: "unverified-synthetic" };
   assert.equal(getSiloPosition(unknown), null);
   assert.equal(getSiloZoom(unknown), 6);
-  assert.equal(getSiloPosition(silos.find(s => s.id === "silo-zenno-niigata")), null);
+  assert.deepEqual(getSiloPosition(silos.find(s => s.id === "silo-zenno-niigata")), [37.975386, 139.238126]);
+  assert.equal(siloLocations["silo-zenno-niigata"].positionKind, "official-facility");
 });
 
 test("画面で重なっても離れた港や県の施設を集約しない", () => {

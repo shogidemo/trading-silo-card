@@ -3,6 +3,7 @@ import type { Coordinates } from "@/types";
 interface SiloLocation {
   status: "site-point" | "unverified";
   checkedOn: string;
+  positionKind?: "official-facility";
   sourceUrl?: string;
   aerialUrl?: string;
   address?: string;
@@ -23,7 +24,7 @@ export const siloLocations: Record<string, SiloLocation> = {
   "silo-zenno-kurashiki": {"sourceUrl": "https://www.zsilo.co.jp/company/access/", "checkedOn": "2026-10-12", "status": "site-point", "address": "岡山県倉敷市玉島乙島字新湊8267", "coordinates": {"lat": 34.494346, "lng": 133.682638}, "aerialUrl": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/114208/52141.jpg"},
   "silo-zenno-shibushi": {"sourceUrl": "https://www.zsilo.co.jp/company/access/", "checkedOn": "2026-10-12", "status": "site-point", "address": "鹿児島県志布志市志布志町志布志3312", "coordinates": {"lat": 31.458796, "lng": 131.093867}, "aerialUrl": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/113265/53459.jpg"},
   "silo-zenno-kushiro": {"sourceUrl": "https://www.zsilo.co.jp/company/access/", "checkedOn": "2026-10-12", "status": "site-point", "address": "北海道釧路市西港2丁目102番4", "coordinates": {"lat": 42.996989, "lng": 144.333369}, "aerialUrl": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/118086/48163.jpg"},
-  "silo-zenno-niigata": {"sourceUrl": "https://www.zsilo.co.jp/company/access/", "checkedOn": "2026-10-12", "status": "unverified", "address": "新潟県北蒲原郡聖籠町東港3-6962-1"},
+  "silo-zenno-niigata": {"sourceUrl": "https://www.zsilo.co.jp/company/access/", "checkedOn": "2026-10-12", "status": "site-point", "address": "新潟県北蒲原郡聖籠町東港3-6962-1", "positionKind": "official-facility", "coordinates": {"lat": 37.975386, "lng": 139.238126}, "aerialUrl": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/116231/50569.jpg"},
   "silo-pgc-west": {"checkedOn": "2026-10-12", "status": "site-point", "sourceUrl": "https://www.pgcc.jp/branch/nishinihon/", "address": "岡山県倉敷市水島海岸通3-2", "coordinates": {"lat": 34.513196, "lng": 133.736508}, "aerialUrl": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/114227/52133.jpg"},
   "silo-pgc-yatsushiro": {"checkedOn": "2026-10-12", "status": "site-point", "sourceUrl": "https://www.pgcc.jp/branch/yatsushiro/", "address": "熊本県八代市新港町3-12", "coordinates": {"lat": 32.533875, "lng": 130.544207}, "aerialUrl": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/18/226131/105995.jpg"},
   "silo-pgc-south": {"checkedOn": "2026-10-12", "status": "site-point", "sourceUrl": "https://www.pgcc.jp/branch/minaminihon/", "address": "鹿児島県鹿児島市南栄4-20", "coordinates": {"lat": 31.507618, "lng": 130.530281}, "aerialUrl": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/17/113060/53438.jpg"},

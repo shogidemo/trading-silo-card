@@ -71,7 +71,7 @@ test("密集ピンを拡大し、一覧と個別ピンの選択が連動する",
   await expect(page.getByTestId("silo-sidebar").getByRole("button", { name: /を選択$/ })).toHaveCount(21);
 });
 
-test("全獲得でも未確認地点はピンを出さず、施設一覧は21件を維持する", async ({ page }) => {
+test("全獲得でも施設一覧は21件を維持する", async ({ page }) => {
   await page.addInitScript(({ key, state }) => localStorage.setItem(key, JSON.stringify(state)), {
     key: STORAGE_KEY, state: { ...savedState, collectedCardIds: silos.map(silo => silo.id) },
   });
@@ -120,7 +120,7 @@ test("390幅の0枚でもすべてに施設ピンがあり、獲得済みでは�
   });
   await page.goto("/map");
   const pins = page.getByTestId("silo-map").locator(".silo-map-icon");
-  await expect.poll(async () => (await pins.evaluateAll(items => items.reduce((sum, item) => sum + Number(item.getAttribute("data-facility-count")), 0)))).toBe(20);
+  await expect.poll(async () => (await pins.evaluateAll(items => items.reduce((sum, item) => sum + Number(item.getAttribute("data-facility-count")), 0)))).toBe(21);
   for (const pin of await pins.all()) await expect(pin).toBeInViewport({ ratio: 1 });
   await page.screenshot({ path: "/Users/shosato/Documents/Codex/2026-10-12/task-2/qa-mobile-zero-all.png" });
   await page.getByTestId("silo-sidebar").getByRole("button", { name: "関東グレーンターミナルを選択" }).click();
@@ -133,8 +133,8 @@ test("390幅の0枚でもすべてに施設ピンがあり、獲得済みでは�
   await expect(pins.first()).toBeInViewport({ ratio: 1 });
 });
 
-test("未確認の新潟は一覧で説明し、推測した施設ピンを出さない", async ({ page }) => {
+test("新潟は公式案内の施設地点であることを説明する", async ({ page }) => {
   await page.goto("/map?silo=silo-zenno-niigata");
-  await expect(page.getByTestId("silo-selected-detail")).toContainText("地点を確認中");
-  await expect(page.locator('[data-silo-id="silo-zenno-niigata"]')).toHaveCount(0);
+  await expect(page.getByTestId("silo-selected-detail")).toContainText("事務所・受付側");
+  await expect(page.locator('[data-silo-id="silo-zenno-niigata"]')).toBeInViewport({ ratio: 1 });
 });

@@ -273,6 +273,11 @@ export default function CollectionPage() {
               key={card.id}
               id={`card-${card.id}`}
               variants={itemVariants}
+              onAnimationComplete={(definition) => {
+                if (definition === "visible" && window.location.hash === `#card-${card.id}`) {
+                  document.getElementById(`card-${card.id}`)?.scrollIntoView({ block: "center" });
+                }
+              }}
               whileHover={isCollected ? { y: -8, scale: 1.03, rotateY: 3 } : {}}
               style={{ transformStyle: "preserve-3d" }}
             >

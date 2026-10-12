@@ -72,7 +72,7 @@ function MapExplorer() {
                 </> : <Link className="silo-map-action silo-map-action-primary" href="/quiz?category=silo">クイズでカードを集める</Link>}
               </div>
             </div>
-            <p className="text-xs text-concrete-500 leading-relaxed mt-3">{location?.status === "site-point" ? "公式施設案内と航空写真を照合したサイロ本体の地点です。" : "サイロ本体の地点を確認中のため、地図にピンは表示していません。"}
+            <p className="text-xs text-concrete-500 leading-relaxed mt-3">{location?.status === "site-point" ? location.positionKind === "official-facility" ? "公式所在地案内の施設地点（事務所・受付側）を表示しています。" : "公式施設案内と航空写真を照合した施設内の地点です。" : "サイロ本体の地点を確認中のため、地図にピンは表示していません。"}
               {location?.sourceUrl && <> <a href={location.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">公式の所在地案内</a></>}
               {location?.aerialUrl && <> · <a href={location.aerialUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">所在地の航空写真（国土地理院）</a></>}
             </p>
