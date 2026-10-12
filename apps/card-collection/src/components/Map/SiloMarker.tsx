@@ -26,7 +26,7 @@ export default function SiloMarker({
       return L.divIcon({
         className: "custom-marker-collected",
         html: `<div class="silo-marker-collected ${isSelected ? "silo-marker-selected" : ""}">
-          <img src="${silo.imageUrl}" alt="${silo.name}" class="silo-marker-image" />
+          <span aria-hidden="true">✓</span>
         </div>`,
         iconSize: [44, 44],
         iconAnchor: [22, 22],
@@ -42,7 +42,7 @@ export default function SiloMarker({
       iconSize: [32, 32],
       iconAnchor: [16, 16],
     });
-  }, [isCollected, isSelected, silo.imageUrl, silo.name]);
+  }, [isCollected, isSelected]);
 
   if (isCollected) {
     return (

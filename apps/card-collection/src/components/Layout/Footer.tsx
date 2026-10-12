@@ -14,16 +14,16 @@ export default function Footer() {
           </p>
           <ul className="text-xs space-y-1.5 text-concrete-500">
             <li>
-              掲載している企業名・施設名・ロゴ等は各社の商標または登録商標です
+              掲載している企業名・施設名は各社の商標または登録商標です
             </li>
             <li>
               本サイトは掲載企業・団体とは一切関係がなく、公式情報ではありません
             </li>
             <li>
-              画像の一部はWikimedia Commons等のオープンライセンス素材、
-              および各社公式サイトからの引用（出典明記）を使用しています
+              カードの図解は基本図形から作成したオリジナルです。実施設の写真・企業ロゴではありません。
             </li>
             <li>掲載情報の正確性について保証するものではありません</li>
+            <li><a href="/credits" className="text-concrete-200 underline underline-offset-4">出典・素材・ライセンス</a></li>
           </ul>
         </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import CardArtwork from "./CardArtwork";
 import { motion } from "framer-motion";
 import { Card } from "@/types";
 import { CATEGORY_INFO } from "@/constants";
@@ -42,11 +42,12 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
   };
 
   const renderImageAttribution = () => {
-    if (isFlipped || !card.imageUrl || !card.imageAttribution) {
+    if (isFlipped) {
       return null;
     }
 
-    const { label, url } = card.imageAttribution;
+    const label = card.category === "trader" ? "社名テキスト" : "オリジナル図解";
+    const url = "/credits";
     const content = url ? (
       <a
         href={url}
@@ -55,10 +56,10 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
         referrerPolicy="no-referrer"
         className="underline decoration-white/60 underline-offset-2"
       >
-        出典: {label}
+        {label}
       </a>
     ) : (
-      <span>出典: {label}</span>
+      <span>{label}</span>
     );
 
     return (
@@ -171,19 +172,7 @@ export default function FlipCard({ card, isCollected }: FlipCardProps) {
 
               {/* メイン画像エリア */}
               <div className={`flex-1 relative overflow-hidden ${card.category === "trader" ? "bg-white flex items-center justify-center p-4" : "bg-concrete-200"}`}>
-                {card.imageUrl ? (
-                  <Image
-                    src={card.imageUrl}
-                    alt={card.name}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                    className={`${card.category === "trader" ? "object-contain !relative max-w-full max-h-full" : "object-cover"}`}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-concrete-100 to-concrete-200">
-                    <span className="text-6xl">{categoryInfo?.icon}</span>
-                  </div>
-                )}
+                <CardArtwork card={card} />
                 {/* オーバーレイグラデーション（商社以外） */}
                 {card.category !== "trader" && (
                   <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />

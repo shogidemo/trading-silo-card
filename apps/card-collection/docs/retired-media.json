@@ -1,0 +1,216 @@
+{
+  "retiredOn": "2026-10-12",
+  "reason": "利用根拠または出典との同一性が未確認。現行配信停止、原バイトは作業領域へ保管。Git履歴と過去配備は保持。",
+  "files": [
+    {
+      "originalPublicPath": "/images/grains/barley.jpg",
+      "bytes": 179055,
+      "sha256": "3ea30970952b94c7c3a8f743eec3b09bf216b6236451338fc5585193b9551eb7"
+    },
+    {
+      "originalPublicPath": "/images/grains/corn.jpg",
+      "bytes": 130182,
+      "sha256": "f22de0b525263aca5d75cb3507eccead4ba9ddca979cdbc067c1a0ef575871cd"
+    },
+    {
+      "originalPublicPath": "/images/grains/rice.jpg",
+      "bytes": 75312,
+      "sha256": "9c0adcd91d47ea4faf65418b725cee5b025eacd20a69bccbcdf9417a48fe6cc5"
+    },
+    {
+      "originalPublicPath": "/images/grains/soybean.jpg",
+      "bytes": 162566,
+      "sha256": "a96a9a90cdc7c149300236f00d09aa9b12138338933ac9e31b791e34b7710c24"
+    },
+    {
+      "originalPublicPath": "/images/grains/wheat.jpg",
+      "bytes": 151204,
+      "sha256": "aa5fa2a1abf8815c0b67d896241bbb0bf71dee39a43b49c92c31cc53676e5d82"
+    },
+    {
+      "originalPublicPath": "/images/silos/hakata-port-silo.jpg",
+      "bytes": 71907,
+      "sha256": "0f22d2f854f03fa9ab1c77d9aac068ec526dc49d690cb4ffabd7f4cec1d38984"
+    },
+    {
+      "originalPublicPath": "/images/silos/hanshin-silo.jpg",
+      "bytes": 85098,
+      "sha256": "60edfd8dc1da134d47ab7a220e0dc9a4574b0fec1b3fc4dcba675e3852ca5970"
+    },
+    {
+      "originalPublicPath": "/images/silos/higashinada-tomsen.jpg",
+      "bytes": 37175,
+      "sha256": "86a18bbad63677815ad95177915d2a6ef1e0a48d4e0698ef2f5a8253d23d66bc"
+    },
+    {
+      "originalPublicPath": "/images/silos/kamaishi-grain-center.jpg",
+      "bytes": 2113180,
+      "sha256": "5c720fa251baac7b944e2b1417c68258b7cfb4f852ea03ff53b6afd68ff009f2"
+    },
+    {
+      "originalPublicPath": "/images/silos/kanto-grain-terminal.jpg",
+      "bytes": 1066442,
+      "sha256": "3a0255f9c52d06a7e3b3dca951cc77baaad8a76d81126f6b13c570f33c17683d"
+    },
+    {
+      "originalPublicPath": "/images/silos/nakanihon-grain-center.jpg",
+      "bytes": 4694,
+      "sha256": "9e4dc18c247c63c09cac33061c1639a53f3a7380e243c9f8e4baa05c3732adee"
+    },
+    {
+      "originalPublicPath": "/images/silos/nihon-silo-chiba.webp",
+      "bytes": 124520,
+      "sha256": "28fe1c73b0e39d58e2acbff5f704374c74407253115c5c07d66e6cc52f1b9bfe"
+    },
+    {
+      "originalPublicPath": "/images/silos/pgc-south.jpg",
+      "bytes": 1632948,
+      "sha256": "f636fa941e227e9e599b479b4480ba0ad22bbe77a0062d4d1e2db4effa9a8ff6"
+    },
+    {
+      "originalPublicPath": "/images/silos/pgc-west.jpg",
+      "bytes": 2221517,
+      "sha256": "e4e2e9140c9488ebffe9437851d10f28b4af4b2385dbe68edc337303b5cd63cf"
+    },
+    {
+      "originalPublicPath": "/images/silos/pgc-yatsushiro.jpg",
+      "bytes": 2010879,
+      "sha256": "eb74b5946d84b25cb3f7798779829165b59e4ef51f2a9135f0a4c03712a84d63"
+    },
+    {
+      "originalPublicPath": "/images/silos/seto-futo-silo.jpg",
+      "bytes": 58147,
+      "sha256": "77febed2f742285804250f54d12340ed6ea558ad1fded7aa5437fda1012c61bb"
+    },
+    {
+      "originalPublicPath": "/images/silos/tohoku-grain-terminal.jpg",
+      "bytes": 312154,
+      "sha256": "5f120aa1c905ffdd8c12d2637d4dc9b4f14c81a2161dc605dbf74b5e43345908"
+    },
+    {
+      "originalPublicPath": "/images/silos/tokachi-grain-center.png",
+      "bytes": 2225909,
+      "sha256": "132fd6f34a938d5ae22ae529e2e0170f0eab7c8288665b1e3e095e907eccf013"
+    },
+    {
+      "originalPublicPath": "/images/silos/tomakomai-bistph02.jpg",
+      "bytes": 211850,
+      "sha256": "d49207225c7a5ee50167e3efce3f6c3dd3614c5e4a15077e1ee17af9bb4390bb"
+    },
+    {
+      "originalPublicPath": "/images/silos/toyo-grain-terminal.jpg",
+      "bytes": 700008,
+      "sha256": "85d43017c6c6aa61e62df122bf4f2a0f5c3d955c4e132b5a457436cb33d40e9a"
+    },
+    {
+      "originalPublicPath": "/images/silos/zenno-kashima.jpg",
+      "bytes": 218683,
+      "sha256": "9eb3d377c3e924bdb6c0f0496ece99c97b3e257baa89e1b051d5fc53f5ab6906"
+    },
+    {
+      "originalPublicPath": "/images/silos/zenno-kurashiki.jpg",
+      "bytes": 1554982,
+      "sha256": "8eb82732b0d85cc8d8f3310465b6eefd9603e612d22afb2ee882c91ad18d2852"
+    },
+    {
+      "originalPublicPath": "/images/silos/zenno-kushiro.jpg",
+      "bytes": 236463,
+      "sha256": "36cb891ea43e26feb82a64cbedf9ac5408211691e7f2d2e58d3dc48191394dce"
+    },
+    {
+      "originalPublicPath": "/images/silos/zenno-niigata.jpg",
+      "bytes": 244261,
+      "sha256": "d7e422d3e631d22c6a2f592d64182d0b7a9c8fec1157ff2a8f20be9a132d31c2"
+    },
+    {
+      "originalPublicPath": "/images/silos/zenno-shibushi.jpg",
+      "bytes": 205478,
+      "sha256": "b0c204e4d09f79d31939623d3ca8ecd7664aa0f257583458ca59365b9a5c30ee"
+    },
+    {
+      "originalPublicPath": "/images/silos/zenno-tokai.jpg",
+      "bytes": 182774,
+      "sha256": "79effaca29717731b62dff6330a0c8e70687eb649ad4a5b04e3b8cdcb0e6aa24"
+    },
+    {
+      "originalPublicPath": "/images/traders/adm.png",
+      "bytes": 7321,
+      "sha256": "a3a3f220bbc37db331b9f7a0c57d5a5da445c42ca82484cbbccd8f947431e160"
+    },
+    {
+      "originalPublicPath": "/images/traders/cargill.svg",
+      "bytes": 3552,
+      "sha256": "1cf56991d06fba30a5536924dfbf76b7d807d0fb9850bfb401f50bf7f11230cf"
+    },
+    {
+      "originalPublicPath": "/images/traders/itochu.png",
+      "bytes": 7454,
+      "sha256": "da656369121b36604b207252204e15a688346dcdef457a66b231f344147090a4"
+    },
+    {
+      "originalPublicPath": "/images/traders/kanematsu.svg",
+      "bytes": 3785,
+      "sha256": "fb44581800a03cb3958e48c4b9f5c2c44a25f4394416f39370cbabb10c3ac3ed"
+    },
+    {
+      "originalPublicPath": "/images/traders/marubeni.svg",
+      "bytes": 2717,
+      "sha256": "02c8687360378f9e297b6454dd6f4c2b879e479b1c8f48b54f1e06eb72a87735"
+    },
+    {
+      "originalPublicPath": "/images/traders/mitsubishi.svg",
+      "bytes": 15748,
+      "sha256": "69329c7cf6c4703253a003b9c1fe2afba8bdd732194ba2611fe5e676d1bb42b5"
+    },
+    {
+      "originalPublicPath": "/images/traders/mitsui.svg",
+      "bytes": 3977,
+      "sha256": "ecb16fab40a5581f9892cd817d7f99e32ef0fe0e2336f36f63accab9f2bcfcd9"
+    },
+    {
+      "originalPublicPath": "/images/traders/nittetsu.webp",
+      "bytes": 7272,
+      "sha256": "379f30a675e2cc90c2239debdca303715e8344c3c63bd6f2cbf243856d5ba966"
+    },
+    {
+      "originalPublicPath": "/images/traders/sojitz.svg",
+      "bytes": 24561,
+      "sha256": "2d03e64830e106565c572d5c853e1ab671cdf56a479273b56b4af8bc37f8acc5"
+    },
+    {
+      "originalPublicPath": "/images/traders/sumitomo.svg",
+      "bytes": 22628,
+      "sha256": "b60b3a0653724058ad455d5708c2959243f2a34366433ca8db49cd24333e2d63"
+    },
+    {
+      "originalPublicPath": "/images/traders/toyota-tsusho.svg",
+      "bytes": 5147,
+      "sha256": "d80e89e808873fc4fa67ae4b2bb2be7c5945fe7631bfa8989be6126d0e48923d"
+    },
+    {
+      "originalPublicPath": "/screenshots/01-home.png",
+      "bytes": 885733,
+      "sha256": "92d2af4563e245d1616a21097cdb43babb5eb4f94b68f9b54987556e55123c27"
+    },
+    {
+      "originalPublicPath": "/screenshots/02-quiz-select.png",
+      "bytes": 623873,
+      "sha256": "f3d91c8d917fabae0a50aebf48f2dcf88321c33ffd1da37561cc6a5daf21ef33"
+    },
+    {
+      "originalPublicPath": "/screenshots/03-quiz-question.png",
+      "bytes": 412542,
+      "sha256": "eeb8dc2364cc9f935e3f404a33789535c5083cab9518aaad5234c9557048c8cb"
+    },
+    {
+      "originalPublicPath": "/screenshots/04-quiz-result.png",
+      "bytes": 469250,
+      "sha256": "0bc106f54841449f1dba1cc8eb15d467134f3e61768f945fa91369643a24a84a"
+    },
+    {
+      "originalPublicPath": "/screenshots/05-collection.png",
+      "bytes": 491603,
+      "sha256": "270a9201c25b1e02d19310d05c26cf536243d558537ab19c905d8e41b365c8ca"
+    }
+  ]
+}

@@ -1,0 +1,733 @@
+[
+  {
+    "package": "next",
+    "version": "14.2.35",
+    "file": "license.md",
+    "sha256": "e4f76a7a19ef2989dd79339bd3abf8afcf1d6f065e5a10c76c19415ffd727eb3"
+  },
+  {
+    "package": "react",
+    "version": "18.3.1",
+    "file": "LICENSE",
+    "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+  },
+  {
+    "package": "react-dom",
+    "version": "18.3.1",
+    "file": "LICENSE",
+    "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+  },
+  {
+    "package": "leaflet",
+    "version": "1.9.4",
+    "file": "LICENSE",
+    "sha256": "53e8dc25862014e4324741ca18fbe3611e11d42ef69f59f86ea8c5389647d4cb"
+  },
+  {
+    "package": "react-leaflet",
+    "version": "4.2.1",
+    "file": "LICENSE.md",
+    "sha256": "388d14009789fb9a4faeb142550a75ee6d4a33e25a4cd5acafb9c2b7106c2e91"
+  },
+  {
+    "package": "@react-leaflet/core",
+    "version": "2.1.0",
+    "file": "LICENSE.md",
+    "sha256": "4a015e547e1c8c0faeadec6ce957a4f697e2f20b19c8987d6c5047518e0de5bf"
+  },
+  {
+    "package": "framer-motion",
+    "version": "12.26.1",
+    "file": "LICENSE.md",
+    "sha256": "5ff46083b88563822b0560dd6221ab89d2f74bc97a52d4c97a75020fd62c6f32"
+  },
+  {
+    "package": "motion-dom",
+    "version": "12.24.11",
+    "file": "LICENSE.md",
+    "sha256": "1bf0dc3f7727723e5a032ed12164a47cf92c05204cb1a3485f123c24e2833ed1"
+  },
+  {
+    "package": "motion-utils",
+    "version": "12.24.10",
+    "file": "LICENSE.md",
+    "sha256": "1bf0dc3f7727723e5a032ed12164a47cf92c05204cb1a3485f123c24e2833ed1"
+  },
+  {
+    "package": "scheduler",
+    "version": "0.23.2",
+    "file": "LICENSE",
+    "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+  },
+  {
+    "package": "styled-jsx",
+    "version": "5.1.1",
+    "file": "license.md",
+    "sha256": "24d4a4580df855c345705b3016404f0c9da7e7674dc3b21a3ce7d0e5d0c37e2d"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "@babel/runtime/LICENSE",
+    "sha256": "117da2af0d4ce0fe1c8e19b5cff9dcd806adf973d328d27b11d4448c4ff24f76"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "@mswjs/interceptors/ClientRequest/LICENSE",
+    "sha256": "bb3a5cb8fb224f632970e31425348f556f7a83b165d5384ea5e142575f5c412e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "@napi-rs/triples/LICENSE",
+    "sha256": "7b34e99bc43641767fded49f7f03563ffd50c689b1f3b0d50700b4727bc4ae24"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "@opentelemetry/api/LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "@vercel/nft/LICENSE",
+    "sha256": "0b31f3a6ab66b272b7de451df39835f310a309a06b1a8aafb3a2fdab20adc166"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "@vercel/og/LICENSE",
+    "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "@vercel/og/satori/LICENSE",
+    "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "acorn/LICENSE",
+    "sha256": "76a876cf886ff9be2a8b5e2e86514fed06223c8c9f0c1e9ee9606e93841e00b7"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "anser/LICENSE",
+    "sha256": "6d2abc90a426cf65bbf84f7cedf9487f7ff86a3daf0e130b335a45c112f040d0"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "assert/LICENSE",
+    "sha256": "6239c6144c31e58cf925c34483606969c555574d64ffa96518ab5d7f45c75d43"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "babel/LICENSE",
+    "sha256": "117da2af0d4ce0fe1c8e19b5cff9dcd806adf973d328d27b11d4448c4ff24f76"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "browserify-zlib/LICENSE",
+    "sha256": "ddd770379e07bf0574dfaa4485be80a23b3248b36d09f33ec79276c09b829daf"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "browserslist/LICENSE",
+    "sha256": "f25bf9bf3ae8984bcd43bf7fb8f78e7eec8d577081fb8d0989cfa7c67ecebb8e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "buffer/LICENSE",
+    "sha256": "06bafa45fdad2579ba0e43b0c9b2c6290287c99c4203c300254a462b38a307f6"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "bytes/LICENSE",
+    "sha256": "e3b44af066615de2ea48d18d852d0762f18c0b2efcea714fa48a6f729d405b85"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "ci-info/LICENSE",
+    "sha256": "25bd22427e27b0d3f1c3da2670bb44b622bcced22ebdf4777d5488ac129370a1"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "cli-select/LICENSE",
+    "sha256": "a8e260b5b60eb27746ff2c5967489e6878c5a6ba99400cbec84c89a9b49a46ca"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "commander/LICENSE",
+    "sha256": "04512a63dce4d2d506ad612dc0bd7681ccf6e3655f7b6eaef7dfac8323d1ec0b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "comment-json/LICENSE",
+    "sha256": "9dbd86998d3cdafc1d8c298aea636146568d05d429b81386e60cfce11e6cedb6"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "compression/LICENSE",
+    "sha256": "23d466b1b134b415b66fa50c6526b4cf3e7b9258554da88d3abb371721e7ce68"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "conf/LICENSE",
+    "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "content-disposition/LICENSE",
+    "sha256": "bd47ce7b88c7759630d1e2b9fcfa170a0f1fde522be09e13fb1581a79d090400"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "content-type/LICENSE",
+    "sha256": "257aed98914108e91a337912727b6a802eef218248507f74b76faffaff517a38"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "cookie/LICENSE",
+    "sha256": "c02110eedc16c7114f1a9bdc026c65626ce1d9c7e27fd51a8e0feee8a48a6858"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "cross-spawn/LICENSE",
+    "sha256": "aaa78451b6fecd1b9c4594c796c133c0e90cad100372ff8bc6de615e9ef9adf1"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "crypto-browserify/LICENSE",
+    "sha256": "6134c69bc22c8289252e70de3af20bd67071233459055be74d83acfcc4865e7e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "debug/LICENSE",
+    "sha256": "98c970de440dcfc77471610aec2377c9d9b0db2b3be6d1add524a586e1d7f422"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "devalue/LICENSE",
+    "sha256": "e399db7e952e45cae84f1b53d72ba8dbad2daaa7ab8cd1f0ab72fea5ab73b225"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "events/LICENSE",
+    "sha256": "631987b7616a325a5b97566c232418481ddf7dbb5ecadefb991e791876cc2599"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "find-cache-dir/LICENSE",
+    "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "find-up/LICENSE",
+    "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "fresh/LICENSE",
+    "sha256": "a0ec0dab16b3666f24950f86d257930ac2ad475557b4bfe245620e0817d8a45d"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "get-orientation/LICENSE",
+    "sha256": "6584474e64a04bdde7d2862324d896ad10276811a8fa49ac47581cefa30ebfd3"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "glob/LICENSE",
+    "sha256": "6236fa0b88a4a0cce3dda0367979491b2052b3c8d6b1c10b3668de083e86a7f0"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "gzip-size/LICENSE",
+    "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "http-proxy/LICENSE",
+    "sha256": "589850dfc0a1d39a97c592d618d5772f84aec2b11c6898e020acb985299f3bab"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "https-browserify/LICENSE",
+    "sha256": "ff151c00207c908581639851dd8504ce4255be0650b2b236edec2aa90342b0cd"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "ignore-loader/LICENSE",
+    "sha256": "62ba766e9b50f9b175b0229f4ea03e93730c9180408acec50dd617e9ae1fa059"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "image-size/LICENSE",
+    "sha256": "54d0b82d1e7d0bc60a4b48b6172f1a9fa7385cfa8a448d14ad3a638930ef417c"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "is-docker/LICENSE",
+    "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "is-wsl/LICENSE",
+    "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "jest-worker/LICENSE",
+    "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "jsonwebtoken/LICENSE",
+    "sha256": "2144eb6894cb440fde6b2b3aaae3b617c8f1dc9bb19813079dcf62ec6c517042"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "loader-runner/LICENSE",
+    "sha256": "498d39c83164cf8de195090f5564fc0308ab271344ca2f95484a7f1020952d00"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "loader-utils2/LICENSE",
+    "sha256": "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "loader-utils3/LICENSE",
+    "sha256": "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "lodash.curry/LICENSE",
+    "sha256": "ffd8b33b354585f4ce119f19c53728281e48a97b074491eb6bf6d5c5ff305272"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "lru-cache/LICENSE",
+    "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "mini-css-extract-plugin/LICENSE",
+    "sha256": "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "nanoid/LICENSE",
+    "sha256": "da4db1480d9beea3483a2eda5c53b22238d0827d57da162b48f122e04d2d9987"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "native-url/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "neo-async/LICENSE",
+    "sha256": "811238ba7d85f6fe6b820703a32f92705bcf77bc352ddc3476783491c64a129a"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "node-html-parser/LICENSE",
+    "sha256": "ea75e9321945b7f0bc4644da1e404ad76ce55e9bc05cae3b2f5f2d973aede83b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "ora/LICENSE",
+    "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "os-browserify/LICENSE",
+    "sha256": "d25d1d6d28c35cb6f358e2833e405c4e53fec2fa24d156323ddea5cd438d3407"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "p-limit/LICENSE",
+    "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "path-browserify/LICENSE",
+    "sha256": "a22b9d5763f574e5db347c30acc0b33eaf4846767c03d2e27d012e864e79a824"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "picomatch/LICENSE",
+    "sha256": "d0cd141b0c322fded5dfad1d4645bb2fedfc05b7321fe1009469638190d59ef9"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "platform/LICENSE",
+    "sha256": "4a161ebed4f1ef933e16ccfa00d86c718703f5d015a9987ea7ce1bb72a43cd22"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "postcss-flexbugs-fixes/LICENSE",
+    "sha256": "f26c92c1c16e78c6b1f7474792f7195b7abc851caccb4a73dcc5b3c31efc7321"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "postcss-modules-extract-imports/LICENSE",
+    "sha256": "9e534cfb7f7ae1300e16fe1ee7d203fdfe707dc932429c37246f747c3699ee14"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "postcss-modules-local-by-default/LICENSE",
+    "sha256": "dd40f37957ddcb6a6157f40b677d6f43697583f956144fbce25443e35630453e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "postcss-modules-scope/LICENSE",
+    "sha256": "7774c8c4a3f750b294b416818062201a404fc2d6c8756d8b89a1688e24b5d5a7"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "postcss-modules-values/LICENSE",
+    "sha256": "655287aefbf8e292057318c385d77767b1dd9819c87709fd26730b7090efe4d9"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "postcss-safe-parser/LICENSE",
+    "sha256": "c4630ac8b89cb317ac5bdd60ac5e4e185eab9bd5151a0c7b3afa41aa83d7ec9b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "postcss-scss/LICENSE",
+    "sha256": "c4630ac8b89cb317ac5bdd60ac5e4e185eab9bd5151a0c7b3afa41aa83d7ec9b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "postcss-value-parser/LICENSE",
+    "sha256": "3687447039151857a6ba378db062172c7f33d4aa70a615c87a43a9c50e990485"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "process/LICENSE",
+    "sha256": "59a400d04c5078579acc27ddd6452c1bdf763f9506e01364700935fbb1a7c91b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "raw-body/LICENSE",
+    "sha256": "c8e6bca7230689d536a3bd7158f66e9c4f89f95d0748743a0370ac229e9023ad"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-dom/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-dom-experimental/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-experimental/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-is/LICENSE",
+    "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-refresh/LICENSE",
+    "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-server-dom-turbopack/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-server-dom-turbopack-experimental/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-server-dom-webpack/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "react-server-dom-webpack-experimental/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "regenerator-runtime/LICENSE",
+    "sha256": "51887a3d47051ac2fce1210562e5b9fe0830a8a8fabeb272c2d586eeb18a05fd"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "sass-loader/LICENSE",
+    "sha256": "2af12ca8b612a22e6659ae68e0e59ee7ac792718c45524a989b512c49c5f5879"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "scheduler/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "scheduler-experimental/LICENSE",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "schema-utils2/LICENSE",
+    "sha256": "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "schema-utils3/LICENSE",
+    "sha256": "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "semver/LICENSE",
+    "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "send/LICENSE",
+    "sha256": "8c3a3bc340c55f113097a35647235b8c0a9f0181d024a7ed1d116e202af68a07"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "shell-quote/LICENSE",
+    "sha256": "8bb16db1b047019e4395965f2cf3611b06c34bf86dc2d0210b3c3f91b53c21fe"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "source-map/LICENSE",
+    "sha256": "6cb0631f71c7749763fd3dd1d5bee52dd1070ec17f2edc1710079ad070bd2fbd"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "source-map08/LICENSE",
+    "sha256": "6cb0631f71c7749763fd3dd1d5bee52dd1070ec17f2edc1710079ad070bd2fbd"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "stacktrace-parser/LICENSE",
+    "sha256": "e1898814043cb5500483d9c8517edda824b352f696d35e5043fcfb537c221531"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "stream-browserify/LICENSE",
+    "sha256": "96e5193183476a03da6667d217ce14110191d26ee105338086e94339edf40d5a"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "stream-http/LICENSE",
+    "sha256": "a0e6357a5e8ea65827addeb383e0948a1874d2f46bc7feaf6349b7a376ed6e98"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "string_decoder/LICENSE",
+    "sha256": "11f2aafb37d06b3ee5bdaf06e9811141d0da05263c316f3d627f45c20d43261b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "strip-ansi/LICENSE",
+    "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "tar/LICENSE",
+    "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "terser/LICENSE",
+    "sha256": "901d0a7fcaccaae9917d165039c0473c354e5da2e0e94140dde67aad9ffb19da"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "text-table/LICENSE",
+    "sha256": "435a6722c786b0a56fbe7387028f1d9d3f3a2d0fb615bb8fee118727c3f59b7b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "tty-browserify/LICENSE",
+    "sha256": "435a6722c786b0a56fbe7387028f1d9d3f3a2d0fb615bb8fee118727c3f59b7b"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "util/LICENSE",
+    "sha256": "6239c6144c31e58cf925c34483606969c555574d64ffa96518ab5d7f45c75d43"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "vm-browserify/LICENSE",
+    "sha256": "3a62887f73cd035ac1068bc0127ce94291f7a03843391f56df3520e2ca2037f8"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "watchpack/LICENSE",
+    "sha256": "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "web-vitals/LICENSE",
+    "sha256": "bfdeded4040e05da31ca9b6239dc83bd23fa26ac8db87342a7ca4363f68916ff"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "web-vitals-attribution/LICENSE",
+    "sha256": "bfdeded4040e05da31ca9b6239dc83bd23fa26ac8db87342a7ca4363f68916ff"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "webpack/LICENSE",
+    "sha256": "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "webpack-sources1/LICENSE",
+    "sha256": "214d0ac13edb475ec426df1979d96fd46b443debc466c0fb592e32152ae5a940"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "webpack-sources3/LICENSE",
+    "sha256": "214d0ac13edb475ec426df1979d96fd46b443debc466c0fb592e32152ae5a940"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "ws/LICENSE",
+    "sha256": "dcd0a622a3a2c94fe3aa6238b76363f87df442afe788cbad966afe943ed62281"
+  },
+  {
+    "package": "next/dist/compiled",
+    "file": "zod/LICENSE",
+    "sha256": "0225e7c0a96845a7477cd44d75d3dc9c999f673454efa84b54e218415055eece"
+  },
+  {
+    "font": "zenmarugothic",
+    "source": "https://github.com/google/fonts/blob/main/ofl/zenmarugothic/OFL.txt",
+    "sha256": "2a20cf7ce1909d8ee1e949095d340f7d7656705f7c810a2d6faf56800ad0cb3d",
+    "note": "next/fontのサブセット配信。Geistは未使用の保存フォント。全バイナリの個別メタデータ照合は未実施。"
+  },
+  {
+    "font": "mplusrounded1c",
+    "source": "https://github.com/google/fonts/blob/main/ofl/roundedmplus1c/OFL.txt",
+    "sha256": "67f64c5509e5151796599e3ad47c3131cbe0c80c4f9430b90236a1249c2eacc9",
+    "note": "next/fontのサブセット配信。Geistは未使用の保存フォント。全バイナリの個別メタデータ照合は未実施。"
+  },
+  {
+    "font": "jetbrainsmono",
+    "source": "https://github.com/google/fonts/blob/main/ofl/jetbrainsmono/OFL.txt",
+    "sha256": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d",
+    "note": "next/fontのサブセット配信。Geistは未使用の保存フォント。全バイナリの個別メタデータ照合は未実施。"
+  },
+  {
+    "font": "nunito",
+    "source": "https://github.com/google/fonts/blob/main/ofl/nunito/OFL.txt",
+    "sha256": "580df76c95a1ec5ab878ceb25bb3d85c6a076804e9c970c8c6972aea775fdf65",
+    "note": "next/fontのサブセット配信。Geistは未使用の保存フォント。全バイナリの個別メタデータ照合は未実施。"
+  },
+  {
+    "font": "geist",
+    "source": "https://github.com/vercel/geist-font/blob/main/OFL.txt",
+    "sha256": "c683bfbcc7e087f5d37a54ef628f10387c451a83ddc459b151403a164ac46c90",
+    "note": "next/fontのサブセット配信。Geistは未使用の保存フォント。全バイナリの個別メタデータ照合は未実施。"
+  },
+  {
+    "package": "tslib",
+    "version": "2.8.1",
+    "file": "LICENSE.txt",
+    "sha256": "210b19e543130388c68654b7497e967119ce17145f66ab7d85688fbd70f08751"
+  },
+  {
+    "package": "@swc/helpers",
+    "version": "0.5.5",
+    "file": "LICENSE",
+    "sha256": "769f80b5bcb42ed0af4e4d2fd74e1ac9bf843cb80c5a29219d1ef3544428a6bb"
+  },
+  {
+    "package": "busboy",
+    "version": "1.6.0",
+    "file": "LICENSE",
+    "sha256": "d06b5d27bbbbe22c36b1fd88406b1208876e2d37d795f5b8eaed951a459a3111"
+  },
+  {
+    "package": "streamsearch",
+    "version": "1.1.0",
+    "file": "LICENSE",
+    "sha256": "7c28463b739e2e73a49bf127d0bda427f8c55f0b37365a044c3c3f254716118b"
+  },
+  {
+    "package": "caniuse-lite",
+    "version": "1.0.30001764",
+    "file": "LICENSE",
+    "sha256": "fd3a263fe19ed8faa9068b43abaebafc02c77897b0c6fc09abc04bb592e5f16e"
+  },
+  {
+    "package": "graceful-fs",
+    "version": "4.2.11",
+    "file": "LICENSE",
+    "sha256": "f65c5d9f22a317b2a10803bd1868461ce6499c2ed7217bc80c0cc772a748789c"
+  },
+  {
+    "package": "postcss",
+    "version": "8.4.31",
+    "file": "LICENSE",
+    "sha256": "c4630ac8b89cb317ac5bdd60ac5e4e185eab9bd5151a0c7b3afa41aa83d7ec9b"
+  },
+  {
+    "package": "nanoid",
+    "version": "3.3.11",
+    "file": "LICENSE",
+    "sha256": "da4db1480d9beea3483a2eda5c53b22238d0827d57da162b48f122e04d2d9987"
+  },
+  {
+    "package": "picocolors",
+    "version": "1.1.1",
+    "file": "LICENSE",
+    "sha256": "6582629e2979466878f6014313dcc2f3756c9616148682227ce3063dde310750"
+  },
+  {
+    "package": "source-map-js",
+    "version": "1.2.1",
+    "file": "LICENSE",
+    "sha256": "6cb0631f71c7749763fd3dd1d5bee52dd1070ec17f2edc1710079ad070bd2fbd"
+  },
+  {
+    "package": "loose-envify",
+    "version": "1.4.0",
+    "file": "LICENSE",
+    "sha256": "4eb7543b08d955a6d23fcc224601d43ff566e775be918805e26210d7f6eb4893"
+  },
+  {
+    "package": "js-tokens",
+    "version": "4.0.0",
+    "file": "LICENSE",
+    "sha256": "2213d91c606205c71eb051a199478cdc2adde945893404d7f1421436dd6d5cc1"
+  },
+  {
+    "package": "@next/env",
+    "version": "14.2.35",
+    "source": "https://github.com/vercel/next.js/blob/v14.2.35/license.md",
+    "license": "MIT"
+  },
+  {
+    "package": "client-only",
+    "version": "0.0.1",
+    "license": "MIT",
+    "note": "配布package内に著作権/ライセンス本文なし。宣言を記録。個別copyright notice取得は未確認。"
+  },
+  {
+    "package": "@swc/counter",
+    "version": "0.1.3",
+    "license": "Apache-2.0",
+    "note": "配布package内に著作権/ライセンス本文なし。宣言を記録。個別copyright notice取得は未確認。"
+  }
+]
