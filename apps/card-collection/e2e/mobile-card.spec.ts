@@ -1,6 +1,8 @@
 import { test, expect, Locator } from "@playwright/test";
 import { STORAGE_KEY, goToQuiz, selectCategory, answerQuizCorrectly, setCollectionStateBeforeLoad, getCollectionState } from "./helpers/test-utils";
 
+test.use({ hasTouch: true });
+
 async function verifyFlip(card: Locator) {
   const front = card.getByTestId("card-front"), back = card.getByTestId("card-back");
   const source = card.getByTestId("card-image-attribution");
@@ -31,7 +33,7 @@ test("390幅で通常カードの出典が裏面へ透過せず、連続タッ�
   await page.goto("/collection");
   const card = page.locator("#card-silo-tohoku").getByRole("button", { name: /^東北グレーンターミナルカード、/ });
   await verifyFlip(card);
-  await page.screenshot({ path: "/Users/shosato/Documents/Codex/2026-10-12/task-2/qa-mobile-card-front.png" });
+  await page.screenshot({ path: test.info().outputPath("qa-mobile-card-front.png") });
   expect((await getCollectionState(page))?.collectedCardIds).toEqual(["silo-tohoku"]);
 });
 
@@ -48,7 +50,7 @@ test("390幅のNEW取得カードでも表裏の出典と文字が正常に表�
   await card.tap();
   await expect(card.getByTestId("card-image-attribution")).toHaveCount(0);
   await expect.poll(() => card.locator(".preserve-3d").evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).m11)).toBeCloseTo(-1, 4);
-  await page.screenshot({ path: "/Users/shosato/Documents/Codex/2026-10-12/task-2/qa-mobile-new-card-back.png" });
+  await page.screenshot({ path: test.info().outputPath("qa-mobile-new-card-back.png") });
   await card.tap();
   await expect(card.getByTestId("card-image-attribution")).toHaveCount(1);
   await card.getByTestId("card-image-attribution").locator("a").focus();

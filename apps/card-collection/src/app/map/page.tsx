@@ -70,8 +70,11 @@ function MapExplorer() {
       <div className="silo-explorer-main min-w-0">
         {displayed.length === 0 && <p role="status" className="silo-map-empty-message">このブラウザには獲得済みのサイロカードがありません。「すべて」で未獲得施設の場所を確認できます。</p>}
         {displayed.length > 0 && locatedCount === 0 && <p role="status" className="silo-map-empty-message">施設の地点を確認中のため、ピンは表示していません。施設一覧から所在地案内とカードの詳細を確認できます。</p>}
-        <div ref={mapRef} className="silo-explorer-map" role="region" aria-label="サイロの所在地と収集状況を示す地図">
-          <SiloMapClient silos={displayed} selectedSiloId={selected?.id ?? null} onSiloSelect={selectSilo} resetVersion={resetVersion} focusVersion={focusVersion} collectedIds={state.collectedCardIds} showCollectedOnly={filter === "collected"} basemap={basemap} onReturnToMap={() => setBasemap("map")} />
+        <div ref={mapRef} className="scroll-mt-16">
+          {location?.positionKind === "official-facility" && <p id="silo-location-warning" role="status" className="silo-map-empty-message" data-testid="silo-location-warning">事務所・受付の位置。サイロ本体の位置は未確認</p>}
+          <div className="silo-explorer-map" role="region" aria-label="サイロの所在地と収集状況を示す地図" aria-describedby={location?.positionKind === "official-facility" ? "silo-location-warning" : undefined}>
+            <SiloMapClient silos={displayed} selectedSiloId={selected?.id ?? null} onSiloSelect={selectSilo} resetVersion={resetVersion} focusVersion={focusVersion} collectedIds={state.collectedCardIds} showCollectedOnly={filter === "collected"} basemap={basemap} onReturnToMap={() => setBasemap("map")} />
+          </div>
         </div>
         <section className="silo-selected-detail" aria-labelledby="selected-silo-title" data-testid="silo-selected-detail">
           {selected ? <>

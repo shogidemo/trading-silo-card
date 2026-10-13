@@ -121,7 +121,7 @@ test("390幅の0枚でもすべてに施設ピンがあり、獲得済みでは�
   const pins = page.getByTestId("silo-map").locator(".silo-map-icon");
   await expect.poll(async () => (await pins.evaluateAll(items => items.reduce((sum, item) => sum + Number(item.getAttribute("data-facility-count")), 0)))).toBe(21);
   for (const pin of await pins.all()) await expect(pin).toBeInViewport({ ratio: 1 });
-  await page.screenshot({ path: "/Users/shosato/Documents/Codex/2026-10-12/task-2/qa-mobile-zero-all.png" });
+  await page.screenshot({ path: test.info().outputPath("qa-mobile-zero-all.png") });
   await page.getByTestId("silo-sidebar").getByRole("button", { name: "関東グレーンターミナルを選択" }).click();
   await expect(page.locator('[data-testid="silo-marker"][data-silo-id="silo-kanto"]')).toBeInViewport({ ratio: 1 });
   await expect(page.getByRole("button", { name: "カードの詳細を見る" })).toHaveCount(0);
@@ -137,3 +137,35 @@ test("新潟は公式案内の施設地点であることを説明する", async
   await expect(page.getByTestId("silo-selected-detail")).toContainText("事務所・受付側");
   await expect(page.locator('[data-silo-id="silo-zenno-niigata"]')).toBeInViewport({ ratio: 1 });
 });
+
+for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
+  for (const collected of [false, true]) {
+    test(`新潟の本体未確認を地図前に表示する（${viewport.width}px・${collected ? "獲得済み" : "未獲得"}）`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      const state = { ...savedState, collectedCardIds: collected ? [...savedState.collectedCardIds, "silo-zenno-niigata"] : savedState.collectedCardIds };
+      await page.addInitScript(({ key, state }) => localStorage.setItem(key, JSON.stringify(state)), { key: STORAGE_KEY, state });
+      await page.goto("/map?silo=silo-zenno-niigata");
+      const warning = page.getByTestId("silo-location-warning");
+      await expect(warning).toHaveText("事務所・受付の位置。サイロ本体の位置は未確認");
+      await expect(warning).toBeInViewport({ ratio: 1 });
+      const map = page.getByRole("region", { name: "サイロの所在地と収集状況を示す地図" });
+      expect((await warning.boundingBox())!.y + (await warning.boundingBox())!.height).toBeLessThanOrEqual((await map.boundingBox())!.y);
+      const pin = page.locator('[data-silo-id="silo-zenno-niigata"]');
+      await expect(pin).toHaveAttribute("data-lat", "37.975386");
+      await expect(pin).toHaveAttribute("data-lng", "139.238126");
+      await expect(pin).toHaveAttribute("data-collected", String(collected));
+      await page.screenshot({ path: test.info().outputPath("niigata-warning.png") });
+      if (collected) {
+        await page.getByRole("button", { name: "獲得済み", exact: true }).click();
+        await expect(warning).toHaveCount(0);
+        await page.getByRole("button", { name: "全農サイロ新潟支店を選択", exact: true }).click();
+      } else {
+        await page.getByRole("button", { name: "関東グレーンターミナルを選択", exact: true }).click();
+        await expect(warning).toHaveCount(0);
+        await page.getByRole("button", { name: "全農サイロ新潟支店を選択", exact: true }).click();
+      }
+      await expect(warning).toBeInViewport({ ratio: 1 });
+      await expect.poll(() => getCollectionState(page)).toEqual(state);
+    });
+  }
+}

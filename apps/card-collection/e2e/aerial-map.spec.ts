@@ -25,7 +25,7 @@ test("広域では写真を先読みせず、未獲得施設を選んで航空�
   await expect(page.getByTestId("silo-map").getByRole("link", { name: "国土地理院", exact: true })).toBeVisible();
   const google = page.getByRole("link", { name: "Googleマップで見る", exact: true });
   await expect(google).toHaveAttribute("href", /https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=/);
-  await page.screenshot({ path: "/Users/shosato/Documents/Codex/2026-10-12/task-2/qa-mobile-aerial-mock.png" });
+  await page.screenshot({ path: test.info().outputPath("qa-mobile-aerial-mock.png") });
   await page.getByRole("button", { name: "地図", exact: true }).click();
   await expect(page.getByRole("button", { name: "地図", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator('[data-silo-id="silo-tohoku"]')).toBeInViewport({ ratio: 1 });

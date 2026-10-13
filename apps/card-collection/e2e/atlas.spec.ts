@@ -31,7 +31,7 @@ test("HOME-01 RESP-01 RESP-02: 5幅で初回CTAとナビを見せ、横溢れと
     const nav = page.getByRole("navigation", { name: "主な画面" });
     expect((await cta.boundingBox())!.y + (await cta.boundingBox())!.height).toBeLessThanOrEqual((await nav.boundingBox())!.y);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: `/Users/shosato/Documents/Codex/2026-10-12/task-2/qa-atlas-home-${width}.png` });
+    await page.screenshot({ path: test.info().outputPath(`qa-atlas-home-${width}.png`) });
     await page.getByRole("link", { name: "出典・素材・ライセンス", exact: true }).last().scrollIntoViewIfNeeded();
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     const last = await page.locator("footer").boundingBox();
@@ -247,6 +247,7 @@ test("QUIZ-02 STATE-01: category入口の通常再入場は古い結果を復元
   const before = await getCollectionState(page);
   await page.getByRole("link", { name: "探す", exact: true }).click();
   await expect(page).toHaveURL(/map$/);
+  if (!before) throw new Error("クイズ回答後の収集状態が保存されていません");
   const uncollected = silos.find(card => !before.collectedCardIds.includes(card.id))!;
   await page.getByRole("button", { name: `${uncollected.name}を選択`, exact: true }).click();
   await page.getByRole("link", { name: "クイズでカードを集める", exact: true }).click();
