@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const retired = (path: string) => /^\/images\/(silos|grains|traders)\//.test(path) || path.startsWith("/screenshots/");
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   let path = request.nextUrl.pathname;
   if (path === "/_next/image") {
     const source = request.nextUrl.searchParams.get("url");

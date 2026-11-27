@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useGame } from "@/context/GameContext";
 import { CargoIcon } from "@/components/Icons";
 import { ports } from "@/data";
@@ -22,15 +22,25 @@ export default function UnloadingPanel() {
     );
   }, [ship, port, getAvailableUnloading, getAvailableSiloSpace]);
 
-  const [amount, setAmount] = useState(0);
-
-  useEffect(() => {
-    setAmount((prev) => {
-      if (maxUnloadable <= 0) return 0;
-      if (prev <= 0 || prev > maxUnloadable) return maxUnloadable;
-      return prev;
+  const clampAmount = (prev: number, max: number) => {
+    if (max <= 0) return 0;
+    if (prev <= 0 || prev > max) return max;
+    return prev;
+  };
+  const [trackedAmount, setTrackedAmount] = useState(() => ({
+    max: maxUnloadable,
+    amount: clampAmount(0, maxUnloadable),
+  }));
+  if (trackedAmount.max !== maxUnloadable) {
+    setTrackedAmount({
+      max: maxUnloadable,
+      amount: clampAmount(trackedAmount.amount, maxUnloadable),
     });
-  }, [maxUnloadable]);
+  }
+  const amount = trackedAmount.max === maxUnloadable
+    ? trackedAmount.amount
+    : clampAmount(trackedAmount.amount, maxUnloadable);
+  const setAmount = (value: number) => setTrackedAmount((current) => ({ ...current, amount: value }));
 
   if (!ship || !port) {
     return (

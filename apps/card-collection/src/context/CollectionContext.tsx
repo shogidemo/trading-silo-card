@@ -161,8 +161,10 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<CollectionState>(initialState);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // localStorageから読み込み（マイグレーション対応）
+  // localStorageから読み込み（マイグレーション対応）。
+  // サーバ描画時には読めないため、初期化前の空状態を保存で上書きしない。
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- マウント後に保存済み収集状況を復元する */
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -179,6 +181,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsInitialized(true);
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   // localStorageに保存
