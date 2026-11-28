@@ -27,7 +27,10 @@ function QuizPageContent({ onRestart }: { onRestart: () => void }) {
   const searchParams = useSearchParams();
   // 親providerが既存localStorageを読み込む初回effectを待ってから入口を判定する。
   const [collectionReady, setCollectionReady] = useState(false);
-  useEffect(() => setCollectionReady(true), []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 子effectは親の復元effectの後に走る
+    setCollectionReady(true);
+  }, []);
   const uiKey = `quiz:${searchParams.toString()}:`;
   const restoreQuiz = !searchParams.toString() || isHistoryNavigation();
   const [quizState, setQuizState] = useTransientState<QuizState>(uiKey + "quizState", "select", restoreQuiz);

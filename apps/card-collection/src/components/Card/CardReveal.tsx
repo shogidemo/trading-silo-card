@@ -131,12 +131,12 @@ export default function CardReveal({ card, onClose }: CardRevealProps) {
     return null;
   };
 
-  // パーティクル配列生成
-  const particles = Array.from({ length: 20 }, (_, i) => ({
+  // 出現時に一度だけ決める。再描画のたびに粒の位置が変わらないようにする。
+  const [particles] = useState(() => Array.from({ length: 20 }, (_, i) => ({
     id: i,
     delay: Math.random() * 0.5,
     x: (Math.random() - 0.5) * 200
-  }));
+  })));
 
   const renderImageAttribution = () => {
     if (isFlipped) {

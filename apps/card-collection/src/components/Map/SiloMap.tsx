@@ -138,20 +138,23 @@ function Background({ basemap, retryVersion, onError }: { basemap: "map" | "phot
 }
 
 export default function SiloMap(props: SiloMapProps) {
-  const [tileFailed, setTileFailed] = useState(false);
+  const [tileFailure, setTileFailure] = useState({ basemap: props.basemap, failed: false });
+  if (tileFailure.basemap !== props.basemap) {
+    setTileFailure({ basemap: props.basemap, failed: false });
+  }
+  const tileFailed = tileFailure.basemap === props.basemap ? tileFailure.failed : false;
   const [retryVersion, setRetryVersion] = useState(0);
-  useEffect(() => setTileFailed(false), [props.basemap]);
   return <div className="silo-map-surface h-full relative" data-testid="silo-map">
     <MapContainer bounds={JAPAN_BOUNDS} boundsOptions={{ padding: [24, 24] }}
       minZoom={4} maxZoom={18} scrollWheelZoom={false} className="h-full w-full">
-      <Background basemap={props.basemap} retryVersion={retryVersion} onError={() => setTileFailed(true)} />
+      <Background basemap={props.basemap} retryVersion={retryVersion} onError={() => setTileFailure({ basemap: props.basemap, failed: true })} />
       <ScaleControl position="bottomleft" imperial={false} />
       <Facilities {...props} />
     </MapContainer>
     {tileFailed && <div role="status" className="silo-map-notice">
       <span>背景画像の読み込みに失敗しました。表示できない部分があります。施設一覧から所在地を確認できます。</span>
       {props.basemap === "photo" && <button type="button" onClick={props.onReturnToMap}>地図に戻る</button>}
-      <button type="button" onClick={() => { setTileFailed(false); setRetryVersion((value) => value + 1); }}>再読み込み</button>
+      <button type="button" onClick={() => { setTileFailure({ basemap: props.basemap, failed: false }); setRetryVersion((value) => value + 1); }}>再読み込み</button>
     </div>}
   </div>;
 }

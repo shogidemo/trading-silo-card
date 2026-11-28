@@ -3,7 +3,7 @@
 import { useEffect, useRef, useCallback, RefObject } from "react";
 
 interface UseModalAccessibilityReturn {
-  modalRef: RefObject<HTMLDivElement>;
+  modalRef: RefObject<HTMLDivElement | null>;
   handleKeyDown: (e: React.KeyboardEvent) => void;
 }
 
